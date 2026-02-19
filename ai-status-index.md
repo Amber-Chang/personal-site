@@ -4,6 +4,15 @@
 > **寫入規則**：每個工具只更新自己的區塊，禁止修改其他工具的區塊。
 > **讀取時機**：每個工具啟動時讀取，了解對方的狀態，避免撞車。
 
+## Branch 分工
+
+| 工具 | Branch | 說明 |
+|------|--------|------|
+| **Claude** | `main` | 規格、文件、架構決策 |
+| **Codex** | `codex/phase1` | 程式碼實作 |
+
+> Codex 完成所有 Task 後，開 PR 將 `codex/phase1` merge 回 `main`。
+
 ---
 
 ## Claude
@@ -29,6 +38,9 @@
 ---
 
 ## Codex 啟動指引
+
+**⚠️ Codex 必須在 `codex/phase1` branch 上工作。**
+切換方式：`git checkout codex/phase1`
 
 Codex 每次啟動時，依序讀取：
 
