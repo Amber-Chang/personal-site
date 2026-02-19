@@ -1,0 +1,10 @@
+{
+  "skills": {
+    "paths": ["~/.pm-skills", ".claude/skills"],
+    "autoLoad": true
+  },
+  "project": {
+    "name": "Amber Personal Site",
+    "description": "Personal portfolio and blog — PM who builds with AI"
+  }
+}
