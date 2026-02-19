@@ -5,7 +5,7 @@
 | 里程碑 | 狀態 |
 |--------|------|
 | 專案結構建立 | ✅ 完成 |
-| GitHub repo 建立 | ⬜ 待完成 |
+| GitHub repo 建立 | ✅ 完成 |
 | Next.js 初始化 | ⬜ 待完成 |
 | Notion API 串接 | ⬜ 待完成 |
 | 首頁 + 個人簡介 | ⬜ 待完成 |
@@ -15,7 +15,6 @@
 
 ## §2 未完成事項
 
-- [ ] 在 GitHub 建立 public repo
 - [ ] 初始化 Next.js 專案（`npx create-next-app@latest`）
 - [ ] 設定 Tailwind CSS + shadcn/ui
 - [ ] 串接 Notion API（需要 Notion Integration Token 和 Database ID）
@@ -47,6 +46,12 @@
 - 完成專案定位、技術選型、工具分工的規劃討論
 - 建立 `.claude/` 初始結構，包含 CLAUDE.md 和四個 agent 定義
 - 確認上線計畫：Phase 1 兩週內上線最小可展示版本
+
+### Session 2（2026-02-19）
+- 建立 CLAUDE.md 半自動進化機制（v1.0.1 → v1.0.2）
+- 將四個 agent 改為對話模式，加入角色切換協議
+- 完成 PRD 草稿（`.context/requirements/PRD-personal-site-phase1.md`），三個 [OPEN] 問題待補
+- 確認 Newsletter 不做（目標是求職而非建立受眾）
 
 ## §6 技術環境
 
