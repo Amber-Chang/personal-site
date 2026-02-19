@@ -38,6 +38,7 @@
 | 首頁定位文案 | 「我是 Amber，一個正在學著用 AI 槓桿出更大效益、朝 builder 之路邁進的 PM。」 | 強調 AI 放大能力，謙遜真實 |
 | /about 敘事方式 | 第一人稱故事，不用條列 | 從好奇心 → 學習平台 → 現在的 PM 工作 → 觀點 |
 | 第一篇文章方向 | 用 AI 爬透三套耦合的會員系統 | 從痛點切入，文末不加自我介紹 |
+| 實作計畫策略 | 11 個 Task 分四階段執行 | A 初始化 → B Notion → C 頁面 → D 上線 |
 
 ## §4 一致性提醒
 
@@ -62,6 +63,8 @@
 - 在全域和專案 CLAUDE.md 加入繁體中文強制規則
 - 補完 PRD 三個 [OPEN] 問題：首頁定位文案、/about 敘事方向、第一篇文章題目
 - 確認 Amber 的個人品牌定位：PM 出身，用 AI 槓桿放大能力，朝 builder 之路
+- TPM spec 產出（`.context/specs/TPM-phase1.md`）：任務拆解 11 個 task、風險評估、給 Architect 的問題
+- 實作計畫產出（`docs/plans/2026-02-20-phase1-personal-site.md`）：Codex 可直接執行
 
 ## §6 技術環境
 
