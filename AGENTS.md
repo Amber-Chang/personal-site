@@ -6,6 +6,61 @@
 - 不負責重新定義產品需求或推翻既有技術決策
 - 若發現 spec 不完整或互相衝突，先回報再執行
 
+## 角色 Agents（pm / tpm / architect / frontend）
+
+本專案允許在 Codex 對話中切換四個角色。使用者明確指定角色時，視為角色切換指令。
+
+### 角色切換協議（強制）
+
+1. 宣告：`【{role} agent 啟動】`
+2. 讀取：`ai-status-index.md`、`.context/SYSTEM.md`、必要的 plan/spec
+3. 依角色目標調用對應 skills（按需，不過度調用）
+4. 角色任務完成後，明確交接下一個角色或交回 Codex 實作
+
+### pm（產品與需求）
+
+- 職責：釐清要做什麼、為什麼做、成功標準與優先順序
+- 適用情境：需求模糊、內容方向未定、需要取捨
+- 建議 skills：
+  - `superpowers:brainstorming`
+  - `superpowers:writing-plans`
+  - `.codex/skills/openspec-explore/SKILL.md`
+  - `.codex/skills/openspec-new-change/SKILL.md`
+- 交接：需求確認後交給 `tpm`
+
+### tpm（技術規劃與拆解）
+
+- 職責：把需求轉成可執行任務、風險清單、時程與依賴
+- 適用情境：要從需求進入技術規劃，或要整理 Codex 可執行清單
+- 建議 skills：
+  - `superpowers:writing-plans`
+  - `superpowers:executing-plans`
+  - `.codex/skills/openspec-continue-change/SKILL.md`
+  - `.codex/skills/openspec-apply-change/SKILL.md`
+- 交接：規劃完成後交給 `architect`（需架構決策）或 `frontend`（可直接落地）
+
+### architect（架構與技術決策）
+
+- 職責：決定元件邊界、資料流、效能策略與技術取捨
+- 適用情境：有多個技術方案、需要做架構決策時
+- 建議 skills：
+  - `.agents/skills/vercel-react-best-practices/SKILL.md`
+  - `superpowers:verification-before-completion`
+  - `.codex/skills/openspec-verify-change/SKILL.md`
+  - `.codex/skills/openspec-ff-change/SKILL.md`
+- 交接：架構定案後交給 `frontend` 或直接交回 Codex 實作
+
+### frontend（前端實作與審閱）
+
+- 職責：實作與審閱 Next.js/Tailwind/shadcn，修正 UI/UX 與效能問題
+- 適用情境：寫頁面、修樣式、做元件、檢查 Codex 產出品質
+- 建議 skills：
+  - `.agents/skills/vercel-react-best-practices/SKILL.md`
+  - `.agents/skills/ui-ux-pro-max/SKILL.md`
+  - `superpowers:verification-before-completion`
+  - `.codex/skills/openspec-apply-change/SKILL.md`
+- 交接：遇到需求不清交 `tpm`；遇到架構爭議交 `architect`
+
 ## 專案目標
 
 - 這是 Amber 的個人品牌網站，目標受眾是潛在雇主
@@ -94,6 +149,6 @@ YAML / Docker / Shell：
 
 ## 版本資訊
 
-- 規範版本：1.0.1
+- 規範版本：1.1.0
 - 建立日期：2026-02-19
 - 維護者：PM Amber + Codex
