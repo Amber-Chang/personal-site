@@ -53,14 +53,22 @@ npm run dev
 ## 專案結構
 
 ```
-.claude/          Claude Code 設定、agent 團隊定義、session 記錄
-.context/         專案需求文件（PRD）和技術規格（specs）
-content/posts/    Markdown 文章
-docs/plans/       實作計畫（Codex 執行用）
-public/images/    靜態圖片
+# 網站程式碼
 src/app/          Next.js App Router 頁面
 src/components/   React 元件
 src/lib/          工具函式（posts.ts 等）
+content/posts/    Markdown 文章
+public/images/    靜態圖片
+
+# AI 協作文件
+.claude/          Claude Code 設定、session 記錄
+.codex/           Codex prompts 和 skills
+.agents/          Agent skills
+.context/         專案需求文件（PRD）和技術規格（specs）
+docs/plans/       實作計畫（Codex 執行用）
+openspec/         OpenSpec 規格管理
+AGENTS.md         Codex agent 規範
+ai-status-index.md  Claude / Codex 協作狀態索引
 ```
 
 ## 開發方式
