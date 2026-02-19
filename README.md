@@ -66,7 +66,6 @@ public/images/    靜態圖片
 .agents/          Agent skills
 .context/         專案需求文件（PRD）和技術規格（specs）
 docs/plans/       實作計畫（Codex 執行用）
-openspec/         OpenSpec 規格管理
 AGENTS.md         Codex agent 規範
 ai-status-index.md  Claude / Codex 協作狀態索引
 ```
