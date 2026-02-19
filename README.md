@@ -6,7 +6,7 @@
 
 ## 技術棧
 
-- **框架**：Next.js 15（App Router）
+- **框架**：Next.js 16（App Router）
 - **樣式**：Tailwind CSS + shadcn/ui
 - **內容**：Markdown 檔案（`content/posts/`）+ Obsidian 寫作
 - **部署**：Vercel
@@ -66,7 +66,9 @@ src/lib/          工具函式（posts.ts 等）
 ## 開發方式
 
 本專案採用 Claude Code + Codex 混合開發：
-- **Claude Code**：架構設計、技術決策、產出 spec 和實作計畫
-- **Codex**：照著 `docs/plans/` 的計畫實作程式碼
+- **Claude Code**：架構設計、技術決策、產出 spec 和實作計畫（在 `main` branch）
+- **Codex**：照著 `docs/plans/` 的計畫實作程式碼（在 `codex/phase1` branch）
+
+Codex 完成所有 Task 後，開 PR 將 `codex/phase1` merge 回 `main`。
 
 所有 AI 協作的程式碼標記 `[AI-ASSISTED]`，commit message 加上 `[AI-DEV]` 前綴。
