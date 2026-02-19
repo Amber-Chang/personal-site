@@ -20,6 +20,7 @@
 - [ ] 串接 Notion API（需要 Notion Integration Token 和 Database ID）
 - [ ] 建立首頁元件
 - [ ] 建立文章列表頁和文章頁
+- [ ] 撰寫第一篇文章（用 AI 爬透三套耦合的會員系統）
 - [ ] 部署到 Vercel
 - [ ] 設定自訂網域
 
@@ -34,6 +35,9 @@
 | 設計系統 | Tailwind + shadcn/ui | 不需從零設計 |
 | 開發工具 | Claude Code + Codex 混合 | Claude Code 負責架構，Codex 負責實作 |
 | Agent 分工 | PM → TPM → Architect → Frontend | 補強技術背景薄弱的不足 |
+| 首頁定位文案 | 「我是 Amber，一個正在學著用 AI 槓桿出更大效益、朝 builder 之路邁進的 PM。」 | 強調 AI 放大能力，謙遜真實 |
+| /about 敘事方式 | 第一人稱故事，不用條列 | 從好奇心 → 學習平台 → 現在的 PM 工作 → 觀點 |
+| 第一篇文章方向 | 用 AI 爬透三套耦合的會員系統 | 從痛點切入，文末不加自我介紹 |
 
 ## §4 一致性提醒
 
@@ -52,6 +56,12 @@
 - 將四個 agent 改為對話模式，加入角色切換協議
 - 完成 PRD 草稿（`.context/requirements/PRD-personal-site-phase1.md`），三個 [OPEN] 問題待補
 - 確認 Newsletter 不做（目標是求職而非建立受眾）
+
+### Session 3（2026-02-20）
+- 安裝 claude-hud plugin（context 使用量、agent 狀態即時顯示）
+- 在全域和專案 CLAUDE.md 加入繁體中文強制規則
+- 補完 PRD 三個 [OPEN] 問題：首頁定位文案、/about 敘事方向、第一篇文章題目
+- 確認 Amber 的個人品牌定位：PM 出身，用 AI 槓桿放大能力，朝 builder 之路
 
 ## §6 技術環境
 
