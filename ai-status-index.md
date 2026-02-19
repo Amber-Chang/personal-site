@@ -1,0 +1,42 @@
+# AI Status Index
+
+> **用途**：Claude 和 Codex 的共用狀態索引。
+> **寫入規則**：每個工具只更新自己的區塊，禁止修改其他工具的區塊。
+> **讀取時機**：每個工具啟動時讀取，了解對方的狀態，避免撞車。
+
+---
+
+## Claude
+
+| 欄位 | 值 |
+|------|-----|
+| **最後更新** | 2026-02-20 |
+| **當前任務摘要** | 規劃完成。PRD 確認、架構決策（Obsidian + git sync）、TPM spec、實作計畫（13 個 Task）全部產出。等待 Codex 執行 Task 1。 |
+| **工作目錄** | `.claude/`, `.context/`, `docs/plans/` |
+| **狀態詳情** | `.claude/session-summary.md` |
+
+---
+
+## Codex
+
+| 欄位 | 值 |
+|------|-----|
+| **最後更新** | - |
+| **當前任務摘要** | 尚未開始。請讀取實作計畫後從 Task 1 開始執行。 |
+| **工作目錄** | - |
+| **狀態詳情** | `docs/plans/2026-02-20-phase1-personal-site.md` |
+
+---
+
+## Codex 啟動指引
+
+Codex 每次啟動時，依序讀取：
+
+1. `ai-status-index.md`（本檔案）：了解目前進度
+2. `docs/plans/2026-02-20-phase1-personal-site.md`：實作計畫，從上次未完成的 Task 繼續
+3. `.context/specs/TPM-phase1.md`：技術規範和給 Codex 的執行備註
+
+完成每個 Task 後，更新本檔案的 Codex 區塊：
+- **最後更新**：日期
+- **當前任務摘要**：完成了哪些 Task，下一步是什麼
+- **工作目錄**：這次動了哪些目錄

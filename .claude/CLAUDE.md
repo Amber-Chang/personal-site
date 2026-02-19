@@ -32,6 +32,7 @@
 |---------|---------|
 | 專案定位、技術選型 | `.context/SYSTEM.md` |
 | 目前工作狀態 | `.claude/session-summary.md` |
+| Codex 目前做到哪 | `ai-status-index.md` |
 
 ## Agent 團隊
 
@@ -47,12 +48,14 @@
 ## 強制規則
 
 1. **啟動時**：讀 `.claude/session-summary.md`（重點看 §2 未完成事項）
-2. **開發前**：必讀 `.context/SYSTEM.md` 了解專案定位和技術選型
-3. **產出 spec 後**：確認內容清楚到 Codex 可以直接執行
-4. **結束時**：更新 `.claude/session-summary.md`
-5. **結束時**：更新 `README.md`，確保反映最新技術架構和專案狀態
-6. **CLAUDE.md 進化**：對話中若發現新的偏好、規則或流程，**不需要等使用者提醒，主動在當下提出進化建議**（固定格式），使用者確認後寫入並更新版本號
-7. **Agent skill 觸發**：切換 agent 角色時，必須 invoke 該 agent 的所有啟動 skill，不可跳過
+2. **啟動時**：讀 `ai-status-index.md`，了解 Codex 目前做到哪
+3. **開發前**：必讀 `.context/SYSTEM.md` 了解專案定位和技術選型
+4. **產出 spec 後**：確認內容清楚到 Codex 可以直接執行
+5. **結束時**：更新 `.claude/session-summary.md`
+6. **結束時**：更新 `ai-status-index.md` 的 Claude 區塊
+7. **結束時**：更新 `README.md`，確保反映最新技術架構和專案狀態
+8. **CLAUDE.md 進化**：對話中若發現新的偏好、規則或流程，**不需要等使用者提醒，主動在當下提出進化建議**（固定格式），使用者確認後寫入並更新版本號
+9. **Agent skill 觸發**：切換 agent 角色時，必須 invoke 該 agent 的所有啟動 skill，不可跳過
 
 ## 模式
 
@@ -61,7 +64,7 @@
 
 ## 版本資訊
 
-- 規範版本：1.0.3
+- 規範版本：1.0.4
 - 建立日期：2026-02-19
 - 維護者：PM Amber
 
@@ -73,3 +76,4 @@
 | 1.0.1 | 2026-02-19 | 加入 CLAUDE.md 半自動進化機制（強制規則 §5 + 版本歷史） |
 | 1.0.2 | 2026-02-19 | 新增強制規則 §6：agent 切換時必須 invoke 所有啟動 skill |
 | 1.0.3 | 2026-02-20 | 新增強制規則 §5 結束時更新 README.md；強化 §6 進化機制為主動觸發 |
+| 1.0.4 | 2026-02-20 | 加入 ai-status-index.md 協作機制（啟動時讀、結束時更新） |
