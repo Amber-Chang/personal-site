@@ -4,14 +4,9 @@
 
 **Goal:** 建立個人品牌網站 Phase 1，包含首頁、/about、/blog、/blog/[slug]，並上線第一篇文章。
 
-**Architecture:** Next.js 15 App Router + Tailwind CSS + shadcn/ui，文章內容從 Notion API 抓取，ISR 策略更新頁面，部署在 Vercel。
+**Architecture:** Next.js 15 App Router + Tailwind CSS + shadcn/ui，文章以 Markdown 檔案存在 `content/posts/`，用 gray-matter 讀取，SSG 靜態生成，部署在 Vercel。
 
-**Tech Stack:** Next.js 15, TypeScript, Tailwind CSS, shadcn/ui, @notionhq/client, notion-to-md, Vercel
-
----
-
-> ⚠️ **執行前提**：Notion Integration Token 和 Database ID 必須已取得，
-> 否則 Task 4 以後的 Notion 相關任務無法執行。
+**Tech Stack:** Next.js 15, TypeScript, Tailwind CSS, shadcn/ui, gray-matter, react-markdown, @tailwindcss/typography
 
 ---
 
@@ -19,6 +14,7 @@
 
 **Files:**
 - Create: `（整個專案根目錄）`
+- Create: `.nvmrc`
 
 **Step 1: 執行初始化指令**
 
@@ -26,12 +22,13 @@
 npx create-next-app@latest . --typescript --tailwind --eslint --app --src-dir --import-alias "@/*"
 ```
 
-選項說明：
-- `--app`：使用 App Router
-- `--src-dir`：程式碼放在 `src/` 目錄下
-- `--typescript`：使用 TypeScript
+**Step 2: 建立 .nvmrc 固定 Node.js 版本**
 
-**Step 2: 確認專案結構**
+```bash
+echo "20" > .nvmrc
+```
+
+**Step 3: 確認專案結構**
 
 ```bash
 ls src/app/
@@ -39,7 +36,7 @@ ls src/app/
 
 預期看到：`globals.css  layout.tsx  page.tsx`
 
-**Step 3: 啟動開發伺服器確認正常**
+**Step 4: 啟動開發伺服器確認正常**
 
 ```bash
 npm run dev
@@ -47,7 +44,7 @@ npm run dev
 
 預期：瀏覽器開啟 http://localhost:3000 看到 Next.js 預設頁面
 
-**Step 4: Commit**
+**Step 5: Commit**
 
 ```bash
 git add -A
@@ -60,7 +57,7 @@ git commit -m "[AI-DEV] chore: 初始化 Next.js 15 專案"
 
 **Files:**
 - Create: `components.json`
-- Create: `src/components/ui/`（shadcn 元件會放這裡）
+- Create: `src/components/ui/`
 
 **Step 1: 初始化 shadcn/ui**
 
@@ -93,129 +90,125 @@ git commit -m "[AI-DEV] chore: 安裝 shadcn/ui 基礎元件"
 
 ---
 
-### Task 3：安裝 Notion 套件並設定環境變數
+### Task 3：安裝套件並建立 content 目錄結構
 
 **Files:**
-- Create: `.env.local`（不 commit）
-- Create: `src/lib/notion.ts`
+- Install: `gray-matter`, `react-markdown`, `@tailwindcss/typography`
+- Create: `content/posts/.gitkeep`
+- Create: `public/images/posts/.gitkeep`
 
 **Step 1: 安裝套件**
 
 ```bash
-npm install @notionhq/client notion-to-md
+npm install gray-matter react-markdown
+npm install -D @tailwindcss/typography
 ```
 
-**Step 2: 建立 .env.local**
+**Step 2: 在 tailwind.config.ts 加入 typography plugin**
 
-```bash
-# .env.local
-NOTION_TOKEN=your_integration_token_here
-NOTION_DATABASE_ID=your_database_id_here
-```
-
-**Step 3: 確認 .gitignore 有包含 .env.local**
-
-```bash
-grep ".env.local" .gitignore
-```
-
-預期輸出：`.env.local`（如果沒有就手動加入）
-
-**Step 4: 建立 Notion 工具函式 `src/lib/notion.ts`**
+找到 `tailwind.config.ts`，在 plugins 陣列加入：
 
 ```typescript
-// [AI-ASSISTED] Generated with Codex
-// 功能：Notion API 工具函式，提供抓取文章列表和單篇文章的方法
-
-import { Client } from "@notionhq/client";
-import { NotionToMarkdown } from "notion-to-md";
-
-const notion = new Client({ auth: process.env.NOTION_TOKEN });
-const n2m = new NotionToMarkdown({ notionClient: notion });
-
-export async function getPublishedPosts() {
-  const response = await notion.databases.query({
-    database_id: process.env.NOTION_DATABASE_ID!,
-    filter: {
-      property: "Status",
-      select: { equals: "Published" },
-    },
-    sorts: [{ property: "Date", direction: "descending" }],
-  });
-  return response.results;
-}
-
-export async function getPostBySlug(slug: string) {
-  const response = await notion.databases.query({
-    database_id: process.env.NOTION_DATABASE_ID!,
-    filter: {
-      property: "Slug",
-      rich_text: { equals: slug },
-    },
-  });
-  if (!response.results[0]) return null;
-  const page = response.results[0];
-  const mdBlocks = await n2m.pageToMarkdown(page.id);
-  const markdown = n2m.toMarkdownString(mdBlocks);
-  return { page, markdown: markdown.parent };
-}
-
-export async function getFeaturedPosts() {
-  const response = await notion.databases.query({
-    database_id: process.env.NOTION_DATABASE_ID!,
-    filter: {
-      and: [
-        { property: "Status", select: { equals: "Published" } },
-        { property: "Featured", checkbox: { equals: true } },
-      ],
-    },
-    sorts: [{ property: "Date", direction: "descending" }],
-  });
-  return response.results;
-}
+plugins: [require("@tailwindcss/typography")]
 ```
 
-**Step 5: Commit**
+**Step 3: 建立 content 目錄結構**
 
 ```bash
-git add src/lib/notion.ts package.json package-lock.json
-git commit -m "[AI-DEV] chore: 安裝 Notion 套件，建立 API 工具函式"
+mkdir -p content/posts
+mkdir -p public/images/posts
+touch content/posts/.gitkeep
+touch public/images/posts/.gitkeep
+```
+
+**Step 4: Commit**
+
+```bash
+git add -A
+git commit -m "[AI-DEV] chore: 安裝 gray-matter、react-markdown，建立 content 目錄"
 ```
 
 ---
 
-### Task 4：建立 Notion Database
+### Task 4：建立文章工具函式
 
-> ⚠️ 這個 Task 在 Notion 介面操作，不是寫程式碼。
+**Files:**
+- Create: `src/lib/posts.ts`
+- Create: `content/posts/test-post.md`（測試用，完成後刪除）
 
-**Step 1: 建立 Notion Integration**
-1. 前往 https://www.notion.so/my-integrations
-2. 點「New integration」
-3. 名稱填「Personal Site」
-4. 複製 Internal Integration Token → 填入 `.env.local` 的 `NOTION_TOKEN`
+**Step 1: 建立 `src/lib/posts.ts`**
 
-**Step 2: 建立 Notion Database**
+```typescript
+// [AI-ASSISTED] Generated with Codex
+// 功能：讀取 content/posts/ 目錄的 Markdown 文章，提供列表和單篇文章的查詢函式
 
-在 Notion 建立新的 Full Page Database，加入以下欄位：
+import fs from "fs";
+import path from "path";
+import matter from "gray-matter";
 
-| 欄位名稱 | 類型 | 說明 |
-|---------|------|------|
-| Title | Title | 文章標題（預設欄位） |
-| Status | Select | 選項：Draft, Published |
-| Date | Date | 發布日期 |
-| Slug | Text | 網址用（例如：ai-membership-system） |
-| Tags | Multi-select | 文章標籤 |
-| Featured | Checkbox | 是否顯示在首頁精選 |
+const postsDirectory = path.join(process.cwd(), "content/posts");
 
-**Step 3: 連結 Integration 到 Database**
-1. 在 Database 頁面點右上角「...」
-2. 點「Add connections」
-3. 選「Personal Site」Integration
+export type PostMeta = {
+  title: string;
+  date: string;
+  slug: string;
+  tags?: string[];
+  featured?: boolean;
+};
 
-**Step 4: 取得 Database ID**
-- Database 頁面的 URL 格式：`https://www.notion.so/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx?v=...`
-- `?v=` 前面那段 32 字元就是 Database ID
-- 填入 `.env.local` 的 `NOTION_DATABASE_ID`
+export type Post = PostMeta & {
+  content: string;
+};
+
+export function getPublishedPosts(): PostMeta[] {
+  const fileNames = fs.readdirSync(postsDirectory);
+  return fileNames
+    .filter((name) => name.endsWith(".md"))
+    .map((fileName) => {
+      const slug = fileName.replace(/\.md$/, "");
+      const fullPath = path.join(postsDirectory, fileName);
+      const fileContents = fs.readFileSync(fullPath, "utf8");
+      const { data } = matter(fileContents);
+      return { ...data, slug } as PostMeta;
+    })
+    .sort((a, b) => (a.date < b.date ? 1 : -1));
+}
+
+export function getFeaturedPosts(): PostMeta[] {
+  return getPublishedPosts().filter((post) => post.featured);
+}
+
+export function getPostBySlug(slug: string): Post | null {
+  try {
+    const fullPath = path.join(postsDirectory, `${slug}.md`);
+    const fileContents = fs.readFileSync(fullPath, "utf8");
+    const { data, content } = matter(fileContents);
+    return { ...data, slug, content } as Post;
+  } catch {
+    return null;
+  }
+}
+```
+
+**Step 2: 建立測試文章 `content/posts/test-post.md`**
+
+```markdown
+---
+title: "測試文章"
+date: "2026-02-20"
+slug: "test-post"
+featured: true
+---
+
+這是一篇測試文章，確認文章讀取功能正常。
+```
+
+**Step 3: Commit**
+
+```bash
+git add src/lib/posts.ts content/posts/test-post.md
+git commit -m "[AI-DEV] feat: 建立文章讀取工具函式"
+```
 
 ---
 
@@ -226,11 +219,11 @@ git commit -m "[AI-DEV] chore: 安裝 Notion 套件，建立 API 工具函式"
 - Create: `src/components/Header.tsx`
 - Create: `src/components/Footer.tsx`
 
-**Step 1: 建立 Header 元件 `src/components/Header.tsx`**
+**Step 1: 建立 `src/components/Header.tsx`**
 
 ```typescript
 // [AI-ASSISTED] Generated with Codex
-// 功能：全站導覽列，包含 Logo 和導覽連結
+// 功能：全站導覽列，包含名字和導覽連結
 
 import Link from "next/link";
 
@@ -251,7 +244,7 @@ export function Header() {
 }
 ```
 
-**Step 2: 建立 Footer 元件 `src/components/Footer.tsx`**
+**Step 2: 建立 `src/components/Footer.tsx`**
 
 ```typescript
 // [AI-ASSISTED] Generated with Codex
@@ -311,7 +304,42 @@ git commit -m "[AI-DEV] feat: 建立全域 Layout、Header、Footer"
 
 ---
 
-### Task 6：建立首頁 `/`
+### Task 6：建立 PostCard 元件
+
+**Files:**
+- Create: `src/components/PostCard.tsx`
+
+**Step 1: 建立 `src/components/PostCard.tsx`**
+
+```typescript
+// [AI-ASSISTED] Generated with Codex
+// 功能：文章卡片，顯示文章標題和日期，點擊進入文章頁
+
+import Link from "next/link";
+import { PostMeta } from "@/lib/posts";
+
+export function PostCard({ post }: { post: PostMeta }) {
+  return (
+    <Link href={`/blog/${post.slug}`} className="block group">
+      <div className="flex justify-between items-baseline">
+        <span className="group-hover:underline">{post.title}</span>
+        <span className="text-sm text-muted-foreground">{post.date}</span>
+      </div>
+    </Link>
+  );
+}
+```
+
+**Step 2: Commit**
+
+```bash
+git add src/components/PostCard.tsx
+git commit -m "[AI-DEV] feat: 建立 PostCard 元件"
+```
+
+---
+
+### Task 7：建立首頁 `/`
 
 **Files:**
 - Modify: `src/app/page.tsx`
@@ -323,11 +351,11 @@ git commit -m "[AI-DEV] feat: 建立全域 Layout、Header、Footer"
 // 功能：首頁，顯示個人定位、精選文章、聯絡 CTA
 
 import Link from "next/link";
-import { getFeaturedPosts } from "@/lib/notion";
+import { getFeaturedPosts } from "@/lib/posts";
 import { PostCard } from "@/components/PostCard";
 
-export default async function HomePage() {
-  const posts = await getFeaturedPosts();
+export default function HomePage() {
+  const posts = getFeaturedPosts();
 
   return (
     <div className="space-y-16">
@@ -345,8 +373,8 @@ export default async function HomePage() {
       <section>
         <h2 className="text-sm font-medium text-muted-foreground mb-6">精選文章</h2>
         <div className="space-y-4">
-          {posts.map((post: any) => (
-            <PostCard key={post.id} post={post} />
+          {posts.map((post) => (
+            <PostCard key={post.slug} post={post} />
           ))}
         </div>
         <Link href="/blog" className="mt-8 inline-block text-sm underline">
@@ -366,40 +394,16 @@ export default async function HomePage() {
 }
 ```
 
-**Step 2: 建立 PostCard 元件 `src/components/PostCard.tsx`**
-
-```typescript
-// [AI-ASSISTED] Generated with Codex
-// 功能：文章卡片，顯示文章標題和日期
-
-import Link from "next/link";
-
-export function PostCard({ post }: { post: any }) {
-  const title = post.properties.Title?.title?.[0]?.plain_text ?? "無標題";
-  const slug = post.properties.Slug?.rich_text?.[0]?.plain_text ?? "";
-  const date = post.properties.Date?.date?.start ?? "";
-
-  return (
-    <Link href={`/blog/${slug}`} className="block group">
-      <div className="flex justify-between items-baseline">
-        <span className="group-hover:underline">{title}</span>
-        <span className="text-sm text-muted-foreground">{date}</span>
-      </div>
-    </Link>
-  );
-}
-```
-
-**Step 3: Commit**
+**Step 2: Commit**
 
 ```bash
-git add src/
-git commit -m "[AI-DEV] feat: 建立首頁和 PostCard 元件"
+git add src/app/page.tsx
+git commit -m "[AI-DEV] feat: 建立首頁"
 ```
 
 ---
 
-### Task 7：建立文章列表頁 `/blog`
+### Task 8：建立文章列表頁 `/blog`
 
 **Files:**
 - Create: `src/app/blog/page.tsx`
@@ -408,22 +412,20 @@ git commit -m "[AI-DEV] feat: 建立首頁和 PostCard 元件"
 
 ```typescript
 // [AI-ASSISTED] Generated with Codex
-// 功能：文章列表頁，顯示所有已發布文章
+// 功能：文章列表頁，顯示所有文章
 
-import { getPublishedPosts } from "@/lib/notion";
+import { getPublishedPosts } from "@/lib/posts";
 import { PostCard } from "@/components/PostCard";
 
-export const revalidate = 3600; // ISR：每小時重新生成
-
-export default async function BlogPage() {
-  const posts = await getPublishedPosts();
+export default function BlogPage() {
+  const posts = getPublishedPosts();
 
   return (
     <div>
       <h1 className="text-xl font-semibold mb-8">文章</h1>
       <div className="space-y-4">
-        {posts.map((post: any) => (
-          <PostCard key={post.id} post={post} />
+        {posts.map((post) => (
+          <PostCard key={post.slug} post={post} />
         ))}
       </div>
     </div>
@@ -440,98 +442,82 @@ git commit -m "[AI-DEV] feat: 建立文章列表頁"
 
 ---
 
-### Task 8：建立文章頁 `/blog/[slug]`
+### Task 9：建立文章頁 `/blog/[slug]`
 
 **Files:**
 - Create: `src/app/blog/[slug]/page.tsx`
-- Install: `npm install react-markdown`
 
-**Step 1: 安裝 markdown 渲染套件**
-
-```bash
-npm install react-markdown
-```
-
-**Step 2: 建立 `src/app/blog/[slug]/page.tsx`**
+**Step 1: 建立 `src/app/blog/[slug]/page.tsx`**
 
 ```typescript
 // [AI-ASSISTED] Generated with Codex
-// 功能：單篇文章頁，從 Notion 抓取內容並渲染 Markdown
+// 功能：單篇文章頁，讀取 Markdown 並渲染內容
 
-import { getPostBySlug, getPublishedPosts } from "@/lib/notion";
+import { getPostBySlug, getPublishedPosts } from "@/lib/posts";
 import ReactMarkdown from "react-markdown";
 import { notFound } from "next/navigation";
 
-export const revalidate = 3600;
-
-export async function generateStaticParams() {
-  const posts = await getPublishedPosts();
-  return posts.map((post: any) => ({
-    slug: post.properties.Slug?.rich_text?.[0]?.plain_text ?? "",
-  }));
+export function generateStaticParams() {
+  const posts = getPublishedPosts();
+  return posts.map((post) => ({ slug: post.slug }));
 }
 
-export default async function BlogPostPage({ params }: { params: { slug: string } }) {
-  const result = await getPostBySlug(params.slug);
-  if (!result) notFound();
-
-  const { page, markdown } = result;
-  const title = (page as any).properties.Title?.title?.[0]?.plain_text ?? "無標題";
-  const date = (page as any).properties.Date?.date?.start ?? "";
+export default function BlogPostPage({ params }: { params: { slug: string } }) {
+  const post = getPostBySlug(params.slug);
+  if (!post) notFound();
 
   return (
     <article>
       <header className="mb-8">
-        <h1 className="text-2xl font-semibold">{title}</h1>
-        <p className="text-sm text-muted-foreground mt-2">{date}</p>
+        <h1 className="text-2xl font-semibold">{post.title}</h1>
+        <p className="text-sm text-muted-foreground mt-2">{post.date}</p>
       </header>
       <div className="prose prose-neutral max-w-none">
-        <ReactMarkdown>{markdown}</ReactMarkdown>
+        <ReactMarkdown>{post.content}</ReactMarkdown>
       </div>
     </article>
   );
 }
 ```
 
-**Step 3: 安裝 Tailwind Typography（prose 樣式需要）**
+**Step 2: 刪除測試文章（確認功能正常後）**
 
 ```bash
-npm install -D @tailwindcss/typography
+rm content/posts/test-post.md
 ```
 
-在 `tailwind.config.ts` 的 plugins 加入：
-
-```typescript
-plugins: [require("@tailwindcss/typography")]
-```
-
-**Step 4: Commit**
+**Step 3: Commit**
 
 ```bash
-git add src/app/blog/[slug]/ package.json package-lock.json tailwind.config.ts
+git add src/app/blog/[slug]/
 git commit -m "[AI-DEV] feat: 建立文章頁，支援 Markdown 渲染"
 ```
 
 ---
 
-### Task 9：建立 `/about` 頁
+### Task 10：建立 `/about` 頁
 
 **Files:**
 - Create: `src/app/about/page.tsx`
 
 **Step 1: 建立 `src/app/about/page.tsx`**
 
-> 注意：/about 是靜態內容，由 Amber 撰寫後直接寫入程式碼，不需要 Notion。
-
 ```typescript
 // [AI-ASSISTED] Generated with Codex
-// 功能：關於我頁面，靜態內容，Amber 撰寫後填入
+// 功能：關於我頁面，靜態內容
 
 export default function AboutPage() {
   return (
     <article className="prose prose-neutral max-w-none">
       <h1>關於我</h1>
-      {/* Amber 在這裡填入 /about 內容，依照 PRD 敘事骨架 */}
+      {/* TODO: Amber 依照 PRD 敘事骨架填入內容：
+          1. 我是誰
+          2. 為什麼開始用 AI
+          3. 學習平台的經歷
+          4. 現在的 PM 工作
+          5. 我相信什麼
+          6. 聯絡 CTA
+      */}
       <p>（內容待補）</p>
     </article>
   );
@@ -547,61 +533,107 @@ git commit -m "[AI-DEV] feat: 建立 /about 頁面骨架"
 
 ---
 
-### Task 10：部署到 Vercel + 設定環境變數
+### Task 11：部署到 Vercel
 
 **Step 1: 連結 Vercel**
 
-```bash
-npx vercel --prod
-```
+在 vercel.com 介面連結 GitHub repo（推薦用介面操作，不用 CLI）：
+1. 登入 vercel.com
+2. 點「Add New Project」
+3. 選 GitHub repo：`Amber-Chang/personal-site`
+4. Framework Preset 選 Next.js
+5. 點 Deploy
 
-或在 vercel.com 介面連結 GitHub repo。
+**Step 2: 確認部署成功**
 
-**Step 2: 在 Vercel 設定環境變數**
-
-前往 Vercel 專案設定 → Environment Variables：
-- `NOTION_TOKEN`：填入 Integration Token
-- `NOTION_DATABASE_ID`：填入 Database ID
-
-**Step 3: 觸發重新部署確認正常**
-
-推送任何 commit 到 main branch，確認 Vercel build 成功。
+Vercel 會給一個 `.vercel.app` 的預覽網址，確認網站正常顯示。
 
 ---
 
-### Task 11：設定自訂網域
+### Task 12：設定 Obsidian 寫作環境
+
+> ⚠️ 這個 Task 是環境設定，不是寫程式碼。
+
+**Step 1: 安裝 Obsidian**
+
+前往 https://obsidian.md 下載安裝。
+
+**Step 2: 開啟 repo 作為 Obsidian Vault**
+
+Obsidian → Open folder as vault → 選擇專案根目錄（`personal-site/`）
+
+**Step 3: 安裝 Obsidian Git plugin**
+
+Settings → Community plugins → Browse → 搜尋「Obsidian Git」→ Install → Enable
+
+**Step 4: 設定 Obsidian Git**
+
+Settings → Obsidian Git：
+- Auto pull interval: `10`（分鐘）
+- Auto commit-and-sync interval: `5`（分鐘）
+- Commit message: `docs: 新增/更新文章 {{date}}`
+
+**Step 5: 測試：寫第一篇文章**
+
+在 Obsidian 的 `content/posts/` 目錄建立新檔案，格式如下：
+
+```markdown
+---
+title: "用 AI 爬透三套耦合的會員系統"
+date: "2026-02-20"
+slug: "ai-membership-system"
+tags: ["AI", "PM", "需求管理"]
+featured: true
+---
+
+我接手需求的時候，面對的是三套相互耦合的舊系統，沒有人能告訴我它們之間的關係。
+
+（文章內容繼續...）
+```
+
+等待 Obsidian Git 自動 commit + push，確認 Vercel 自動部署更新。
+
+---
+
+### Task 13：設定自訂網域
 
 **Step 1: 在 Vercel 新增網域**
 
-Vercel 專案設定 → Domains → 輸入網域名稱
+Vercel 專案設定 → Domains → 輸入你的網域名稱
 
 **Step 2: 在 Cloudflare 設定 DNS**
 
 新增 CNAME record：
 - Name: `@` 或 `www`
 - Target: `cname.vercel-dns.com`
-- Proxy: 關閉（灰色雲朵）
+- Proxy status: 關閉（灰色雲朵，不要開橘色）
 
 **Step 3: 等待 DNS 生效（約 5-10 分鐘）**
 
 ---
 
-## 執行順序建議
+## 執行順序
 
 ```
 Task 1（Next.js 初始化）
     ↓
 Task 2（shadcn/ui）
     ↓
-Task 3（Notion 套件）+ Task 4（Notion 設定，並行）
+Task 3（套件 + content 目錄）
+    ↓
+Task 4（文章工具函式）
     ↓
 Task 5（全域 Layout）
     ↓
-Task 6（首頁）+ Task 7（/blog）+ Task 9（/about）（可並行）
+Task 6（PostCard 元件）
     ↓
-Task 8（/blog/[slug]）
+Task 7（首頁）→ Task 8（/blog）→ Task 10（/about）  ← 可並行
     ↓
-Task 10（Vercel 部署）
+Task 9（/blog/[slug]）
     ↓
-Task 11（自訂網域）
+Task 11（Vercel 部署）
+    ↓
+Task 12（Obsidian 設定）
+    ↓
+Task 13（自訂網域）
 ```
