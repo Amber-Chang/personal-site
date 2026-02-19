@@ -44,8 +44,17 @@
 
 1. Codex 可使用「當前 session 可用」的 skills（由系統提供）
 2. 只有在使用者明確指定 skill，或任務明顯符合 skill 描述時才啟用
-3. 本 repo 目前沒有獨立的 Codex 專用 skill 目錄（例如 `./skills/`）
-4. `.claude/skills/` 屬於 Claude Code 流程資產，可參考其規範精神，但不視為 Codex 已自動引入
+3. 本專案已安裝 Codex 可用 skills，主要在 `.agents/skills/` 與 `.codex/skills/`
+4. `.claude/skills/` 是 Claude Code 使用路徑；其中部分會連到 `.agents/skills/`
+5. Codex 調用 skill 不是手動執行 shell 指令，而是依對話觸發規則自動載入流程（見下一節）
+
+## Skills 調用機制（開發時）
+
+1. 觸發條件 A：你在需求中明確點名 skill（例如：`請用 $ui-ux-pro-max`）
+2. 觸發條件 B：任務內容明顯對應某個已安裝 skill 的描述（例如 UI 視覺設計 → `ui-ux-pro-max`）
+3. 被觸發後，Codex 會先讀該 skill 的 `SKILL.md`，再依其中流程執行
+4. 若同時符合多個 skills，Codex 會採最小必要集合，避免重複或衝突
+5. 若你想強制調用，直接在指令寫明 skill 名稱即可（可同時指定多個）
 
 ## AI 標記規範
 
@@ -85,6 +94,6 @@ YAML / Docker / Shell：
 
 ## 版本資訊
 
-- 規範版本：1.0.0
+- 規範版本：1.0.1
 - 建立日期：2026-02-19
 - 維護者：PM Amber + Codex
