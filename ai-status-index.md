@@ -21,9 +21,9 @@
 
 | 欄位 | 值 |
 |------|-----|
-| **最後更新** | - |
-| **當前任務摘要** | 尚未開始。請讀取實作計畫後從 Task 1 開始執行。 |
-| **工作目錄** | - |
+| **最後更新** | 2026-02-19 |
+| **當前任務摘要** | 已完成 Task 1-10（Next.js 初始化、shadcn/ui、文章讀取工具、首頁/about/blog/[slug]）。已建立首篇文章 `ai-membership-system.md`。下一步是 Task 11-13（Vercel 部署、Obsidian 設定、自訂網域）。 |
+| **工作目錄** | `src/`, `content/posts/`, `public/images/posts/`, 根目錄設定檔（`package.json`、`components.json`、`.nvmrc`） |
 | **狀態詳情** | `docs/plans/2026-02-20-phase1-personal-site.md` |
 
 ---

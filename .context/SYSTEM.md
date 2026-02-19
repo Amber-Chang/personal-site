@@ -19,7 +19,7 @@
 |------|------|------|
 | 框架 | Next.js（App Router）| AI 支援度最高，Vercel 同家公司 |
 | 樣式 | Tailwind CSS + shadcn/ui | 不需從零設計，質感夠好 |
-| 內容管理 | Notion API | 降低發文摩擦，作者已在用 Notion |
+| 內容管理 | Obsidian + git sync | 圖片不過期，離線寫作，Obsidian Git 自動 push |
 | 部署 | Vercel | AI 協同維護支援度最高 |
 | 網域 | Cloudflare | 透明定價，內建 CDN |
 | 數據追蹤 | GA4 | 免費，先用再說 |
@@ -41,20 +41,28 @@
 /about               關於我（詳細版）
 ```
 
-## Notion 結構
+## 文章管理結構
 
-Notion Database 用來管理所有文章，欄位包含：
-- 標題
-- 狀態（草稿 / 已完成）
-- 日期
-- 標籤
-- Slug（網址用）
+文章存放在 `content/posts/`，用 Obsidian 寫作，Obsidian Git plugin 自動 push 到 GitHub，Vercel 偵測更新自動部署。
+
+每篇文章的 frontmatter（檔案頂部的設定資料）：
+```yaml
+---
+title: "文章標題"
+date: "2026-02-20"
+slug: "article-slug"
+tags: ["AI", "PM"]
+featured: true
+---
+```
+
+圖片放在 `public/images/posts/`，Markdown 內用 `![說明](/images/posts/圖片名稱.png)` 引用。
 
 ## 個人簡介方向
 
 不是傳統的條列式經歷，而是定位和觀點：
 
-> 「我是 Amber，在媒體科技產業做 PM。我關注 AI 如何改變產品開發的方式，也在這裡記錄我的實驗和思考。」
+> 「我是 Amber，一個正在學著用 AI 槓桿出更大效益、朝 builder 之路邁進的 PM。」
 
 ## 上線計畫
 
