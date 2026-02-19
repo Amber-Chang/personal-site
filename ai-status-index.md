@@ -31,6 +31,7 @@
 | 欄位 | 值 |
 |------|-----|
 | **最後更新** | 2026-02-19 |
+| **⚠️ 下一步（立即執行）** | `git checkout codex/phase1` 切換到 Codex 專屬 branch，再繼續 Task 11-13 |
 | **當前任務摘要** | 已完成 Task 1-10（Next.js 初始化、shadcn/ui、文章讀取工具、首頁/about/blog/[slug]）。已建立首篇文章 `ai-membership-system.md`。下一步是 Task 11-13（Vercel 部署、Obsidian 設定、自訂網域）。 |
 | **工作目錄** | `src/`, `content/posts/`, `public/images/posts/`, 根目錄設定檔（`package.json`、`components.json`、`.nvmrc`） |
 | **狀態詳情** | `docs/plans/2026-02-20-phase1-personal-site.md` |
