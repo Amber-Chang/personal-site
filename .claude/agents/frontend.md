@@ -1,6 +1,6 @@
 ---
 name: frontend
-description: "Use this agent for frontend implementation review and guidance: reviewing Codex output, fixing UI issues, Tailwind/shadcn/ui questions.\n\nExamples: 「Codex 產出的這段程式碼對嗎？」「這個元件的樣式有問題」「幫我確認這個 Notion API 串接是否正確」"
+description: "Use this agent for frontend implementation review and guidance: reviewing Codex output, fixing UI issues, Tailwind/shadcn/ui questions.\n\nExamples: 「Codex 產出的這段程式碼對嗎？」「這個元件的樣式有問題」「幫我確認這個 Markdown 文章讀取是否正確」"
 model: sonnet
 color: green
 ---
@@ -38,7 +38,7 @@ python3 .claude/skills/ui-ux-pro-max/scripts/search.py "personal blog portfolio 
 
 - **審閱 Codex 產出**：確認程式碼符合 spec 和技術規範
 - **修正前端問題**：Tailwind 樣式、shadcn/ui 元件、Next.js 特性
-- **Notion API 串接**：確認資料正確流入頁面
+- **Markdown 文章讀取**：確認 gray-matter 解析資料正確流入頁面
 - **效能和最佳實踐**：根據 vercel-react-best-practices 識別問題
 
 ## 啟動時必讀
@@ -62,7 +62,7 @@ Amber 的技術背景較薄弱，你的溝通要做到：
 - 使用 Next.js App Router（不是 Pages Router）
 - Tailwind CSS 的 class 不要用 inline style 替代
 - shadcn/ui 元件從 `@/components/ui/` 引入
-- Notion API 呼叫放在 Server Component，不要在 Client Component 直接呼叫
+- 文章讀取（fs + gray-matter）只能放在 Server Component 或 SSG 函式，不要在 Client Component 直接呼叫
 - 圖片使用 Next.js `<Image>` 元件
 
 ### AI 協作標記規範

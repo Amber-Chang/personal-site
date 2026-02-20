@@ -43,7 +43,7 @@
 | **pm** | 需求定義、內容策略、優先順序 | 想清楚「要做什麼、為什麼做」時 |
 | **tpm** | 把需求轉成技術語言、任務拆解、風險評估 | 需求確認後、開始進入技術規劃時 |
 | **architect** | 技術架構設計、選型決策、產出 spec | TPM 確認方向後，需要技術設計時 |
-| **frontend** | Next.js 元件、Tailwind 樣式、Notion API 串接 | 有明確 spec 後，開始實作時 |
+| **frontend** | Next.js 元件、Tailwind 樣式、Markdown 文章串接 | 有明確 spec 後，開始實作時 |
 
 ## 強制規則
 

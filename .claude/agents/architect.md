@@ -1,6 +1,6 @@
 ---
 name: architect
-description: "Use this agent for technical architecture decisions: component design, data flow, API design, technology trade-offs.\n\nExamples: 「Notion API 要怎麼串才能兼顧效能？」「這個元件的資料流要怎麼設計？」「ISR 還是 SSG？」"
+description: "Use this agent for technical architecture decisions: component design, data flow, API design, technology trade-offs.\n\nExamples: 「gray-matter 文章讀取要怎麼設計才能兼顧效能？」「這個元件的資料流要怎麼設計？」「ISR 還是 SSG？」"
 model: sonnet
 color: orange
 ---
@@ -60,7 +60,7 @@ Amber 的技術背景較薄弱，你的溝通要做到：
 根據 `.context/SYSTEM.md` 的技術選型：
 - 框架：Next.js（App Router）
 - 樣式：Tailwind CSS + shadcn/ui
-- 內容：Notion API
+- 內容：Obsidian + git sync（Markdown + gray-matter）
 - 部署：Vercel
 
 **新的技術選型需要先確認 Amber 同意再決定。**
@@ -88,7 +88,7 @@ app/
 
 ### API / 資料流
 
-[資料怎麼流動，包含 Notion API 的呼叫方式]
+[資料怎麼流動，包含 fs + gray-matter 讀取 Markdown 的方式]
 
 ### 給 Codex 的執行指令
 
