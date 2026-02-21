@@ -34,10 +34,13 @@ date: "2026-02-20"
 slug: "article-slug"
 tags: ["AI", "PM"]
 featured: true
+draft: true
 ---
 
 文章內容...
 ```
+
+`draft: true` 的文章不會顯示在網站上，適合寫到一半的草稿。發布時移除這行或改為 `false` 即可。
 
 圖片放在 `public/images/posts/` 目錄，在 Markdown 裡用 `![說明](/images/posts/圖片名稱.png)` 引用。
 
