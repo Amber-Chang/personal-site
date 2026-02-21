@@ -13,6 +13,7 @@ export type PostMeta = {
   slug: string;
   tags: string[];
   featured: boolean;
+  draft: boolean;
 };
 
 export type Post = PostMeta & {
@@ -30,6 +31,7 @@ function normalizePostMeta(fileName: string, rawData: Record<string, unknown>): 
       ? rawData.tags.filter((tag): tag is string => typeof tag === "string")
       : [],
     featured: Boolean(rawData.featured),
+    draft: Boolean(rawData.draft),
   };
 }
 
@@ -48,6 +50,7 @@ export function getPublishedPosts(): PostMeta[] {
 
       return normalizePostMeta(fileName, data as Record<string, unknown>);
     })
+    .filter((post) => !post.draft)
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 }
 

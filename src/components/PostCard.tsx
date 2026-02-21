@@ -4,6 +4,7 @@
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import type { PostMeta } from "@/lib/posts";
+import { formatDate } from "@/lib/format";
 
 export function PostCard({ post }: { post: PostMeta }) {
   return (
@@ -13,7 +14,7 @@ export function PostCard({ post }: { post: PostMeta }) {
     >
       <div className="flex items-start justify-between gap-4">
         <h3 className="text-base font-medium group-hover:underline">{post.title}</h3>
-        <span className="shrink-0 text-xs text-muted-foreground">{post.date}</span>
+        <span className="shrink-0 text-xs text-muted-foreground">{formatDate(post.date)}</span>
       </div>
       {post.tags.length > 0 ? (
         <div className="mt-3 flex flex-wrap gap-2">

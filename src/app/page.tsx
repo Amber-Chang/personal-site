@@ -2,8 +2,18 @@
 // 功能：首頁，呈現個人定位、精選文章與聯絡資訊。
 
 import Link from "next/link";
+import type { Metadata } from "next";
 import { PostCard } from "@/components/PostCard";
 import { getFeaturedPosts } from "@/lib/posts";
+
+export const metadata: Metadata = {
+  title: "Amber Chang — PM × AI Builder",
+  description: "一個正在學著用 AI 槓桿出更大效益、朝 builder 之路邁進的 PM。",
+  openGraph: {
+    title: "Amber Chang — PM × AI Builder",
+    description: "一個正在學著用 AI 槓桿出更大效益、朝 builder 之路邁進的 PM。",
+  },
+};
 
 export default function HomePage() {
   const featuredPosts = getFeaturedPosts();

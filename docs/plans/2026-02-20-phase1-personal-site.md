@@ -104,13 +104,12 @@ npm install gray-matter react-markdown
 npm install -D @tailwindcss/typography
 ```
 
-**Step 2: 在 tailwind.config.ts 加入 typography plugin**
+**Step 2: 在 Tailwind 設定加入 typography plugin**
 
-找到 `tailwind.config.ts`，在 plugins 陣列加入：
-
-```typescript
-plugins: [require("@tailwindcss/typography")]
-```
+> ⚠️ **注意**：Task 1 跑完後先確認 Tailwind 版本。
+> - **v4（CSS-based config）**：在 `src/app/globals.css` 加入 `@plugin "@tailwindcss/typography";`
+> - **v3（tailwind.config.ts）**：用 `import typography from "@tailwindcss/typography"; plugins: [typography]`
+> - **不要用 `require()`**，避免 ESM/TS 環境問題
 
 **Step 3: 建立 content 目錄結構**
 
@@ -134,9 +133,26 @@ git commit -m "[AI-DEV] chore: 安裝 gray-matter、react-markdown，建立 cont
 
 **Files:**
 - Create: `src/lib/posts.ts`
-- Create: `content/posts/test-post.md`（測試用，完成後刪除）
+- Create: `src/lib/format.ts`
+- Create: `content/posts/test-post.md`（測試用，Task 12 完成後改為 draft）
 
-**Step 1: 建立 `src/lib/posts.ts`**
+**Step 1: 建立 `src/lib/format.ts`**
+
+```typescript
+// [AI-ASSISTED] Generated with Codex
+// 功能：日期格式化工具
+
+export function formatDate(dateStr: string): string {
+  const date = new Date(dateStr);
+  return date.toLocaleDateString("zh-TW", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  });
+}
+```
+
+**Step 2: 建立 `src/lib/posts.ts`**
 
 ```typescript
 // [AI-ASSISTED] Generated with Codex
@@ -154,6 +170,7 @@ export type PostMeta = {
   slug: string;
   tags?: string[];
   featured?: boolean;
+  draft?: boolean;
 };
 
 export type Post = PostMeta & {
@@ -169,8 +186,17 @@ export function getPublishedPosts(): PostMeta[] {
       const fullPath = path.join(postsDirectory, fileName);
       const fileContents = fs.readFileSync(fullPath, "utf8");
       const { data } = matter(fileContents);
+
+      // frontmatter 防呆：缺 title 或 date 就跳過
+      if (!data.title || !data.date) {
+        console.warn(`[posts] 跳過 ${fileName}：缺少 title 或 date`);
+        return null;
+      }
+
       return { ...data, slug } as PostMeta;
     })
+    .filter((post): post is PostMeta => post !== null)
+    .filter((post) => !post.draft)
     .sort((a, b) => (a.date < b.date ? 1 : -1));
 }
 
@@ -190,7 +216,7 @@ export function getPostBySlug(slug: string): Post | null {
 }
 ```
 
-**Step 2: 建立測試文章 `content/posts/test-post.md`**
+**Step 3: 建立測試文章 `content/posts/test-post.md`**
 
 ```markdown
 ---
@@ -203,11 +229,13 @@ featured: true
 這是一篇測試文章，確認文章讀取功能正常。
 ```
 
-**Step 3: Commit**
+> 注意：Task 12 寫完第一篇真文章後，將此檔加上 `draft: true` 使其不顯示。
+
+**Step 4: Commit**
 
 ```bash
-git add src/lib/posts.ts content/posts/test-post.md
-git commit -m "[AI-DEV] feat: 建立文章讀取工具函式"
+git add src/lib/posts.ts src/lib/format.ts content/posts/test-post.md
+git commit -m "[AI-DEV] feat: 建立文章讀取工具函式（含 draft 過濾、frontmatter 防呆、日期格式化）"
 ```
 
 ---
@@ -313,18 +341,29 @@ git commit -m "[AI-DEV] feat: 建立全域 Layout、Header、Footer"
 
 ```typescript
 // [AI-ASSISTED] Generated with Codex
-// 功能：文章卡片，顯示文章標題和日期，點擊進入文章頁
+// 功能：文章卡片，顯示文章標題、日期和 tags，點擊進入文章頁
 
 import Link from "next/link";
+import { Badge } from "@/components/ui/badge";
 import { PostMeta } from "@/lib/posts";
+import { formatDate } from "@/lib/format";
 
 export function PostCard({ post }: { post: PostMeta }) {
   return (
     <Link href={`/blog/${post.slug}`} className="block group">
       <div className="flex justify-between items-baseline">
         <span className="group-hover:underline">{post.title}</span>
-        <span className="text-sm text-muted-foreground">{post.date}</span>
+        <span className="text-sm text-muted-foreground">{formatDate(post.date)}</span>
       </div>
+      {post.tags && post.tags.length > 0 && (
+        <div className="flex gap-2 mt-1">
+          {post.tags.map((tag) => (
+            <Badge key={tag} variant="secondary" className="text-xs">
+              {tag}
+            </Badge>
+          ))}
+        </div>
+      )}
     </Link>
   );
 }
@@ -351,8 +390,18 @@ git commit -m "[AI-DEV] feat: 建立 PostCard 元件"
 // 功能：首頁，顯示個人定位、精選文章、聯絡 CTA
 
 import Link from "next/link";
+import type { Metadata } from "next";
 import { getFeaturedPosts } from "@/lib/posts";
 import { PostCard } from "@/components/PostCard";
+
+export const metadata: Metadata = {
+  title: "Amber Chang — PM × AI Builder",
+  description: "一個正在學著用 AI 槓桿出更大效益、朝 builder 之路邁進的 PM。",
+  openGraph: {
+    title: "Amber Chang — PM × AI Builder",
+    description: "一個正在學著用 AI 槓桿出更大效益、朝 builder 之路邁進的 PM。",
+  },
+};
 
 export default function HomePage() {
   const posts = getFeaturedPosts();
@@ -370,17 +419,19 @@ export default function HomePage() {
       </section>
 
       {/* 精選文章 */}
-      <section>
-        <h2 className="text-sm font-medium text-muted-foreground mb-6">精選文章</h2>
-        <div className="space-y-4">
-          {posts.map((post) => (
-            <PostCard key={post.slug} post={post} />
-          ))}
-        </div>
-        <Link href="/blog" className="mt-8 inline-block text-sm underline">
-          所有文章 →
-        </Link>
-      </section>
+      {posts.length > 0 && (
+        <section>
+          <h2 className="text-sm font-medium text-muted-foreground mb-6">精選文章</h2>
+          <div className="space-y-4">
+            {posts.map((post) => (
+              <PostCard key={post.slug} post={post} />
+            ))}
+          </div>
+          <Link href="/blog" className="mt-8 inline-block text-sm underline">
+            所有文章 →
+          </Link>
+        </section>
+      )}
 
       {/* 聯絡 */}
       <section>
@@ -414,8 +465,18 @@ git commit -m "[AI-DEV] feat: 建立首頁"
 // [AI-ASSISTED] Generated with Codex
 // 功能：文章列表頁，顯示所有文章
 
+import type { Metadata } from "next";
 import { getPublishedPosts } from "@/lib/posts";
 import { PostCard } from "@/components/PostCard";
+
+export const metadata: Metadata = {
+  title: "文章 — Amber Chang",
+  description: "Amber 的文章列表：AI 協作、產品管理、學習紀錄。",
+  openGraph: {
+    title: "文章 — Amber Chang",
+    description: "Amber 的文章列表：AI 協作、產品管理、學習紀錄。",
+  },
+};
 
 export default function BlogPage() {
   const posts = getPublishedPosts();
@@ -453,7 +514,10 @@ git commit -m "[AI-DEV] feat: 建立文章列表頁"
 // [AI-ASSISTED] Generated with Codex
 // 功能：單篇文章頁，讀取 Markdown 並渲染內容
 
+import Link from "next/link";
+import type { Metadata } from "next";
 import { getPostBySlug, getPublishedPosts } from "@/lib/posts";
+import { formatDate } from "@/lib/format";
 import ReactMarkdown from "react-markdown";
 import { notFound } from "next/navigation";
 
@@ -462,15 +526,31 @@ export function generateStaticParams() {
   return posts.map((post) => ({ slug: post.slug }));
 }
 
+export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
+  const post = getPostBySlug(params.slug);
+  if (!post) return {};
+  return {
+    title: `${post.title} — Amber Chang`,
+    description: post.content.slice(0, 160),
+    openGraph: {
+      title: post.title,
+      description: post.content.slice(0, 160),
+    },
+  };
+}
+
 export default function BlogPostPage({ params }: { params: { slug: string } }) {
   const post = getPostBySlug(params.slug);
   if (!post) notFound();
 
   return (
     <article>
+      <Link href="/blog" className="text-sm text-muted-foreground hover:underline mb-8 inline-block">
+        ← 返回文章列表
+      </Link>
       <header className="mb-8">
         <h1 className="text-2xl font-semibold">{post.title}</h1>
-        <p className="text-sm text-muted-foreground mt-2">{post.date}</p>
+        <p className="text-sm text-muted-foreground mt-2">{formatDate(post.date)}</p>
       </header>
       <div className="prose prose-neutral max-w-none">
         <ReactMarkdown>{post.content}</ReactMarkdown>
@@ -480,17 +560,13 @@ export default function BlogPostPage({ params }: { params: { slug: string } }) {
 }
 ```
 
-**Step 2: 刪除測試文章（確認功能正常後）**
+> 注意：不刪除 test-post.md。等 Task 12 寫完第一篇真文章後，將 test-post 加上 `draft: true`。
 
-```bash
-rm content/posts/test-post.md
-```
-
-**Step 3: Commit**
+**Step 2: Commit**
 
 ```bash
 git add src/app/blog/[slug]/
-git commit -m "[AI-DEV] feat: 建立文章頁，支援 Markdown 渲染"
+git commit -m "[AI-DEV] feat: 建立文章頁，支援 Markdown 渲染、SEO metadata、返回列表連結"
 ```
 
 ---
@@ -505,6 +581,17 @@ git commit -m "[AI-DEV] feat: 建立文章頁，支援 Markdown 渲染"
 ```typescript
 // [AI-ASSISTED] Generated with Codex
 // 功能：關於我頁面，靜態內容
+
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "關於我 — Amber Chang",
+  description: "PM × AI Builder。用 AI 槓桿出更大效益，朝 builder 之路邁進。",
+  openGraph: {
+    title: "關於我 — Amber Chang",
+    description: "PM × AI Builder。用 AI 槓桿出更大效益，朝 builder 之路邁進。",
+  },
+};
 
 export default function AboutPage() {
   return (
@@ -615,25 +702,35 @@ Vercel 專案設定 → Domains → 輸入你的網域名稱
 ## 執行順序
 
 ```
-Task 1（Next.js 初始化）
+Task 1（Next.js 初始化）→ 確認 Tailwind 版本
     ↓
 Task 2（shadcn/ui）
     ↓
-Task 3（套件 + content 目錄）
+Task 3（套件 + content 目錄）→ 根據 Tailwind 版本決定 typography 設定方式
     ↓
-Task 4（文章工具函式）
+Task 4（文章工具函式 + draft 過濾 + frontmatter 防呆 + formatDate）
     ↓
 Task 5（全域 Layout）
     ↓
-Task 6（PostCard 元件）
+Task 6（PostCard 元件，含 tags 顯示）
     ↓
-Task 7（首頁）→ Task 8（/blog）→ Task 10（/about）  ← 可並行
+Task 7（首頁 + SEO）→ Task 8（/blog + SEO）→ Task 10（/about + SEO）  ← 可並行
     ↓
-Task 9（/blog/[slug]）
+Task 9（/blog/[slug] + SEO + 返回連結）← 不刪 test-post
     ↓
 Task 11（Vercel 部署）
     ↓
-Task 12（Obsidian 設定）
+Task 12（Obsidian 設定 + 寫第一篇文章）→ 確認後將 test-post 改為 draft: true
     ↓
 Task 13（自訂網域）
 ```
+
+## 本次更新摘要（基於 Codex review 反饋）
+
+1. **Task 4 補強**：新增 `draft` 欄位過濾、frontmatter 防呆（缺 title/date 跳過）、`formatDate()` 工具函式
+2. **Task 6 補強**：PostCard 顯示 tags（用 Badge 元件）
+3. **Task 9 不刪 test-post**：改為 Task 12 完成後設 `draft: true`
+4. **Task 7/8/9/10 補強**：每頁加 SEO metadata + OpenGraph
+5. **Task 9 補強**：文章頁加「← 返回文章列表」連結
+6. **Task 3 調整**：Tailwind typography plugin 寫法依版本決定，不用 `require()`
+7. **Task 7 補強**：精選文章為空時不顯示該區塊（`posts.length > 0` 條件渲染）

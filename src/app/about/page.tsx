@@ -1,6 +1,17 @@
 // [AI-ASSISTED] Generated with Codex, 2026-02-19
 // 功能：關於我頁面，說明 Amber 的背景、觀點與合作方式。
 
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "關於我 — Amber Chang",
+  description: "PM × AI Builder。用 AI 槓桿出更大效益，朝 builder 之路邁進。",
+  openGraph: {
+    title: "關於我 — Amber Chang",
+    description: "PM × AI Builder。用 AI 槓桿出更大效益，朝 builder 之路邁進。",
+  },
+};
+
 export default function AboutPage() {
   return (
     <article className="prose prose-neutral max-w-none">
