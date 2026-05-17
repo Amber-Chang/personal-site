@@ -11,6 +11,9 @@ export function Header() {
           Amber Chang
         </Link>
         <nav className="flex items-center gap-5 text-sm text-muted-foreground">
+          <Link href="/projects" className="transition-colors hover:text-foreground">
+            專案
+          </Link>
           <Link href="/blog" className="transition-colors hover:text-foreground">
             文章
           </Link>
