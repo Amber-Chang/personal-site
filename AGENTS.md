@@ -34,13 +34,8 @@
 
 1. `NOW.md`
 2. `AGENTS.md`
-3. 與當前任務直接相關的檔案
-
-以下文件視需要再讀，且目前視為 legacy 參考，不當作預設母法：
-
-- `.context/`
-- `docs/plans/`
-- `docs/archive/`
+3. `FOUNDATION.md`
+4. 與當前任務直接相關的檔案
 
 ## 5. Skills 原則
 
@@ -58,10 +53,10 @@
 ## 7. 文件策略
 
 - 長期有效的規則放在 `AGENTS.md`
+- 專案核心方向放在 `FOUNDATION.md`
 - 當前狀態放在 `NOW.md`
 - skill 索引放在 `SKILLS.md`
-- 舊治理放到 `docs/archive/`
-- `.context/` 與 `docs/plans/` 目前保留，但視為 legacy 背景資料
+- 舊規劃若會干擾判斷，就不要留在 repo 主工作流
 
 ## 8. 完成工作時
 
