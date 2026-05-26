@@ -21,20 +21,25 @@
 - 把首頁改成偏編輯式的 portfolio 首頁
 - 封存舊治理文件，改成最小治理集合
 - 建立新的 `FOUNDATION.md` 並移除舊 `.context/`
+- 補上文件治理規則，明確區分 `AGENTS.md`、`FOUNDATION.md`、`NOW.md` 與 `docs/` 的責任
+- 建立 `docs/blog-admin-mvp.md`，確認文章後台第一版只處理 blog posts
+- 補上 blog admin MVP 的 implementation slices，明確切分資料庫、後台、前台與整合驗證
 
 ## 目前最重要的事
 
 - 持續調整網站視覺與品牌感
-- 決定文章後台是否要改成可編輯介面
-- 釐清是否導入 Supabase 作為未來內容儲存層
+- 規劃文章後台的實作方式
+- 釐清是否正式導入 Supabase 作為文章儲存與登入基礎
 
 ## 下一步建議
 
 1. 打磨首頁視覺與文案
-2. 決定寫作後台方向
-3. 再更新內容架構與技術路線
+2. 決定 blog admin 是否正式採用 Supabase
+3. 依 implementation slices 開始拆第一批實作任務
 
 ## 備註
 
 - `FOUNDATION.md` 是新的核心方向文件
 - 目前不保留舊規劃文件，避免干擾新的判斷
+- 若未來調整 `docs/` 結構，需同步檢查 `AGENTS.md`、`NOW.md` 與直接相關文件
+- 目前傾向的內容模型是 `projects` 與 `blog posts` 分開，blog post 可選擇關聯 project
