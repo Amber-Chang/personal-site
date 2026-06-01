@@ -17,6 +17,49 @@
 - 前台 `/blog` 與 `/blog/[slug]` 可穩定讀取已發佈文章
 - 架構上不把內容邏輯綁死在 page 或 Supabase SDK 上
 
+## 1.5 目前進度
+
+### 已完成
+
+- `Phase 1：資料與登入底座`
+  - Supabase schema
+  - magic link auth 底座
+  - repository / service 邊界
+  - trusted Next.js server + service-role admin content path
+- `Phase 2：Admin CRUD skeleton`
+  - `/admin/login`
+  - `/admin/posts`
+  - `/admin/posts/new`
+  - `/admin/posts/[id]`
+  - 共享 post form
+  - 最小 create / update server actions
+
+### 已完成但後續仍可補強
+
+- admin login 錯誤處理已受控，但 UI 訊息仍可再打磨
+- admin post form 已可新增 / 編輯，但還不是 rich editor 體驗
+- admin content path 已可用，但還沒接上 publish UX / preview
+
+### 尚未完成
+
+- `Phase 3：前台 blog 切換`
+  - `/blog` 改讀 repository
+  - `/blog/[slug]` 改讀 repository
+  - 驗證只有 `published` 文章可見
+- `Phase 4：Migration 與驗證`
+  - 匯入既有 Markdown 文章
+  - 驗證登入、草稿、編輯、發佈、公開顯示整條流程
+  - 清點哪些 Markdown-only 邏輯可移除
+- 後續體驗補強
+  - publish UX
+  - preview
+  - Markdown editor 強化
+
+### 建議下一個 round
+
+- 先做 blog 前台從 Markdown 切到 repository
+- 再做 markdown migration 與整體流程驗證
+
 ## 2. 決策摘要
 
 - 應用後端使用 `Next.js Server Actions + Route Handlers`
