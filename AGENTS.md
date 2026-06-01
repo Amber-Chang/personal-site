@@ -15,10 +15,21 @@
 
 - 前端：Next.js App Router + TypeScript
 - 樣式：Tailwind CSS + shadcn/ui
+- 應用後端：以 Next.js Server Actions / Route Handlers 承載
+- 後端基礎設施：目前以 Supabase 作為資料庫與登入基礎
 - 目前內容來源：
   - `content/posts/*.md`
   - `content/projects/*.md`
 - 若未明確決定，不主動引入大型 CMS 或重型治理流程
+
+### 後端與架構規則
+
+- `Next.js` 是這個站目前的應用後端框架，但不是資料庫替代品
+- `Supabase` 是目前選定的後端基礎設施，優先用於 blog admin 的資料儲存、登入與基本權限
+- 頁面層與 UI component 不直接承擔複雜資料存取與商業規則
+- 資料讀寫應集中在資料存取層或 repository layer，不在 page / component 中散寫 provider-specific 呼叫
+- 若功能同時涉及 auth、內容資料與發佈規則，應先切出 service / repository 邊界再擴寫功能
+- 新功能若建立在既有後端能力上，優先延伸同一套內容與 auth 基礎層，不平行做第二套
 
 ## 3. 工作原則
 
@@ -50,6 +61,33 @@
 - 只有在使用者明確要求分工或平行處理時才使用
 - 若要使用，必須先明確定義分工邊界
 
+## 6.5 開發流程原則
+
+- 中型以上功能、會改資料模型 / auth / 架構 / 後台流程的任務，預設走標準開發流程
+- 小型文案、樣式微調、局部 bugfix 可走快速流程，不強制走完整 spec + subagent + heavy review
+- 若使用者明確要求走正式流程，優先依正式流程執行
+
+### 標準開發流程
+
+1. 先討論本次開發範圍
+2. 建立或更新本次開發範圍對應的單一主 spec
+3. 由 dev subagent 依 spec 開發，優先採 `OpenSpec + TDD`
+4. 開發完成後，交由 code review subagent 或主 agent 以 code reviewer 角度檢查
+5. 完成驗證與 review 後，才可 `commit`、`push`
+
+### 快速流程
+
+1. 快速確認範圍
+2. 直接實作
+3. 由主 agent 做輕量 review 與必要驗證
+4. 確認無明顯風險後，才可 `commit`、`push`
+
+### Commit / Push Gate
+
+- 未完成 spec、實作、驗證、review 前，不進行 `commit` 或 `push`
+- 若是快速流程，至少也要完成範圍確認、基本驗證與 review
+- 若是標準流程，review 未結束前不得視為完成
+
 ## 7. 文件策略
 
 - 長期有效的規則放在 `AGENTS.md`
@@ -61,6 +99,14 @@
 - 若 `docs/` 結構、命名規則或文件責任有調整，需同步檢查 `AGENTS.md`、`NOW.md` 與直接相關文件是否要更新
 - 完成這類調整時，必須明確回報是否已同步更新相關治理文件
 - 舊規劃若會干擾判斷，就不要留在 repo 主工作流
+
+### 實作 spec 原則
+
+- 後續可持續擴張的功能，應先有單一主 implementation spec，再開始寫碼
+- implementation spec 要優先定義邊界、資料流、模組責任與未來擴張方式，不只列畫面與欄位
+- spec 可以長大，但要維持可拆分；當同一份文件開始同時承擔產品目標、系統架構、資料模型與 task list 時，應拆成主文件加子文件
+- 若某功能明顯會成為未來能力底座，需額外說清楚哪些設計是為了 MVP，哪些是為了未來擴展預留
+- 若任務走標準開發流程，spec 應先完成再進入正式實作
 
 ### 防文件肥大規則
 

@@ -44,6 +44,16 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000).
 
+### Required Environment Variables
+
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- `SUPABASE_SERVICE_ROLE_KEY`
+- `SUPABASE_ADMIN_EMAILS`
+- `NEXT_PUBLIC_SITE_URL`
+
+`SUPABASE_ADMIN_EMAILS` uses a comma-separated allowlist. Public reads rely on RLS published-read policies, while admin content reads and writes run through trusted Next.js server code with the Supabase service-role client.
+
 ## Project Files
 
 - `FOUNDATION.md`

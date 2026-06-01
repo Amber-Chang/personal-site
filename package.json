@@ -7,9 +7,14 @@
     "build": "next build --webpack",
     "build:turbo": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test": "node --no-warnings --experimental-strip-types --test",
+    "test:auth": "node --no-warnings --experimental-strip-types --test src/lib/auth/auth.test.ts",
+    "test:content": "node --no-warnings --experimental-strip-types --test src/lib/content/content.test.ts"
   },
   "dependencies": {
+    "@supabase/ssr": "^0.10.3",
+    "@supabase/supabase-js": "^2.106.2",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "gray-matter": "^4.0.3",

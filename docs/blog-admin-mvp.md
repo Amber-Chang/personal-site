@@ -46,8 +46,14 @@
 - 前台維持 Next.js App Router + TypeScript
 - 後台登入採 email magic link
 - 文章內容改存資料庫
-- 目前傾向使用 Supabase 作為資料儲存與登入基礎
+- 第一版正式採用 Supabase 作為資料儲存與登入基礎
 - 內文編輯體驗以 Markdown 為主，不追求 Notion-like rich text
+
+採用理由：
+
+- 它同時解決登入、資料庫與基本權限需求，符合單人使用的 MVP 範圍
+- 可以用最少基礎設施完成草稿、發佈與後台 CRUD，不需要先自建一套內容系統
+- 對目前網站來說，這是為 blog admin 導入的最小後端，而不是把整站全面 CMS 化
 
 ## 5. 內容模型
 
