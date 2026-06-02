@@ -14,7 +14,8 @@ Amber 的個人品牌網站，主要面向潛在雇主與 hiring manager。
 - TypeScript
 - Tailwind CSS
 - shadcn/ui
-- Markdown content
+- Supabase-backed blog content
+- Markdown project content
 
 ## Site Structure
 
@@ -30,7 +31,7 @@ Amber 的個人品牌網站，主要面向潛在雇主與 hiring manager。
 ## Content Structure
 
 ```text
-content/posts/      Blog posts
+content/posts/      Legacy blog posts for one-time import
 content/projects/   Project case studies
 public/images/      Static images
 ```
@@ -43,6 +44,26 @@ npm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000).
+
+### Blog Post Migration
+
+Existing Markdown blog posts can be imported into Supabase with:
+
+```bash
+npm run content:import-posts
+```
+
+The importer skips posts whose slug already exists in `blog_posts`.
+
+### Required Environment Variables
+
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- `SUPABASE_SERVICE_ROLE_KEY`
+- `SUPABASE_ADMIN_EMAILS`
+- `NEXT_PUBLIC_SITE_URL`
+
+`SUPABASE_ADMIN_EMAILS` uses a comma-separated allowlist. Public reads rely on RLS published-read policies, while admin content reads and writes run through trusted Next.js server code with the Supabase service-role client.
 
 ## Project Files
 
@@ -58,5 +79,6 @@ Open [http://localhost:3000](http://localhost:3000).
 ## Notes
 
 - The site currently uses Markdown files as the content source
-- Projects and blog posts are both managed inside the repo
+- Projects are still managed inside the repo
+- Blog front-end pages read published posts through the repository layer
 - Old planning and heavy governance docs have been removed to keep the project lightweight

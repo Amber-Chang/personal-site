@@ -27,6 +27,8 @@
 
 - 前端：Next.js App Router + TypeScript
 - 樣式：Tailwind CSS + shadcn/ui
+- 應用後端：Next.js Server Actions + Route Handlers
+- 後端基礎設施：Supabase
 - 目前內容來源：
   - `content/posts/*.md`
   - `content/projects/*.md`
@@ -35,7 +37,9 @@
 
 - 繼續打磨首頁視覺與品牌感
 - 評估是否建立寫作後台
-- 評估是否導入 Supabase 作為未來內容儲存層
+- 採用 Supabase 作為 blog admin 的內容儲存與登入基礎
+- 後續功能 spec 與系統設計以可擴展的內容架構為前提
+- 後端邏輯優先維持在 Next.js 應用層，並透過資料存取邊界隔離基礎設施
 
 ## 6. 暫時不堅持的舊前提
 

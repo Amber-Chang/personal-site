@@ -3,10 +3,16 @@
 
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
-import type { PostMeta } from "@/lib/posts";
 import { formatDate } from "@/lib/format";
 
-export function PostCard({ post }: { post: PostMeta }) {
+type PostCardPost = {
+  date: string;
+  slug: string;
+  tags: string[];
+  title: string;
+};
+
+export function PostCard({ post }: { post: PostCardPost }) {
   return (
     <Link
       href={`/blog/${post.slug}`}

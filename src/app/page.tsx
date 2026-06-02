@@ -5,8 +5,9 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { PostCard } from "@/components/PostCard";
 import { ProjectCard } from "@/components/ProjectCard";
-import { getFeaturedPosts } from "@/lib/posts";
 import { getFeaturedProjects } from "@/lib/projects";
+import { getPublicBlogContentService } from "./blog/blog-context";
+import { loadHomeWritingData } from "./home-data";
 
 export const metadata: Metadata = {
   title: "Amber Chang — AI-native Product Builder",
@@ -17,8 +18,12 @@ export const metadata: Metadata = {
   },
 };
 
-export default function HomePage() {
-  const featuredPosts = getFeaturedPosts();
+export const revalidate = 0;
+
+export default async function HomePage() {
+  const { posts: latestPosts } = await loadHomeWritingData({
+    service: getPublicBlogContentService(),
+  });
   const featuredProjects = getFeaturedProjects();
   const outcomes = [
     "AI 寫作批改產品上線後月均使用量提升 2000%",
@@ -155,8 +160,8 @@ export default function HomePage() {
         </div>
 
         <div className="space-y-3">
-          {featuredPosts.length > 0 ? (
-            featuredPosts.map((post) => <PostCard key={post.slug} post={post} />)
+          {latestPosts.length > 0 ? (
+            latestPosts.map((post) => <PostCard key={post.slug} post={post} />)
           ) : (
             <p className="text-sm text-muted-foreground">目前還沒有精選文章，敬請期待。</p>
           )}
