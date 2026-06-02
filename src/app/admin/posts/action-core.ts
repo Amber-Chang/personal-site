@@ -63,6 +63,8 @@ function parseFormValues(formData: FormData): CreateBlogPostInput {
 }
 
 function toErrorState(error: unknown): AdminPostFormState {
+  console.error("admin post mutation failed", error);
+
   if (error instanceof AdminAuthorizationError) {
     return {
       error: "登入狀態已失效，請重新登入。",

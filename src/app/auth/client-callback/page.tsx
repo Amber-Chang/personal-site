@@ -21,22 +21,15 @@ export default function AuthClientCallbackPage() {
 
   useEffect(() => {
     async function completeLogin() {
-      const supabase = createBrowserSupabaseClient() as BrowserSupabaseClient;
       const searchParams = new URLSearchParams(window.location.search);
       const code = searchParams.get("code");
 
       if (code) {
-        const { error } = await supabase.auth.exchangeCodeForSession(code);
-
-        if (error) {
-          setMessage("登入失敗，請重新寄送 magic link。");
-          return;
-        }
-
-        router.replace("/admin/posts");
+        window.location.replace(`/auth/callback?code=${encodeURIComponent(code)}`);
         return;
       }
 
+      const supabase = createBrowserSupabaseClient() as BrowserSupabaseClient;
       const hashParams = new URLSearchParams(window.location.hash.slice(1));
       const accessToken = hashParams.get("access_token");
       const refreshToken = hashParams.get("refresh_token");

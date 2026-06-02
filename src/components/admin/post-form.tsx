@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useActionState } from "react";
+import { useState } from "react";
 
 import type { AdminPostFormState } from "../../app/admin/posts/action-state.ts";
 import { initialAdminPostFormState } from "../../app/admin/posts/action-state.ts";
@@ -29,6 +30,7 @@ export function AdminPostForm(input: {
   values: AdminPostFormValues;
 }) {
   const [state, formAction, pending] = useActionState(input.action, initialAdminPostFormState);
+  const [submitIntent, setSubmitIntent] = useState<"draft" | "publish" | "save">("save");
   const isPublished = input.values.status === "published";
 
   return (
@@ -46,6 +48,7 @@ export function AdminPostForm(input: {
           <label className="text-sm font-medium text-black" htmlFor="title">
             Title
           </label>
+          <p className="text-xs leading-5 text-black/55">文章標題，會顯示在列表頁和單篇頁最上方。</p>
           <input
             className="w-full rounded-2xl border border-black/10 px-4 py-3 text-base outline-none transition focus:border-black/30"
             defaultValue={input.values.title}
@@ -59,6 +62,7 @@ export function AdminPostForm(input: {
           <label className="text-sm font-medium text-black" htmlFor="slug">
             Slug
           </label>
+          <p className="text-xs leading-5 text-black/55">網址識別字，會出現在 `/blog/你的-slug`，通常用小寫英文加連字號。</p>
           <input
             className="w-full rounded-2xl border border-black/10 px-4 py-3 text-base outline-none transition focus:border-black/30"
             defaultValue={input.values.slug}
@@ -68,6 +72,7 @@ export function AdminPostForm(input: {
           />
         </div>
 
+        <input name="intent" type="hidden" value={submitIntent} />
         <input name="status" type="hidden" value={input.values.status} />
 
         <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-black/10 bg-black/[0.02] px-4 py-3">
@@ -84,6 +89,7 @@ export function AdminPostForm(input: {
           <label className="text-sm font-medium text-black" htmlFor="excerpt">
             Excerpt
           </label>
+          <p className="text-xs leading-5 text-black/55">文章摘要，會顯示在 blog 列表和首頁 writing 區塊。</p>
           <textarea
             className="min-h-28 w-full rounded-2xl border border-black/10 px-4 py-3 text-base outline-none transition focus:border-black/30"
             defaultValue={input.values.excerpt}
@@ -96,6 +102,7 @@ export function AdminPostForm(input: {
           <label className="text-sm font-medium text-black" htmlFor="content_markdown">
             Markdown
           </label>
+          <p className="text-xs leading-5 text-black/55">文章正文內容，支援 Markdown 語法。</p>
           <textarea
             className="min-h-64 w-full rounded-2xl border border-black/10 px-4 py-3 font-mono text-sm outline-none transition focus:border-black/30"
             defaultValue={input.values.contentMarkdown}
@@ -108,6 +115,7 @@ export function AdminPostForm(input: {
           <label className="text-sm font-medium text-black" htmlFor="related_project_id">
             Related project
           </label>
+          <p className="text-xs leading-5 text-black/55">選填。需要時可把文章關聯到一個案例，方便之後延伸內容連動。</p>
           <select
             className="w-full rounded-2xl border border-black/10 bg-white px-4 py-3 text-base outline-none transition focus:border-black/30"
             defaultValue={input.values.relatedProjectId}
@@ -129,9 +137,8 @@ export function AdminPostForm(input: {
           <button
             className="inline-flex w-fit rounded-full bg-black px-5 py-3 text-sm font-medium text-white transition hover:bg-black/85 disabled:cursor-not-allowed disabled:bg-black/30"
             disabled={pending}
-            name="intent"
+            onClick={() => setSubmitIntent("save")}
             type="submit"
-            value="save"
           >
             {pending ? "儲存中..." : input.submitLabel}
           </button>
@@ -140,9 +147,8 @@ export function AdminPostForm(input: {
             <button
               className="inline-flex w-fit rounded-full border border-black/10 px-5 py-3 text-sm font-medium text-black transition hover:border-black/25 hover:bg-black/[0.03] disabled:cursor-not-allowed disabled:opacity-50"
               disabled={pending}
-              name="intent"
+              onClick={() => setSubmitIntent("draft")}
               type="submit"
-              value="draft"
             >
               取消發佈
             </button>
@@ -150,9 +156,8 @@ export function AdminPostForm(input: {
             <button
               className="inline-flex w-fit rounded-full border border-black/10 px-5 py-3 text-sm font-medium text-black transition hover:border-black/25 hover:bg-black/[0.03] disabled:cursor-not-allowed disabled:opacity-50"
               disabled={pending}
-              name="intent"
+              onClick={() => setSubmitIntent("publish")}
               type="submit"
-              value="publish"
             >
               發佈文章
             </button>

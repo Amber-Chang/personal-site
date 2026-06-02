@@ -2,41 +2,19 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
 import { getAdminGuardResult, requireAdminMutationSession } from "../../../lib/auth/guards.ts";
+import { ADMIN_SESSION_COOKIE_NAME, hasValidAdminSessionToken } from "../../../lib/auth/session.ts";
 import { createBlogContentService } from "../../../lib/content/service.ts";
 import { createAdminContentRepositories } from "../../../lib/infra/repositories/factory.ts";
 import { readSupabaseEnv } from "../../../lib/infra/supabase/env.ts";
-import { createServerSupabaseClient } from "../../../lib/infra/supabase/server.ts";
 
-async function createSupabaseSessionClient() {
+async function hasAdminSession() {
+  const env = readSupabaseEnv();
   const cookieStore = await cookies();
 
-  return createServerSupabaseClient({
-    cookies: {
-      getAll: () => cookieStore.getAll(),
-      setAll: (cookieValues) => {
-        for (const cookie of cookieValues) {
-          cookieStore.set(cookie.name, cookie.value, cookie.options);
-        }
-      },
-    },
-  }) as {
-    auth: {
-      getUser: () => Promise<{ data: { user: { email?: string | null } | null } }>;
-    };
-  };
-}
-
-async function getSessionUser() {
-  const supabase = await createSupabaseSessionClient();
-  const { data } = await supabase.auth.getUser();
-
-  if (!data.user) {
-    return null;
-  }
-
-  return {
-    email: data.user.email ?? null,
-  };
+  return hasValidAdminSessionToken({
+    adminPassword: env.adminPassword,
+    sessionToken: cookieStore.get(ADMIN_SESSION_COOKIE_NAME)?.value,
+  });
 }
 
 function createAdminContentService() {
@@ -44,10 +22,8 @@ function createAdminContentService() {
 }
 
 export async function getAdminPageContentService() {
-  const env = readSupabaseEnv();
   const guard = await getAdminGuardResult({
-    allowedEmails: env.adminAllowedEmails,
-    getUser: getSessionUser,
+    hasAdminSession,
   });
 
   if (!guard.ok) {
@@ -58,11 +34,8 @@ export async function getAdminPageContentService() {
 }
 
 export async function requireAdminContentService() {
-  const env = readSupabaseEnv();
-
   await requireAdminMutationSession({
-    allowedEmails: env.adminAllowedEmails,
-    getUser: getSessionUser,
+    hasAdminSession,
   });
 
   return createAdminContentService();

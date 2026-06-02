@@ -12,7 +12,7 @@
 
 第一版目標：
 
-- 站主可透過 email magic link 登入後台
+- 站主可透過單一 admin 密碼登入後台
 - 可建立、編輯、存草稿、發佈 blog post
 - 前台 `/blog` 與 `/blog/[slug]` 可穩定讀取已發佈文章
 - 架構上不把內容邏輯綁死在 page 或 Supabase SDK 上
@@ -23,7 +23,7 @@
 
 - `Phase 1：資料與登入底座`
   - Supabase schema
-  - magic link auth 底座
+  - 第一版 auth / session 底座
   - repository / service 邊界
   - trusted Next.js server + service-role admin content path
 - `Phase 2：Admin CRUD skeleton`
@@ -45,8 +45,12 @@
   - 首頁 writing 區塊改讀 public repository 的 published posts
   - 舊 `src/lib/posts.ts` 已移除，blog 前台不再依賴 Markdown reader
   - 已實際匯入 `ai-membership-system`
-  - magic link client callback 已支援 `?code=` 與 `#access_token=` 兩種回傳格式
   - admin post form 已改成 `儲存變更 / 發佈文章 / 取消發佈` 的 publish UX
+  - admin login 已改為單一密碼 + httpOnly session cookie，不再依賴 Supabase 內建 email provider
+  - 前台導覽列在 admin 已登入時會顯示 `後台` 入口，方便往返內容編輯流程
+  - post form 已補上欄位說明文字，降低第一次使用後台的理解成本
+  - publish intent 改為 hidden input 顯式傳遞，避免 button submit value 在 server action 流程中掉失
+  - Supabase duplicate slug 等常見錯誤已翻成較可讀的中文訊息
 
 ### 已完成但後續仍可補強
 
@@ -54,15 +58,15 @@
 - admin post form 已可新增 / 編輯，但還不是 rich editor 體驗
 - admin content path 已可用，但還沒接上 preview
 - `content/posts/*.md` 仍保留作為 migration source，實際匯入完成後再決定是否移除
-- 目前使用 Supabase 內建 email provider，開發測試時容易遇到 `over_email_send_rate_limit`
+- magic link callback 與 Supabase auth 底座仍保留在 repo 中，但目前不作為第一版主登入路徑
 
 ### 尚未完成
 
 - `Phase 4：後台登入後外部流程驗證`
-  - 等 Supabase email rate limit 解除後，重新寄 magic link 並進入 `/admin/posts`
+  - 用 admin 密碼登入 `/admin/posts`
   - 驗證登入、草稿、編輯、發佈、公開顯示整條流程
 - 後續體驗補強
-  - 自訂 SMTP，避免 Supabase 內建 email provider 的低 rate limit 擋住開發與後續使用
+  - 若未來需要遠端 email login，再評估自訂 SMTP 或完整 auth 方案
   - preview
   - Markdown editor 強化
 
@@ -113,7 +117,6 @@
 ### 4.2 Supabase 責任
 
 - 提供 `Postgres` 資料庫
-- 提供 email magic link auth
 - 提供基礎授權能力
 - 未來若需要圖片，可延伸到 storage
 
@@ -212,15 +215,16 @@ src/
 
 ### 7.1 登入方式
 
-- 使用 `Supabase Auth` 的 email magic link
-- 第一版只有站主登入
-- 可先用 allowlist email 控制登入對象
+- 第一版使用單一 admin 密碼
+- 密碼透過 server action 驗證
+- 驗證通過後寫入 httpOnly session cookie
+- 第一版只有站主登入，不做多人帳號管理
 
 ### 7.2 Session 流程
 
-- `/admin/login` 提交 email
-- magic link 點擊後回到 `/auth/callback`
-- callback 完成 session 建立後導向 `/admin/posts`
+- `/admin/login` 提交 password
+- server action 驗證成功後寫入 admin session cookie
+- 完成後直接導向 `/admin/posts`
 
 ### 7.3 Admin 存取規則
 
@@ -232,7 +236,7 @@ src/
 
 - 公開前台只可讀 `published` 的 `blog_posts`
 - admin 可讀寫所有 `blog_posts`
-- 第一版因為只有一位使用者，可採最小可行規則
+- 第一版因為只有一位使用者，可採最小可行密碼門規則
 - 但 DB / app 邊界要保留未來多人使用的延伸空間
 
 ## 8. RLS 與資料存取策略

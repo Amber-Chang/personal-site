@@ -1,13 +1,8 @@
-type AdminUser = {
-  email: string | null;
-};
-
 type AdminGuardFailureReason = "forbidden" | "unauthenticated";
 
 export type AdminGuardResult =
   | {
       ok: true;
-      user: AdminUser;
     }
   | {
       ok: false;
@@ -40,42 +35,29 @@ export function isAllowedAdminEmail(email: string | null, allowedEmails: string[
 }
 
 export async function getAdminGuardResult(input: {
-  allowedEmails: string[];
-  getUser: () => Promise<AdminUser | null>;
+  hasAdminSession: () => Promise<boolean>;
 }): Promise<AdminGuardResult> {
-  const user = await input.getUser();
+  const hasAdminSession = await input.hasAdminSession();
 
-  if (!user?.email) {
+  if (hasAdminSession) {
     return {
-      ok: false,
-      reason: "unauthenticated",
-      redirectTo: "/admin/login",
-    };
-  }
-
-  if (!isAllowedAdminEmail(user.email, input.allowedEmails)) {
-    return {
-      ok: false,
-      reason: "forbidden",
-      redirectTo: "/admin/login",
+      ok: true,
     };
   }
 
   return {
-    ok: true,
-    user,
+    ok: false,
+    reason: "unauthenticated",
+    redirectTo: "/admin/login",
   };
 }
 
 export async function requireAdminMutationSession(input: {
-  allowedEmails: string[];
-  getUser: () => Promise<AdminUser | null>;
-}): Promise<AdminUser> {
+  hasAdminSession: () => Promise<boolean>;
+}): Promise<void> {
   const result = await getAdminGuardResult(input);
 
   if (!result.ok) {
     throw new AdminAuthorizationError(result.reason);
   }
-
-  return result.user;
 }

@@ -19,5 +19,5 @@ test("client auth callback handles code-based magic links", () => {
 
   assert.match(source, /URLSearchParams\(window\.location\.search\)/);
   assert.match(source, /code/);
-  assert.match(source, /exchangeCodeForSession/);
+  assert.match(source, /window\.location\.replace\(`\/auth\/callback\?code=/);
 });

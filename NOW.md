@@ -4,7 +4,7 @@
 
 ## 現況
 
-- branch：`main`
+- branch：`codex/admin-posts-skeleton`
 - 網站已具備：
   - 首頁改版版本
   - `/about`
@@ -21,19 +21,21 @@
 - 完成網站最小治理集合與核心方向整理，確立 `AGENTS.md`、`FOUNDATION.md`、`NOW.md`、`docs/` 的責任分工
 - 完成 blog admin MVP 的主 spec、系統架構原則與標準開發流程規則
 - 完成 blog admin 前四個主要 round：foundation 底座、admin posts skeleton、前台 blog 切 repository、Markdown import tooling
+- admin 登入 MVP 已從 Supabase magic link 改成單一密碼 + httpOnly session cookie，避免被內建 email rate limit 卡住
+- admin 後台補上欄位說明文字、前台登入後可見的 `後台` 入口，以及較穩定的 publish intent 傳遞與較清楚的 Supabase 錯誤訊息
 
 ## 目前最重要的事
 
 - 持續調整網站視覺與品牌感
 - 完成 blog admin 的登入後台流程驗證
-- 目前卡點：Supabase 內建 email provider 觸發 `over_email_send_rate_limit`，需等約 1 小時後再寄 magic link，或後續改接自訂 SMTP
 - 讓後續開發工作可依標準流程規則化執行
 
 ## 下一步建議
 
 1. 打磨首頁視覺與文案
-2. 等 Supabase email rate limit 解除後，重新寄 magic link 並驗證 `/admin/posts`
-3. 驗證草稿、編輯、發佈、公開顯示整條流程
+2. 補完 admin 流程的手動驗證：新增、編輯、取消發佈、重新發佈、前台顯示與隱藏
+3. 視需要補 `title -> slug` 自動建議與更完整的後台錯誤訊息
+4. 若後續需要多人或遠端登入，再評估是否回到完整 auth 方案
 
 ## 備註
 
@@ -52,4 +54,4 @@
 - `npm run content:import-posts` 已成功匯入 `ai-membership-system`
 - admin magic link callback 已支援 `?code=` 與 `#access_token=` 兩種回傳格式
 - admin post form 已改成 publish UX 按鈕，不再以 status dropdown 作為主要操作
-- 目前未完成 admin 後台登入後驗證，原因是 Supabase email rate limit 暫時擋住重新寄送 magic link
+- 目前 admin 後台登入改採密碼門 MVP，不再依賴 Supabase magic link

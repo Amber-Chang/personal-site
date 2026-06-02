@@ -1,60 +1,43 @@
-import { AdminAuthorizationError } from "./guards.ts";
-import { AdminAuthFlowError } from "./magic-link.ts";
+import { timingSafeEqual } from "node:crypto";
+
+import { createAdminSessionToken } from "./session.ts";
+
+function passwordMatches(inputPassword: string, adminPassword: string): boolean {
+  const inputBuffer = Buffer.from(inputPassword);
+  const expectedBuffer = Buffer.from(adminPassword);
+
+  if (inputBuffer.length !== expectedBuffer.length) {
+    return false;
+  }
+
+  return timingSafeEqual(inputBuffer, expectedBuffer);
+}
 
 export function createAdminLoginAction(input: {
-  adminAllowedEmails: string[];
-  emailRedirectTo: string;
-  requestAdminMagicLink: (input: {
-    allowedEmails: string[];
-    email: string;
-    emailRedirectTo: string;
-    signInWithOtp: (input: {
-      email: string;
-      options: { emailRedirectTo: string };
-    }) => Promise<{ error: Error | null }>;
-  }) => Promise<void>;
-  signInWithOtp: (input: {
-    email: string;
-    options: { emailRedirectTo: string };
-  }) => Promise<{ error: Error | null }>;
+  adminPassword: string;
+  setAdminSession: (sessionToken: string) => void;
 }) {
   return async function adminLoginAction(
     formData: FormData,
   ): Promise<{ error: string; ok: false } | { ok: true }> {
-    const emailValue = formData.get("email");
-    const email = typeof emailValue === "string" ? emailValue : "";
+    const passwordValue = formData.get("password");
+    const password = typeof passwordValue === "string" ? passwordValue : "";
 
-    if (!email.trim()) {
+    if (!password) {
       return {
         ok: false,
-        error: "請輸入 email",
+        error: "請輸入密碼",
       };
     }
 
-    try {
-      await input.requestAdminMagicLink({
-        allowedEmails: input.adminAllowedEmails,
-        email,
-        emailRedirectTo: input.emailRedirectTo,
-        signInWithOtp: input.signInWithOtp,
-      });
-    } catch (error) {
-      if (error instanceof AdminAuthorizationError) {
-        return {
-          ok: false,
-          error: "這個 email 沒有 admin 權限",
-        };
-      }
-
-      if (error instanceof AdminAuthFlowError) {
-        return {
-          ok: false,
-          error: "magic link 寄送失敗，請稍後再試",
-        };
-      }
-
-      throw error;
+    if (!passwordMatches(password, input.adminPassword)) {
+      return {
+        ok: false,
+        error: "密碼錯誤",
+      };
     }
+
+    input.setAdminSession(createAdminSessionToken(input.adminPassword));
 
     return {
       ok: true,

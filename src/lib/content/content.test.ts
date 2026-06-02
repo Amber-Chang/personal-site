@@ -291,6 +291,67 @@ test("SupabaseProjectsRepository returns published project options ordered by ti
   ]);
 });
 
+test("SupabaseBlogPostsRepository translates duplicate slug errors into helper copy", async () => {
+  const repositoryModule = await loadModule<{
+    SupabaseBlogPostsRepository: new (client: {
+      from: (table: string) => {
+        insert: (input: Record<string, unknown>) => {
+          select: (columns: string) => {
+            single: () => Promise<{
+              data: null;
+              error: {
+                code: string;
+                details?: string;
+                message?: string;
+              };
+            }>;
+          };
+        };
+      };
+    }) => {
+      createPost: (input: {
+        contentMarkdown: string;
+        excerpt: string | null;
+        publishedAt?: string | null;
+        relatedProjectId?: string | null;
+        slug: string;
+        status: "draft" | "published";
+        title: string;
+      }) => Promise<unknown>;
+    };
+  }>("../infra/repositories/supabase-posts-repository.ts", "Supabase posts repository");
+
+  const repository = new repositoryModule.SupabaseBlogPostsRepository({
+    from: () => ({
+      insert: () => ({
+        select: () => ({
+          single: async () => ({
+            data: null,
+            error: {
+              code: "23505",
+              details: "Key (slug)=(ai-membership-system) already exists.",
+              message: 'duplicate key value violates unique constraint "blog_posts_slug_key"',
+            },
+          }),
+        }),
+      }),
+    }),
+  });
+
+  await assert.rejects(
+    () =>
+      repository.createPost({
+        contentMarkdown: "",
+        excerpt: null,
+        relatedProjectId: null,
+        slug: "ai-membership-system",
+        status: "draft",
+        title: "Duplicate slug",
+      }),
+    (error: unknown) => error instanceof Error && error.message === "這個 slug 已經被其他文章使用，請換一個網址識別字。",
+  );
+});
+
 test("createBlogContentService lists admin posts through the repository", async () => {
   const serviceModule = await loadModule<{
     createBlogContentService: (input: {

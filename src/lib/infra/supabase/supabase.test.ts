@@ -15,6 +15,7 @@ test("readSupabaseEnv normalizes required keys and admin allowlist", async () =>
   const envModule = await loadModule<{
     readSupabaseEnv: (input?: Record<string, string | undefined>) => {
       adminAllowedEmails: string[];
+      adminPassword: string;
       anonKey: string;
       serviceRoleKey: string;
       siteUrl: string;
@@ -27,6 +28,7 @@ test("readSupabaseEnv normalizes required keys and admin allowlist", async () =>
     NEXT_PUBLIC_SUPABASE_ANON_KEY: "anon-key",
     NEXT_PUBLIC_SUPABASE_URL: "https://project.supabase.co",
     SUPABASE_ADMIN_EMAILS: "owner@example.com, OWNER2@example.com  ",
+    ADMIN_LOGIN_PASSWORD: "super-secret",
     SUPABASE_SERVICE_ROLE_KEY: "service-role-key",
   });
 
@@ -36,6 +38,7 @@ test("readSupabaseEnv normalizes required keys and admin allowlist", async () =>
     serviceRoleKey: "service-role-key",
     siteUrl: "https://amber.test",
     adminAllowedEmails: ["owner@example.com", "owner2@example.com"],
+    adminPassword: "super-secret",
   });
 });
 

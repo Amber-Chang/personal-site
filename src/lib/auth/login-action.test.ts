@@ -9,185 +9,73 @@ async function loadModule<TModule>(pathName: string, label: string): Promise<TMo
   return loadedModule as TModule;
 }
 
-test("createAdminLoginAction forwards normalized allowlist and callback URL", async () => {
+test("createAdminLoginAction sets an admin session when password is correct", async () => {
   const loginActionModule = await loadModule<{
     createAdminLoginAction: (input: {
-      adminAllowedEmails: string[];
-      emailRedirectTo: string;
-      requestAdminMagicLink: (input: {
-        allowedEmails: string[];
-        email: string;
-        emailRedirectTo: string;
-        signInWithOtp: (input: {
-          email: string;
-          options: { emailRedirectTo: string };
-        }) => Promise<{ error: Error | null }>;
-      }) => Promise<void>;
-      signInWithOtp: (input: {
-        email: string;
-        options: { emailRedirectTo: string };
-      }) => Promise<{ error: Error | null }>;
+      adminPassword: string;
+      setAdminSession: (sessionToken: string) => void;
     }) => (formData: FormData) => Promise<{ ok: true }>;
   }>("./login-action.ts", "admin login action");
 
-  let received:
-    | {
-        allowedEmails: string[];
-        email: string;
-        emailRedirectTo: string;
-      }
-    | null = null;
+  let receivedSessionToken: string | null = null;
 
   const action = loginActionModule.createAdminLoginAction({
-    adminAllowedEmails: ["owner@example.com"],
-    emailRedirectTo: "https://amber.test/auth/callback",
-    requestAdminMagicLink: async (input) => {
-      received = {
-        allowedEmails: input.allowedEmails,
-        email: input.email,
-        emailRedirectTo: input.emailRedirectTo,
-      };
+    adminPassword: "super-secret",
+    setAdminSession: (sessionToken) => {
+      receivedSessionToken = sessionToken;
     },
-    signInWithOtp: async () => ({ error: null }),
   });
 
   const formData = new FormData();
-  formData.set("email", "OWNER@example.com ");
+  formData.set("password", "super-secret");
 
   const result = await action(formData);
 
-  assert.deepEqual(received, {
-    allowedEmails: ["owner@example.com"],
-    email: "OWNER@example.com ",
-    emailRedirectTo: "https://amber.test/auth/callback",
-  });
+  assert.equal(typeof receivedSessionToken, "string");
   assert.deepEqual(result, { ok: true });
 });
 
-test("createAdminLoginAction returns a field error when email is missing", async () => {
+test("createAdminLoginAction returns a field error when password is missing", async () => {
   const loginActionModule = await loadModule<{
     createAdminLoginAction: (input: {
-      adminAllowedEmails: string[];
-      emailRedirectTo: string;
-      requestAdminMagicLink: (input: {
-        allowedEmails: string[];
-        email: string;
-        emailRedirectTo: string;
-        signInWithOtp: (input: {
-          email: string;
-          options: { emailRedirectTo: string };
-        }) => Promise<{ error: Error | null }>;
-      }) => Promise<void>;
-      signInWithOtp: (input: {
-        email: string;
-        options: { emailRedirectTo: string };
-      }) => Promise<{ error: Error | null }>;
+      adminPassword: string;
+      setAdminSession: (sessionToken: string) => void;
     }) => (formData: FormData) => Promise<{ error: string; ok: false } | { ok: true }>;
   }>("./login-action.ts", "admin login action");
 
   const action = loginActionModule.createAdminLoginAction({
-    adminAllowedEmails: ["owner@example.com"],
-    emailRedirectTo: "https://amber.test/auth/callback",
-    requestAdminMagicLink: async () => undefined,
-    signInWithOtp: async () => ({ error: null }),
+    adminPassword: "super-secret",
+    setAdminSession: () => undefined,
   });
 
   const result = await action(new FormData());
 
   assert.deepEqual(result, {
     ok: false,
-    error: "請輸入 email",
+    error: "請輸入密碼",
   });
 });
 
-test("createAdminLoginAction returns a controlled error for disallowed admin emails", async () => {
-  const [loginActionModule, guardsModule] = await Promise.all([
-    loadModule<{
-      createAdminLoginAction: (input: {
-        adminAllowedEmails: string[];
-        emailRedirectTo: string;
-        requestAdminMagicLink: (input: {
-          allowedEmails: string[];
-          email: string;
-          emailRedirectTo: string;
-          signInWithOtp: (input: {
-            email: string;
-            options: { emailRedirectTo: string };
-          }) => Promise<{ error: Error | null }>;
-        }) => Promise<void>;
-        signInWithOtp: (input: {
-          email: string;
-          options: { emailRedirectTo: string };
-        }) => Promise<{ error: Error | null }>;
-      }) => (formData: FormData) => Promise<{ error: string; ok: false } | { ok: true }>;
-    }>("./login-action.ts", "admin login action"),
-    loadModule<{
-      AdminAuthorizationError: new (code: "forbidden" | "unauthenticated") => Error;
-    }>("./guards.ts", "auth guards"),
-  ]);
+test("createAdminLoginAction returns a controlled error when password is wrong", async () => {
+  const loginActionModule = await loadModule<{
+    createAdminLoginAction: (input: {
+      adminPassword: string;
+      setAdminSession: (sessionToken: string) => void;
+    }) => (formData: FormData) => Promise<{ error: string; ok: false } | { ok: true }>;
+  }>("./login-action.ts", "admin login action");
 
   const action = loginActionModule.createAdminLoginAction({
-    adminAllowedEmails: ["owner@example.com"],
-    emailRedirectTo: "https://amber.test/auth/callback",
-    requestAdminMagicLink: async () => {
-      throw new guardsModule.AdminAuthorizationError("forbidden");
-    },
-    signInWithOtp: async () => ({ error: null }),
+    adminPassword: "super-secret",
+    setAdminSession: () => undefined,
   });
 
   const formData = new FormData();
-  formData.set("email", "guest@example.com");
+  formData.set("password", "wrong-password");
 
   const result = await action(formData);
 
   assert.deepEqual(result, {
     ok: false,
-    error: "這個 email 沒有 admin 權限",
-  });
-});
-
-test("createAdminLoginAction returns a controlled error when magic link request fails", async () => {
-  const [loginActionModule, magicLinkModule] = await Promise.all([
-    loadModule<{
-      createAdminLoginAction: (input: {
-        adminAllowedEmails: string[];
-        emailRedirectTo: string;
-        requestAdminMagicLink: (input: {
-          allowedEmails: string[];
-          email: string;
-          emailRedirectTo: string;
-          signInWithOtp: (input: {
-            email: string;
-            options: { emailRedirectTo: string };
-          }) => Promise<{ error: Error | null }>;
-        }) => Promise<void>;
-        signInWithOtp: (input: {
-          email: string;
-          options: { emailRedirectTo: string };
-        }) => Promise<{ error: Error | null }>;
-      }) => (formData: FormData) => Promise<{ error: string; ok: false } | { ok: true }>;
-    }>("./login-action.ts", "admin login action"),
-    loadModule<{
-      AdminAuthFlowError: new (message: string) => Error;
-    }>("./magic-link.ts", "magic link auth"),
-  ]);
-
-  const action = loginActionModule.createAdminLoginAction({
-    adminAllowedEmails: ["owner@example.com"],
-    emailRedirectTo: "https://amber.test/auth/callback",
-    requestAdminMagicLink: async () => {
-      throw new magicLinkModule.AdminAuthFlowError("otp failed");
-    },
-    signInWithOtp: async () => ({ error: null }),
-  });
-
-  const formData = new FormData();
-  formData.set("email", "owner@example.com");
-
-  const result = await action(formData);
-
-  assert.deepEqual(result, {
-    ok: false,
-    error: "magic link 寄送失敗，請稍後再試",
+    error: "密碼錯誤",
   });
 });

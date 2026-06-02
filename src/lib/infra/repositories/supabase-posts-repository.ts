@@ -15,6 +15,9 @@ type BlogPostRow = {
 };
 
 type QueryError = {
+  code?: string;
+  details?: string;
+  hint?: string;
   message?: string;
 } | null;
 
@@ -94,9 +97,33 @@ function mapUpdateInput(input: UpdateBlogPostInput) {
   };
 }
 
+function formatQueryError(error: Exclude<QueryError, null>) {
+  if (error.code === "23505") {
+    if (error.message?.includes("blog_posts_slug_key") || error.details?.includes("(slug)")) {
+      return "這個 slug 已經被其他文章使用，請換一個網址識別字。";
+    }
+
+    return "這筆資料和現有內容衝突，請檢查是否有重複值。";
+  }
+
+  if (error.message) {
+    return error.message;
+  }
+
+  if (error.details) {
+    return error.details;
+  }
+
+  if (error.hint) {
+    return error.hint;
+  }
+
+  return "Supabase query failed.";
+}
+
 function ensureArray<T>(data: T[] | null, error: QueryError | undefined): T[] {
   if (error) {
-    throw new Error(error.message ?? "Supabase query failed.");
+    throw new Error(formatQueryError(error));
   }
 
   return data ?? [];
@@ -104,7 +131,7 @@ function ensureArray<T>(data: T[] | null, error: QueryError | undefined): T[] {
 
 function ensureOne<T>(data: T | null, error: QueryError | undefined): T {
   if (error) {
-    throw new Error(error.message ?? "Supabase query failed.");
+    throw new Error(formatQueryError(error));
   }
 
   if (!data) {
@@ -116,7 +143,7 @@ function ensureOne<T>(data: T | null, error: QueryError | undefined): T {
 
 function maybeOne<T>(data: T | null, error: QueryError | undefined): T | null {
   if (error) {
-    throw new Error(error.message ?? "Supabase query failed.");
+    throw new Error(formatQueryError(error));
   }
 
   return data;

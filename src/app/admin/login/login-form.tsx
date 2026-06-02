@@ -11,28 +11,27 @@ export function AdminLoginForm() {
   return (
     <form action={formAction} className="space-y-4">
       <div className="space-y-2">
-        <label className="text-sm font-medium text-black" htmlFor="email">
-          Email
+        <label className="text-sm font-medium text-black" htmlFor="password">
+          密碼
         </label>
         <input
           className="w-full rounded-2xl border border-black/10 px-4 py-3 text-base outline-none transition focus:border-black/30"
-          id="email"
-          name="email"
-          placeholder="you@example.com"
+          id="password"
+          name="password"
+          placeholder="請輸入 admin 密碼"
           required
-          type="email"
+          type="password"
         />
       </div>
 
       {state.error ? <p className="text-sm text-red-600">{state.error}</p> : null}
-      {state.ok ? <p className="text-sm text-green-700">已寄出 magic link，請到信箱完成登入。</p> : null}
 
       <button
         className="inline-flex rounded-full bg-black px-5 py-3 text-sm font-medium text-white transition hover:bg-black/85 disabled:cursor-not-allowed disabled:bg-black/30"
         disabled={pending}
         type="submit"
       >
-        {pending ? "寄送中..." : "寄送 magic link"}
+        {pending ? "登入中..." : "登入後台"}
       </button>
     </form>
   );

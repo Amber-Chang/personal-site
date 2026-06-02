@@ -8,6 +8,9 @@ type ProjectRow = {
 };
 
 type QueryError = {
+  code?: string;
+  details?: string;
+  hint?: string;
   message?: string;
 } | null;
 
@@ -41,9 +44,13 @@ function mapProjectRow(row: ProjectRow): ProjectOption {
   };
 }
 
+function formatQueryError(error: Exclude<QueryError, null>) {
+  return error.message ?? error.details ?? error.hint ?? "Supabase query failed.";
+}
+
 function ensureArray<T>(data: T[] | null, error: QueryError | undefined): T[] {
   if (error) {
-    throw new Error(error.message ?? "Supabase query failed.");
+    throw new Error(formatQueryError(error));
   }
 
   return data ?? [];
@@ -51,7 +58,7 @@ function ensureArray<T>(data: T[] | null, error: QueryError | undefined): T[] {
 
 function maybeOne<T>(data: T | null, error: QueryError | undefined): T | null {
   if (error) {
-    throw new Error(error.message ?? "Supabase query failed.");
+    throw new Error(formatQueryError(error));
   }
 
   return data;

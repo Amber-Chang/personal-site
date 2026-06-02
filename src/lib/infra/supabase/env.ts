@@ -1,5 +1,6 @@
 export type SupabaseEnv = {
   adminAllowedEmails: string[];
+  adminPassword: string;
   anonKey: string;
   serviceRoleKey: string;
   siteUrl: string;
@@ -41,9 +42,11 @@ export function readSupabaseEnv(source: Record<string, string | undefined> = pro
   const serviceRoleKey = getRequiredValue(source, "SUPABASE_SERVICE_ROLE_KEY");
   const siteUrl = getRequiredValue(source, "NEXT_PUBLIC_SITE_URL");
   const adminAllowedEmails = parseAllowedEmails(getRequiredValue(source, "SUPABASE_ADMIN_EMAILS"));
+  const adminPassword = getRequiredValue(source, "ADMIN_LOGIN_PASSWORD");
 
   return {
     adminAllowedEmails,
+    adminPassword,
     anonKey,
     serviceRoleKey,
     siteUrl,

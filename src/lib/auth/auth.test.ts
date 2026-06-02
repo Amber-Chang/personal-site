@@ -12,14 +12,12 @@ async function loadModule<TModule>(path: string, label: string): Promise<TModule
 test("getAdminGuardResult redirects unauthenticated requests to admin login", async () => {
   const guardsModule = await loadModule<{
     getAdminGuardResult: (input: {
-      allowedEmails: string[];
-      getUser: () => Promise<{ email: string | null } | null>;
+      hasAdminSession: () => Promise<boolean>;
     }) => Promise<unknown>;
   }>("./guards.ts", "auth guards");
 
   const result = await guardsModule.getAdminGuardResult({
-    allowedEmails: ["owner@example.com"],
-    getUser: async () => null,
+    hasAdminSession: async () => false,
   });
 
   assert.deepEqual(result, {
@@ -29,25 +27,32 @@ test("getAdminGuardResult redirects unauthenticated requests to admin login", as
   });
 });
 
-test("requireAdminMutationSession rejects disallowed admin emails", async () => {
+test("requireAdminMutationSession rejects missing admin session", async () => {
   const guardsModule = await loadModule<{
     AdminAuthorizationError: new (code: string) => Error & { code: string };
     requireAdminMutationSession: (input: {
-      allowedEmails: string[];
-      getUser: () => Promise<{ email: string | null } | null>;
+      hasAdminSession: () => Promise<boolean>;
     }) => Promise<void>;
   }>("./guards.ts", "auth guards");
 
   await assert.rejects(
     () =>
       guardsModule.requireAdminMutationSession({
-        allowedEmails: ["owner@example.com"],
-        getUser: async () => ({ email: "guest@example.com" }),
+        hasAdminSession: async () => false,
       }),
     (error: unknown) =>
       error instanceof guardsModule.AdminAuthorizationError &&
-      error.code === "forbidden",
+      error.code === "unauthenticated",
   );
+});
+
+test("isAllowedAdminEmail matches normalized allowlist entries", async () => {
+  const guardsModule = await loadModule<{
+    isAllowedAdminEmail: (email: string | null, allowedEmails: string[]) => boolean;
+  }>("./guards.ts", "auth guards");
+
+  assert.equal(guardsModule.isAllowedAdminEmail("OWNER@example.com ", ["owner@example.com"]), true);
+  assert.equal(guardsModule.isAllowedAdminEmail("guest@example.com", ["owner@example.com"]), false);
 });
 
 test("requestAdminMagicLink rejects emails outside the admin allowlist", async () => {
