@@ -3,6 +3,8 @@ import { createAdminPostAction } from "../actions.ts";
 import { getAdminPageContentService } from "../admin-context.ts";
 import { loadAdminPostCreatePageData } from "../data.ts";
 
+export const dynamic = "force-dynamic";
+
 export default async function NewAdminPostPage() {
   const service = await getAdminPageContentService();
   const { projectOptions } = await loadAdminPostCreatePageData({

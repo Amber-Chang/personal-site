@@ -78,7 +78,7 @@ test("createAdminPostAction creates a draft and redirects to the edit page", asy
       updatePost: (state: AdminPostFormState, formData: FormData) => Promise<AdminPostFormState>;
     };
     initialAdminPostFormState: AdminPostFormState;
-  }>("./actions.ts", "admin posts actions");
+  }>("./action-core.ts", "admin posts actions");
 
   const createCalls: CreateBlogPostInput[] = [];
   const revalidatedPaths: string[] = [];
@@ -145,7 +145,7 @@ test("updateAdminPostAction updates an existing post and redirects back to the e
       updatePost: (state: AdminPostFormState, formData: FormData) => Promise<AdminPostFormState>;
     };
     initialAdminPostFormState: AdminPostFormState;
-  }>("./actions.ts", "admin posts actions");
+  }>("./action-core.ts", "admin posts actions");
 
   const updateCalls: Array<{ id: string; input: UpdateBlogPostInput }> = [];
   const revalidatedPaths: string[] = [];
@@ -202,6 +202,132 @@ test("updateAdminPostAction updates an existing post and redirects back to the e
   assert.deepEqual(redirects, ["/admin/posts/post-9"]);
 });
 
+test("updateAdminPostAction can publish an existing draft from the submit intent", async () => {
+  const actionsModule = await loadModule<{
+    createAdminPostMutationActions: (input: {
+      redirectTo: (path: string) => never;
+      revalidatePath: (path: string) => void;
+      service: {
+        createPost: (input: CreateBlogPostInput) => Promise<BlogPostRecord>;
+        updatePost: (id: string, input: UpdateBlogPostInput) => Promise<BlogPostRecord>;
+      };
+    }) => {
+      updatePost: (state: AdminPostFormState, formData: FormData) => Promise<AdminPostFormState>;
+    };
+    initialAdminPostFormState: AdminPostFormState;
+  }>("./action-core.ts", "admin posts actions");
+
+  const updateCalls: Array<{ id: string; input: UpdateBlogPostInput }> = [];
+  const actions = actionsModule.createAdminPostMutationActions({
+    redirectTo: (path) => {
+      throw new Error(`redirect:${path}`);
+    },
+    revalidatePath: () => {},
+    service: {
+      createPost: async () => {
+        throw new Error("createPost should not be called during update");
+      },
+      updatePost: async (id, input) => {
+        updateCalls.push({ id, input });
+        return createPost({ id, ...input });
+      },
+    },
+  });
+
+  const formData = createFormData([
+    ["id", "post-10"],
+    ["title", "Draft post"],
+    ["slug", "draft-post"],
+    ["excerpt", ""],
+    ["content_markdown", "Draft markdown"],
+    ["status", "draft"],
+    ["intent", "publish"],
+    ["related_project_id", ""],
+  ]);
+
+  await assert.rejects(
+    () => actions.updatePost(actionsModule.initialAdminPostFormState, formData),
+    /redirect:\/admin\/posts\/post-10/,
+  );
+
+  assert.deepEqual(updateCalls, [
+    {
+      id: "post-10",
+      input: {
+        title: "Draft post",
+        slug: "draft-post",
+        excerpt: null,
+        contentMarkdown: "Draft markdown",
+        status: "published",
+        relatedProjectId: null,
+      },
+    },
+  ]);
+});
+
+test("updateAdminPostAction can unpublish an existing post from the submit intent", async () => {
+  const actionsModule = await loadModule<{
+    createAdminPostMutationActions: (input: {
+      redirectTo: (path: string) => never;
+      revalidatePath: (path: string) => void;
+      service: {
+        createPost: (input: CreateBlogPostInput) => Promise<BlogPostRecord>;
+        updatePost: (id: string, input: UpdateBlogPostInput) => Promise<BlogPostRecord>;
+      };
+    }) => {
+      updatePost: (state: AdminPostFormState, formData: FormData) => Promise<AdminPostFormState>;
+    };
+    initialAdminPostFormState: AdminPostFormState;
+  }>("./action-core.ts", "admin posts actions");
+
+  const updateCalls: Array<{ id: string; input: UpdateBlogPostInput }> = [];
+  const actions = actionsModule.createAdminPostMutationActions({
+    redirectTo: (path) => {
+      throw new Error(`redirect:${path}`);
+    },
+    revalidatePath: () => {},
+    service: {
+      createPost: async () => {
+        throw new Error("createPost should not be called during update");
+      },
+      updatePost: async (id, input) => {
+        updateCalls.push({ id, input });
+        return createPost({ id, ...input });
+      },
+    },
+  });
+
+  const formData = createFormData([
+    ["id", "post-11"],
+    ["title", "Published post"],
+    ["slug", "published-post"],
+    ["excerpt", ""],
+    ["content_markdown", "Published markdown"],
+    ["status", "published"],
+    ["intent", "draft"],
+    ["related_project_id", ""],
+  ]);
+
+  await assert.rejects(
+    () => actions.updatePost(actionsModule.initialAdminPostFormState, formData),
+    /redirect:\/admin\/posts\/post-11/,
+  );
+
+  assert.deepEqual(updateCalls, [
+    {
+      id: "post-11",
+      input: {
+        title: "Published post",
+        slug: "published-post",
+        excerpt: null,
+        contentMarkdown: "Published markdown",
+        status: "draft",
+        relatedProjectId: null,
+      },
+    },
+  ]);
+});
+
 test("updateAdminPostAction returns a controlled error when the post is missing", async () => {
   const actionsModule = await loadModule<{
     createAdminPostMutationActions: (input: {
@@ -216,7 +342,7 @@ test("updateAdminPostAction returns a controlled error when the post is missing"
       updatePost: (state: AdminPostFormState, formData: FormData) => Promise<AdminPostFormState>;
     };
     initialAdminPostFormState: AdminPostFormState;
-  }>("./actions.ts", "admin posts actions");
+  }>("./action-core.ts", "admin posts actions");
 
   const actions = actionsModule.createAdminPostMutationActions({
     redirectTo: (path) => {
@@ -263,7 +389,7 @@ test("createAdminPostAction returns a controlled error when the admin session is
       updatePost: (state: AdminPostFormState, formData: FormData) => Promise<AdminPostFormState>;
     };
     initialAdminPostFormState: AdminPostFormState;
-  }>("./actions.ts", "admin posts actions");
+  }>("./action-core.ts", "admin posts actions");
 
   const guardsModule = await import("../../../lib/auth/guards.ts");
   const actions = actionsModule.createAdminPostServerActions({
@@ -301,7 +427,7 @@ test("updateAdminPostAction returns a controlled error when the admin allowlist 
       updatePost: (state: AdminPostFormState, formData: FormData) => Promise<AdminPostFormState>;
     };
     initialAdminPostFormState: AdminPostFormState;
-  }>("./actions.ts", "admin posts actions");
+  }>("./action-core.ts", "admin posts actions");
 
   const guardsModule = await import("../../../lib/auth/guards.ts");
   const actions = actionsModule.createAdminPostServerActions({

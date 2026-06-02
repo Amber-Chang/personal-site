@@ -1,6 +1,6 @@
 import { createBrowserClient as createSupabaseBrowserClient } from "@supabase/ssr";
 
-import { readSupabaseEnv } from "./env.ts";
+import { readSupabasePublicEnv } from "./env.ts";
 
 export function createBrowserSupabaseClient(input?: {
   createBrowserClient?: (url: string, key: string) => unknown;
@@ -9,7 +9,7 @@ export function createBrowserSupabaseClient(input?: {
     url: string;
   };
 }) {
-  const env = input?.env ?? readSupabaseEnv();
+  const env = input?.env ?? readSupabasePublicEnv();
   const createBrowserClient = input?.createBrowserClient ?? createSupabaseBrowserClient;
 
   return createBrowserClient(env.url, env.anonKey);

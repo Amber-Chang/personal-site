@@ -3,7 +3,8 @@
 
 import type { Metadata } from "next";
 import { PostCard } from "@/components/PostCard";
-import { getPublishedPosts } from "@/lib/posts";
+import { getPublicBlogContentService } from "./blog-context";
+import { loadBlogIndexPageData } from "./data";
 
 export const metadata: Metadata = {
   title: "文章 — Amber Chang",
@@ -14,8 +15,12 @@ export const metadata: Metadata = {
   },
 };
 
-export default function BlogPage() {
-  const posts = getPublishedPosts();
+export const revalidate = 0;
+
+export default async function BlogPage() {
+  const { posts } = await loadBlogIndexPageData({
+    service: getPublicBlogContentService(),
+  });
 
   return (
     <div className="space-y-6">

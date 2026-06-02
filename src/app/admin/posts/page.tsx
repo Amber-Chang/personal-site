@@ -3,6 +3,8 @@ import Link from "next/link";
 import { getAdminPageContentService } from "./admin-context.ts";
 import { loadAdminPostsPageData } from "./data.ts";
 
+export const dynamic = "force-dynamic";
+
 export default async function AdminPostsPage() {
   const service = await getAdminPageContentService();
   const { posts } = await loadAdminPostsPageData({

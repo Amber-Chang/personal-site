@@ -1,6 +1,6 @@
 import { createServerClient as createSupabaseServerClient } from "@supabase/ssr";
 
-import { readSupabaseEnv } from "./env.ts";
+import { readSupabasePublicEnv } from "./env.ts";
 
 export type SupabaseCookieAdapter = {
   getAll: () => Array<{ name: string; value: string }>;
@@ -21,7 +21,7 @@ export function createServerSupabaseClient(input: {
     url: string;
   };
 }) {
-  const env = input.env ?? readSupabaseEnv();
+  const env = input.env ?? readSupabasePublicEnv();
   const createServerClient = input.createServerClient ?? createSupabaseServerClient;
 
   return createServerClient(env.url, env.anonKey, {

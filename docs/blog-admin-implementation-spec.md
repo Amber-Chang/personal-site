@@ -33,32 +33,43 @@
   - `/admin/posts/[id]`
   - 共享 post form
   - 最小 create / update server actions
+- `Phase 3：前台 blog 切換`
+  - `/blog` 改讀 repository
+  - `/blog/[slug]` 改讀 repository
+  - public content path 使用 anon Supabase client 與 published-only repository read
+  - admin posts pages 已標成 runtime dynamic，避免 build-time prerender 觸發 session / env 讀取
+- `Phase 4：Migration tooling 與 Markdown-only 清點`
+  - 新增 `npm run content:import-posts` 一次性匯入指令
+  - Markdown importer 會讀取 `content/posts/*.md` 並建立 `blog_posts`
+  - 匯入時同 slug 既有文章會跳過，不覆蓋人工調整資料
+  - 首頁 writing 區塊改讀 public repository 的 published posts
+  - 舊 `src/lib/posts.ts` 已移除，blog 前台不再依賴 Markdown reader
+  - 已實際匯入 `ai-membership-system`
+  - magic link client callback 已支援 `?code=` 與 `#access_token=` 兩種回傳格式
+  - admin post form 已改成 `儲存變更 / 發佈文章 / 取消發佈` 的 publish UX
 
 ### 已完成但後續仍可補強
 
 - admin login 錯誤處理已受控，但 UI 訊息仍可再打磨
 - admin post form 已可新增 / 編輯，但還不是 rich editor 體驗
-- admin content path 已可用，但還沒接上 publish UX / preview
+- admin content path 已可用，但還沒接上 preview
+- `content/posts/*.md` 仍保留作為 migration source，實際匯入完成後再決定是否移除
+- 目前使用 Supabase 內建 email provider，開發測試時容易遇到 `over_email_send_rate_limit`
 
 ### 尚未完成
 
-- `Phase 3：前台 blog 切換`
-  - `/blog` 改讀 repository
-  - `/blog/[slug]` 改讀 repository
-  - 驗證只有 `published` 文章可見
-- `Phase 4：Migration 與驗證`
-  - 匯入既有 Markdown 文章
+- `Phase 4：後台登入後外部流程驗證`
+  - 等 Supabase email rate limit 解除後，重新寄 magic link 並進入 `/admin/posts`
   - 驗證登入、草稿、編輯、發佈、公開顯示整條流程
-  - 清點哪些 Markdown-only 邏輯可移除
 - 後續體驗補強
-  - publish UX
+  - 自訂 SMTP，避免 Supabase 內建 email provider 的低 rate limit 擋住開發與後續使用
   - preview
   - Markdown editor 強化
 
 ### 建議下一個 round
 
-- 先做 blog 前台從 Markdown 切到 repository
-- 再做 markdown migration 與整體流程驗證
+- 做 markdown migration 與整體流程驗證
+- 在具備 Supabase env 的環境實際執行 import，並做完整手動流程驗證
 
 ## 2. 決策摘要
 
@@ -307,9 +318,15 @@ src/
 
 ### 11.3 匯入方式
 
-- 建一支一次性 migration / seed script
-- 匯入時若 slug 已存在，應明確決定覆蓋或跳過
-- 第一版建議預設跳過，避免不小心覆蓋人工調整資料
+- 使用 `npm run content:import-posts` 執行一次性 import script
+- 匯入時若 slug 已存在，預設跳過
+- 第一版不覆蓋，避免不小心覆蓋人工調整資料
+- script 需要完整 Supabase env：
+  - `NEXT_PUBLIC_SUPABASE_URL`
+  - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+  - `SUPABASE_SERVICE_ROLE_KEY`
+  - `SUPABASE_ADMIN_EMAILS`
+  - `NEXT_PUBLIC_SITE_URL`
 
 ## 12. UI 與互動規格
 
@@ -399,6 +416,7 @@ src/
 - 未發佈文章不可透過 `/blog/[slug]` 被公開讀到
 - 文章可選擇關聯 project
 - blog 前台已不依賴 `content/posts/*.md`
+- 實際 import 需在具備 Supabase env 與資料庫連線的環境執行
 
 ## 15. 風險與取捨
 

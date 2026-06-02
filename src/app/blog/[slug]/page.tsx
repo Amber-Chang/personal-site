@@ -1,24 +1,26 @@
 // [AI-ASSISTED] Generated with Codex, 2026-02-19
-// 功能：單篇文章頁，依 slug 讀取 Markdown 並進行 SSG。
+// 功能：單篇文章頁，依 slug 讀取已發佈文章。
 
 import Link from "next/link";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import ReactMarkdown from "react-markdown";
-import { getPostBySlug, getPublishedPosts } from "@/lib/posts";
 import { formatDate } from "@/lib/format";
+import { getPublicBlogContentService } from "../blog-context";
+import { loadBlogPostPageData } from "../data";
 
 type BlogPostPageProps = {
   params: Promise<{ slug: string }>;
 };
 
-export function generateStaticParams() {
-  return getPublishedPosts().map((post) => ({ slug: post.slug }));
-}
+export const revalidate = 0;
 
 export async function generateMetadata({ params }: BlogPostPageProps): Promise<Metadata> {
   const { slug } = await params;
-  const post = getPostBySlug(slug);
+  const post = await loadBlogPostPageData({
+    service: getPublicBlogContentService(),
+    slug,
+  });
 
   if (!post) {
     return {
@@ -26,20 +28,22 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
     };
   }
 
-  const description = post.content.slice(0, 160).replace(/\n/g, " ");
   return {
     title: `${post.title} — Amber Chang`,
-    description,
+    description: post.description,
     openGraph: {
       title: post.title,
-      description,
+      description: post.description,
     },
   };
 }
 
 export default async function BlogPostPage({ params }: BlogPostPageProps) {
   const { slug } = await params;
-  const post = getPostBySlug(slug);
+  const post = await loadBlogPostPageData({
+    service: getPublicBlogContentService(),
+    slug,
+  });
 
   if (!post) {
     notFound();

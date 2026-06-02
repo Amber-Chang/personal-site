@@ -29,7 +29,7 @@ test("resolveAuthCallbackUrl prefers forwarded preview headers", async () => {
     },
   });
 
-  assert.equal(url, "https://my-preview.vercel.app/auth/callback");
+  assert.equal(url, "https://my-preview.vercel.app/auth/client-callback");
 });
 
 test("resolveAuthCallbackUrl uses request origin for local development", async () => {
@@ -46,7 +46,7 @@ test("resolveAuthCallbackUrl uses request origin for local development", async (
     requestUrl: "http://localhost:3000/admin/login",
   });
 
-  assert.equal(url, "http://localhost:3000/auth/callback");
+  assert.equal(url, "http://localhost:3000/auth/client-callback");
 });
 
 test("resolveAuthCallbackUrl falls back to configured site URL", async () => {
@@ -62,5 +62,5 @@ test("resolveAuthCallbackUrl falls back to configured site URL", async () => {
     fallbackSiteUrl: "https://amberchang.com",
   });
 
-  assert.equal(url, "https://amberchang.com/auth/callback");
+  assert.equal(url, "https://amberchang.com/auth/client-callback");
 });

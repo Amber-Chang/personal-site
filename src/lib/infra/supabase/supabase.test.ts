@@ -56,6 +56,67 @@ test("readSupabaseEnv throws when required variables are missing", async () => {
   );
 });
 
+test("readSupabasePublicEnv only requires public runtime keys", async () => {
+  const envModule = await loadModule<{
+    readSupabasePublicEnv: (input?: Record<string, string | undefined>) => {
+      anonKey: string;
+      url: string;
+    };
+  }>("./env.ts", "Supabase env");
+
+  const env = envModule.readSupabasePublicEnv({
+    NEXT_PUBLIC_SUPABASE_ANON_KEY: "anon-key",
+    NEXT_PUBLIC_SUPABASE_URL: "https://project.supabase.co",
+  });
+
+  assert.deepEqual(env, {
+    url: "https://project.supabase.co",
+    anonKey: "anon-key",
+  });
+});
+
+test("createPublicSupabaseClient uses the anon key without session persistence", async () => {
+  const publicModule = await loadModule<{
+    createPublicSupabaseClient: (input?: {
+      createClient?: (url: string, key: string, options: { auth: { autoRefreshToken: boolean; persistSession: boolean } }) => unknown;
+      env?: {
+        anonKey: string;
+        url: string;
+      };
+    }) => unknown;
+  }>("./public.ts", "Supabase public client");
+
+  let received:
+    | {
+        key: string;
+        options: { auth: { autoRefreshToken: boolean; persistSession: boolean } };
+        url: string;
+      }
+    | null = null;
+
+  publicModule.createPublicSupabaseClient({
+    env: {
+      url: "https://project.supabase.co",
+      anonKey: "anon-key",
+    },
+    createClient: (url, key, options) => {
+      received = { url, key, options };
+      return {};
+    },
+  });
+
+  assert.deepEqual(received, {
+    url: "https://project.supabase.co",
+    key: "anon-key",
+    options: {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false,
+      },
+    },
+  });
+});
+
 test("createBrowserSupabaseClient uses public runtime keys", async () => {
   const clientModule = await loadModule<{
     createBrowserSupabaseClient: (input?: {

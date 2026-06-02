@@ -30,7 +30,7 @@ export async function GET(request: Request) {
   const result = await completeAdminAuthCallback({
     allowedEmails: env.adminAllowedEmails,
     code: url.searchParams.get("code"),
-    exchangeCodeForSession: supabase.auth.exchangeCodeForSession,
+    exchangeCodeForSession: (code) => supabase.auth.exchangeCodeForSession(code),
     getUser: async () => {
       const { data } = await supabase.auth.getUser();
 
@@ -42,7 +42,7 @@ export async function GET(request: Request) {
         email: data.user.email ?? null,
       };
     },
-    signOut: supabase.auth.signOut,
+    signOut: () => supabase.auth.signOut(),
   });
 
   const callbackUrl = resolveAuthCallbackUrl({

@@ -6,6 +6,8 @@ export type SupabaseEnv = {
   url: string;
 };
 
+export type SupabasePublicEnv = Pick<SupabaseEnv, "anonKey" | "url">;
+
 export class MissingEnvironmentVariableError extends Error {
   envName: string;
 
@@ -46,5 +48,12 @@ export function readSupabaseEnv(source: Record<string, string | undefined> = pro
     serviceRoleKey,
     siteUrl,
     url,
+  };
+}
+
+export function readSupabasePublicEnv(source: Record<string, string | undefined> = process.env): SupabasePublicEnv {
+  return {
+    url: getRequiredValue(source, "NEXT_PUBLIC_SUPABASE_URL"),
+    anonKey: getRequiredValue(source, "NEXT_PUBLIC_SUPABASE_ANON_KEY"),
   };
 }

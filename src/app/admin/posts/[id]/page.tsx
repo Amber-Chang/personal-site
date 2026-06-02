@@ -5,6 +5,8 @@ import { updateAdminPostAction } from "../actions.ts";
 import { getAdminPageContentService } from "../admin-context.ts";
 import { loadAdminPostEditPageData } from "../data.ts";
 
+export const dynamic = "force-dynamic";
+
 export default async function EditAdminPostPage(input: {
   params: Promise<{ id: string }>;
 }) {

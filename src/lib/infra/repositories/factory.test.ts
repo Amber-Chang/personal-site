@@ -99,3 +99,77 @@ test("createAdminContentRepositories uses the service-role client for admin read
     },
   ]);
 });
+
+test("createPublicContentRepositories uses the anon client for published reads", async () => {
+  const factoryModule = await loadModule<{
+    createPublicContentRepositories: (input?: {
+      createPublicClient?: () => {
+        from: (table: string) => {
+          select: (columns: string) => {
+            eq: (column: string, value: unknown) => {
+              order: (column: string, options: { ascending: boolean }) => Promise<{
+                data: unknown[];
+                error: null;
+              }>;
+            };
+          };
+        };
+      };
+    }) => {
+      posts: {
+        listPublishedPosts: () => Promise<unknown[]>;
+      };
+    };
+  }>("./factory.ts", "repository factory");
+
+  const calls: Array<{
+    columns: string;
+    filters: Array<{ column: string; value: unknown }>;
+    table: string;
+  }> = [];
+  let createPublicClientCalls = 0;
+
+  const repositories = factoryModule.createPublicContentRepositories({
+    createPublicClient: () => {
+      createPublicClientCalls += 1;
+
+      return {
+        from: (table) => ({
+          select: (columns) => {
+            const call = {
+              columns,
+              filters: [] as Array<{ column: string; value: unknown }>,
+              table,
+            };
+
+            calls.push(call);
+
+            return {
+              eq: (column, value) => {
+                call.filters.push({ column, value });
+
+                return {
+                  order: async () => ({
+                    data: [],
+                    error: null,
+                  }),
+                };
+              },
+            };
+          },
+        }),
+      };
+    },
+  });
+
+  await repositories.posts.listPublishedPosts();
+
+  assert.equal(createPublicClientCalls, 1);
+  assert.deepEqual(calls, [
+    {
+      table: "blog_posts",
+      columns: "*",
+      filters: [{ column: "status", value: "published" }],
+    },
+  ]);
+});

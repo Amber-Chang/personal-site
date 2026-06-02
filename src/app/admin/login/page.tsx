@@ -1,4 +1,4 @@
-import { requestAdminLogin } from "./actions";
+import { AdminLoginForm } from "./login-form";
 
 export default function AdminLoginPage() {
   return (
@@ -12,28 +12,7 @@ export default function AdminLoginPage() {
           </p>
         </div>
 
-        <form action={requestAdminLogin} className="space-y-4">
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-black" htmlFor="email">
-              Email
-            </label>
-            <input
-              className="w-full rounded-2xl border border-black/10 px-4 py-3 text-base outline-none transition focus:border-black/30"
-              id="email"
-              name="email"
-              placeholder="you@example.com"
-              required
-              type="email"
-            />
-          </div>
-
-          <button
-            className="inline-flex rounded-full bg-black px-5 py-3 text-sm font-medium text-white transition hover:bg-black/85"
-            type="submit"
-          >
-            寄送 magic link
-          </button>
-        </form>
+        <AdminLoginForm />
       </div>
     </main>
   );

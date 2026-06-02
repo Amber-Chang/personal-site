@@ -56,6 +56,12 @@ execute function public.set_updated_at_timestamp();
 alter table public.projects enable row level security;
 alter table public.blog_posts enable row level security;
 
+grant usage on schema public to anon, authenticated, service_role;
+grant select on public.projects to anon, authenticated;
+grant select on public.blog_posts to anon, authenticated;
+grant all on public.projects to service_role;
+grant all on public.blog_posts to service_role;
+
 -- Admin reads and writes run through the trusted Next.js server with the service role key.
 -- This first slice keeps RLS focused on public published reads while admin mutations stay server-side.
 create policy "public can read published projects"
