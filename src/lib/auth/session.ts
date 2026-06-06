@@ -1,7 +1,7 @@
-import { createHash, timingSafeEqual } from "node:crypto";
+import { createHash, randomBytes } from "node:crypto";
 
 export const ADMIN_SESSION_COOKIE_NAME = "admin_session";
-export const ADMIN_SESSION_MAX_AGE = 60 * 60 * 24 * 14;
+export const ADMIN_SESSION_MAX_AGE = 60 * 60 * 24 * 7;
 
 export const ADMIN_SESSION_COOKIE_OPTIONS = {
   httpOnly: true,
@@ -11,26 +11,86 @@ export const ADMIN_SESSION_COOKIE_OPTIONS = {
   secure: process.env.NODE_ENV === "production",
 };
 
-function buildAdminSessionDigest(adminPassword: string): string {
-  return createHash("sha256").update(`admin-session:${adminPassword}`).digest("hex");
+export type AdminSessionRecord = {
+  expiresAt: string;
+  passwordVersionHash: string;
+  sessionTokenHash: string;
+};
+
+export type AdminSessionRepository = {
+  createSession: (input: AdminSessionRecord) => Promise<void>;
+  getSessionByTokenHash: (sessionTokenHash: string) => Promise<AdminSessionRecord | null>;
+  deleteSessionByTokenHash: (sessionTokenHash: string) => Promise<void>;
+};
+
+function hashValue(input: { scope: string; value: string }): string {
+  return createHash("sha256").update(`${input.scope}:${input.value}`).digest("hex");
 }
 
-export function createAdminSessionToken(adminPassword: string): string {
-  return buildAdminSessionDigest(adminPassword);
+export function buildAdminPasswordVersionHash(adminPassword: string): string {
+  return hashValue({
+    scope: "admin-password-version",
+    value: adminPassword,
+  });
 }
 
-export function hasValidAdminSessionToken(input: {
-  adminPassword: string;
-  sessionToken: string | null | undefined;
-}): boolean {
-  const sessionToken = input.sessionToken ?? "";
-  const expectedToken = createAdminSessionToken(input.adminPassword);
-  const receivedBuffer = Buffer.from(sessionToken);
-  const expectedBuffer = Buffer.from(expectedToken);
+export function hashAdminSessionToken(sessionToken: string): string {
+  return hashValue({
+    scope: "admin-session-token",
+    value: sessionToken,
+  });
+}
 
-  if (receivedBuffer.length !== expectedBuffer.length) {
-    return false;
-  }
+export function generateAdminSessionToken(): string {
+  return randomBytes(32).toString("hex");
+}
 
-  return timingSafeEqual(receivedBuffer, expectedBuffer);
+export function createAdminSessionManager(input: {
+  repository: AdminSessionRepository;
+  now?: () => Date;
+}) {
+  const now = input.now ?? (() => new Date());
+
+  return {
+    async createSession(session: {
+      adminPassword: string;
+    }): Promise<string> {
+      const createdAt = now();
+      const sessionToken = generateAdminSessionToken();
+
+      await input.repository.createSession({
+        expiresAt: new Date(createdAt.getTime() + ADMIN_SESSION_MAX_AGE * 1000).toISOString(),
+        passwordVersionHash: buildAdminPasswordVersionHash(session.adminPassword),
+        sessionTokenHash: hashAdminSessionToken(sessionToken),
+      });
+
+      return sessionToken;
+    },
+    async hasValidSession(session: {
+      adminPassword: string;
+      sessionToken: string | null | undefined;
+    }): Promise<boolean> {
+      const rawSessionToken = session.sessionToken?.trim();
+
+      if (!rawSessionToken) {
+        return false;
+      }
+
+      const storedSession = await input.repository.getSessionByTokenHash(hashAdminSessionToken(rawSessionToken));
+
+      if (!storedSession) {
+        return false;
+      }
+
+      if (storedSession.passwordVersionHash !== buildAdminPasswordVersionHash(session.adminPassword)) {
+        return false;
+      }
+
+      if (new Date(storedSession.expiresAt).getTime() <= now().getTime()) {
+        return false;
+      }
+
+      return true;
+    },
+  };
 }

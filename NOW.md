@@ -4,7 +4,7 @@
 
 ## 現況
 
-- branch：`codex/admin-posts-skeleton`
+- branch：`main`
 - 網站已具備：
   - 首頁改版版本
   - `/about`
@@ -23,19 +23,28 @@
 - 完成 blog admin 前四個主要 round：foundation 底座、admin posts skeleton、前台 blog 切 repository、Markdown import tooling
 - admin 登入 MVP 已從 Supabase magic link 改成單一密碼 + httpOnly session cookie，避免被內建 email rate limit 卡住
 - admin 後台補上欄位說明文字、前台登入後可見的 `後台` 入口，以及較穩定的 publish intent 傳遞與較清楚的 Supabase 錯誤訊息
+- 已建立 deployment security readiness 主文件，並補上單人 admin 部署前的 env、session 與手動發佈驗證基線
+- deployment security readiness round 已完成：login rate limit、7 天 session policy、文件同步、manual admin flow 驗證，以及 lint/test/build gate
+- 已新增 random server-side admin session change：cookie 不再直接使用 deterministic token，改為後端 session record 驗證
+- 已將 `supabase/migrations/202606070002_add_admin_sessions.sql` 套用到實際 Supabase 環境，並完成 admin 登入 / draft / 發佈 / 取消發佈 / 重新發佈手動驗證
+- 已保留 `admin-flow-check-20260607-0215` 作為部署後 smoke test 樣本
+- 已補上後台登出功能：可清除 `admin_session` cookie，並刪除目前 server-side session record
 
 ## 目前最重要的事
 
 - 持續調整網站視覺與品牌感
-- 完成 blog admin 的登入後台流程驗證
+- 視需要補 `title -> slug` 自動建議與更完整的後台錯誤訊息
+- 完成 Vercel production deployment 與 deploy 後 smoke check
+- 若後續需要多人或遠端登入，重新評估 auth 升級路線
 - 讓後續開發工作可依標準流程規則化執行
 
 ## 下一步建議
 
 1. 打磨首頁視覺與文案
-2. 補完 admin 流程的手動驗證：新增、編輯、取消發佈、重新發佈、前台顯示與隱藏
-3. 視需要補 `title -> slug` 自動建議與更完整的後台錯誤訊息
-4. 若後續需要多人或遠端登入，再評估是否回到完整 auth 方案
+2. 完成 Vercel production deploy，並確認 env 與實際站點網址一致
+3. deploy 後以 `admin-flow-check-20260607-0215` 重跑 smoke check
+4. 視需要補 `title -> slug` 自動建議與更完整的後台錯誤訊息
+5. 若後續需要多人或遠端登入，再評估升級成完整 auth 方案
 
 ## 備註
 
@@ -50,8 +59,8 @@
 - 開發流程規則已集中在 [docs/development-workflow.md](/Users/amberchang/Documents/New%20project/docs/development-workflow.md)
 - admin 內容讀寫第一版採 trusted Next.js server + Supabase service-role path，public published reads 則維持 RLS published-read policy
 - blog admin spec 的目前完成度與剩餘範圍已記在 [docs/blog-admin-implementation-spec.md](/Users/amberchang/Documents/New%20project/docs/blog-admin-implementation-spec.md) 的「目前進度」
+- deployment / 資安上線準備的主文件已建立於 [docs/deployment-security-readiness.md](/Users/amberchang/Documents/New%20project/docs/deployment-security-readiness.md)
 - `/blog`、`/blog/[slug]` 與首頁 writing 區塊已改由 public repository 讀取 `published` posts；舊 `content/posts/*.md` 仍保留作為 import source
 - `npm run content:import-posts` 已成功匯入 `ai-membership-system`
-- admin magic link callback 已支援 `?code=` 與 `#access_token=` 兩種回傳格式
 - admin post form 已改成 publish UX 按鈕，不再以 status dropdown 作為主要操作
 - 目前 admin 後台登入改採密碼門 MVP，不再依賴 Supabase magic link

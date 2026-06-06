@@ -1,22 +1,15 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
-import { ADMIN_SESSION_COOKIE_NAME, hasValidAdminSessionToken } from "@/lib/auth/session.ts";
-import { readSupabaseEnv } from "@/lib/infra/supabase/env.ts";
+import { hasActiveAdminSession } from "@/lib/auth/session-server.ts";
 import { AdminLoginForm } from "./login-form";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminLoginPage() {
-  const env = readSupabaseEnv();
   const cookieStore = await cookies();
 
-  if (
-    hasValidAdminSessionToken({
-      adminPassword: env.adminPassword,
-      sessionToken: cookieStore.get(ADMIN_SESSION_COOKIE_NAME)?.value,
-    })
-  ) {
+  if (await hasActiveAdminSession({ cookieStore })) {
     redirect("/admin/posts");
   }
 

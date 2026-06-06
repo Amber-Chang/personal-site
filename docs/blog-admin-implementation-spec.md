@@ -244,7 +244,7 @@ src/
 第一版建議採這個方向：
 
 - 公開讀取：只允許讀取 `published` 文章
-- admin 讀寫：只允許已登入且 email 符合 allowlist 的使用者操作
+- admin 讀寫：只允許已通過單一 admin 密碼驗證並持有有效 session 的使用者操作
 
 實作上有兩種路徑：
 
@@ -329,8 +329,8 @@ src/
   - `NEXT_PUBLIC_SUPABASE_URL`
   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
   - `SUPABASE_SERVICE_ROLE_KEY`
-  - `SUPABASE_ADMIN_EMAILS`
   - `NEXT_PUBLIC_SITE_URL`
+  - `ADMIN_LOGIN_PASSWORD`
 
 ## 12. UI 與互動規格
 
@@ -412,7 +412,7 @@ src/
 
 ## 14. 驗證清單
 
-- 可以寄出並完成 magic link 登入
+- 可以用 admin 密碼完成登入並進入 `/admin/posts`
 - 未登入時不可使用 admin 功能
 - 可以建立草稿文章
 - 可以編輯既有文章

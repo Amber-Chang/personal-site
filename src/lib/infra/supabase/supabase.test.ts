@@ -267,3 +267,20 @@ test("blog admin migration defines schema, RLS, and updated_at triggers", () => 
   assert.match(content, /admin reads and writes run through the trusted next\.js server with the service role key/i);
   assert.match(content, /create or replace function public\.set_updated_at_timestamp/i);
 });
+
+test("admin session hardening migration defines server-side admin session storage", () => {
+  const migrationPath = path.join(
+    process.cwd(),
+    "supabase/migrations/202606070002_add_admin_sessions.sql",
+  );
+
+  assert.equal(fs.existsSync(migrationPath), true);
+
+  const content = fs.readFileSync(migrationPath, "utf8");
+
+  assert.match(content, /create table if not exists public\.admin_sessions/i);
+  assert.match(content, /session_token_hash text not null unique/i);
+  assert.match(content, /password_version_hash text not null/i);
+  assert.match(content, /expires_at timestamptz not null/i);
+  assert.match(content, /grant all on public\.admin_sessions to service_role/i);
+});

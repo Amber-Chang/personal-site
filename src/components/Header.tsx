@@ -4,15 +4,14 @@
 import { cookies } from "next/headers";
 import Link from "next/link";
 
-import { ADMIN_SESSION_COOKIE_NAME, hasValidAdminSessionToken } from "@/lib/auth/session";
-import { readSupabaseEnv } from "@/lib/infra/supabase/env";
+import { requestAdminLogout } from "@/app/admin/logout/actions";
+import { hasActiveAdminSession } from "@/lib/auth/session-server";
+import { Button } from "@/components/ui/button";
 
 export async function Header() {
-  const env = readSupabaseEnv();
   const cookieStore = await cookies();
-  const hasAdminSession = hasValidAdminSessionToken({
-    adminPassword: env.adminPassword,
-    sessionToken: cookieStore.get(ADMIN_SESSION_COOKIE_NAME)?.value,
+  const hasAdminSession = await hasActiveAdminSession({
+    cookieStore,
   });
 
   return (
@@ -32,9 +31,16 @@ export async function Header() {
             關於我
           </Link>
           {hasAdminSession ? (
-            <Link href="/admin/posts" className="font-medium text-foreground transition-colors hover:text-foreground/80">
-              後台
-            </Link>
+            <>
+              <Link href="/admin/posts" className="font-medium text-foreground transition-colors hover:text-foreground/80">
+                後台
+              </Link>
+              <form action={requestAdminLogout}>
+                <Button className="h-auto rounded-full px-3 py-1.5" size="sm" type="submit" variant="outline">
+                  登出
+                </Button>
+              </form>
+            </>
           ) : null}
         </nav>
       </div>
