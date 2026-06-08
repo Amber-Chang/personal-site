@@ -1,10 +1,25 @@
 import type { BlogPostsRepository, ProjectsRepository } from "./repository.ts";
-import type { BlogPostRecord, CreateBlogPostInput, ProjectRecord, SyncProjectInput, UpdateBlogPostInput } from "./types.ts";
+import type {
+  BlogPostRecord,
+  CreateBlogPostInput,
+  CreateProjectInput,
+  ProjectRecord,
+  SyncProjectInput,
+  UpdateBlogPostInput,
+  UpdateProjectInput,
+} from "./types.ts";
 
 export class BlogPostNotFoundError extends Error {
   constructor(id: string) {
     super(`Blog post "${id}" was not found.`);
     this.name = "BlogPostNotFoundError";
+  }
+}
+
+export class ProjectNotFoundError extends Error {
+  constructor(id: string) {
+    super(`Project "${id}" was not found.`);
+    this.name = "ProjectNotFoundError";
   }
 }
 
@@ -23,7 +38,15 @@ export function createBlogContentService(input: {
   >;
   projects: Pick<
     ProjectsRepository,
-    "getProjectById" | "getPublicProjectById" | "getPublicProjectBySlug" | "listAdminProjects" | "listProjectOptions" | "upsertProject"
+    | "createProject"
+    | "getAdminProjectById"
+    | "getProjectById"
+    | "getPublicProjectById"
+    | "getPublicProjectBySlug"
+    | "listAdminProjects"
+    | "listProjectOptions"
+    | "updateProject"
+    | "upsertProject"
   >;
 }) {
   const now = input.now ?? (() => new Date());
@@ -55,6 +78,12 @@ export function createBlogContentService(input: {
     async listProjectOptions() {
       return input.projects.listProjectOptions();
     },
+    async createProject(inputValue: CreateProjectInput): Promise<ProjectRecord> {
+      return input.projects.createProject(inputValue);
+    },
+    async getAdminProjectById(id: string): Promise<ProjectRecord | null> {
+      return input.projects.getAdminProjectById(id);
+    },
     async listAdminProjects(): Promise<ProjectRecord[]> {
       return input.projects.listAdminProjects();
     },
@@ -69,6 +98,15 @@ export function createBlogContentService(input: {
     },
     async upsertProject(inputValue: SyncProjectInput): Promise<ProjectRecord> {
       return input.projects.upsertProject(inputValue);
+    },
+    async updateProject(id: string, inputValue: UpdateProjectInput): Promise<ProjectRecord> {
+      const existingProject = await input.projects.getAdminProjectById(id);
+
+      if (!existingProject) {
+        throw new ProjectNotFoundError(id);
+      }
+
+      return input.projects.updateProject(id, inputValue);
     },
     async listPublicPosts(): Promise<BlogPostRecord[]> {
       return input.posts.listPublishedPosts();

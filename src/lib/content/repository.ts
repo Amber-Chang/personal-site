@@ -1,11 +1,13 @@
 import type {
   BlogPostRecord,
+  CreateProjectInput,
   CreateBlogPostInput,
   ProjectOption,
   ProjectRecord,
   ProjectSummary,
   PublicProjectRecord,
   SyncProjectInput,
+  UpdateProjectInput,
   UpdateBlogPostInput,
 } from "./types.ts";
 
@@ -22,10 +24,13 @@ export interface BlogPostsRepository {
 }
 
 export interface ProjectsRepository {
+  createProject(input: CreateProjectInput): Promise<ProjectRecord>;
+  getAdminProjectById(id: string): Promise<ProjectRecord | null>;
   getProjectById(id: string): Promise<ProjectOption | null>;
   getPublicProjectById(id: string): Promise<ProjectSummary | null>;
   getPublicProjectBySlug(slug: string): Promise<PublicProjectRecord | null>;
   listAdminProjects(): Promise<ProjectRecord[]>;
   listProjectOptions(): Promise<ProjectOption[]>;
+  updateProject(id: string, input: UpdateProjectInput): Promise<ProjectRecord>;
   upsertProject(input: SyncProjectInput): Promise<ProjectRecord>;
 }

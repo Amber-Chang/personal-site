@@ -1,6 +1,14 @@
 import { getPublishedProjectBySlug, type Project } from "../../projects.ts";
 import type { ProjectsRepository } from "../../content/repository.ts";
-import type { ProjectOption, ProjectRecord, ProjectSummary, PublicProjectRecord, SyncProjectInput } from "../../content/types.ts";
+import type {
+  CreateProjectInput,
+  ProjectOption,
+  ProjectRecord,
+  ProjectSummary,
+  PublicProjectRecord,
+  SyncProjectInput,
+  UpdateProjectInput,
+} from "../../content/types.ts";
 
 type ProjectRow = {
   content_markdown: string | null;
@@ -41,9 +49,23 @@ type UpsertQuery<T> = {
   maybeSingle: () => QuerySingleResult<T>;
 };
 
+type MutationSelectQuery<T> = {
+  single: () => QuerySingleResult<T>;
+};
+
+type UpdateQuery<T> = {
+  eq: (column: string, value: unknown) => {
+    select: (columns: string) => MutationSelectQuery<T>;
+  };
+};
+
 type QueryClient = {
   from: (table: string) => {
+    insert: (input: Record<string, unknown>) => {
+      select: (columns: string) => MutationSelectQuery<ProjectRow>;
+    };
     select: (columns: string) => SelectQuery<ProjectRow>;
+    update: (input: Record<string, unknown>) => UpdateQuery<ProjectRow>;
     upsert: (values: Record<string, unknown>, options: { onConflict: string }) => {
       select: (columns: string) => UpsertQuery<ProjectRow>;
     };
@@ -96,6 +118,14 @@ function mapPublicProjectRecord(project: Project, id: string | null): PublicProj
 }
 
 function formatQueryError(error: Exclude<QueryError, null>) {
+  if (error.code === "23505") {
+    if (error.message?.includes("projects_slug_key") || error.details?.includes("(slug)")) {
+      return "這個 slug 已經被其他專案使用，請換一個網址識別字。";
+    }
+
+    return "這筆資料和現有專案衝突，請檢查是否有重複值。";
+  }
+
   return error.message ?? error.details ?? error.hint ?? "Supabase query failed.";
 }
 
@@ -113,6 +143,36 @@ function maybeOne<T>(data: T | null, error: QueryError | undefined): T | null {
   }
 
   return data;
+}
+
+function ensureOne<T>(data: T | null, error: QueryError | undefined): T {
+  if (error) {
+    throw new Error(formatQueryError(error));
+  }
+
+  if (!data) {
+    throw new Error("Supabase query returned no rows.");
+  }
+
+  return data;
+}
+
+function mapCreateInput(input: CreateProjectInput) {
+  return {
+    slug: input.slug,
+    status: input.status ?? "draft",
+    summary: input.summary ?? null,
+    title: input.title,
+  };
+}
+
+function mapUpdateInput(input: UpdateProjectInput) {
+  return {
+    ...(input.slug !== undefined ? { slug: input.slug } : {}),
+    ...(input.status !== undefined ? { status: input.status } : {}),
+    ...(input.summary !== undefined ? { summary: input.summary } : {}),
+    ...(input.title !== undefined ? { title: input.title } : {}),
+  };
 }
 
 export class SupabaseProjectsRepository implements ProjectsRepository {
@@ -134,10 +194,23 @@ export class SupabaseProjectsRepository implements ProjectsRepository {
     return ensureArray(data, error).map(mapProjectRow);
   }
 
+  async createProject(input: CreateProjectInput): Promise<ProjectRecord> {
+    const { data, error } = await this.client.from("projects").insert(mapCreateInput(input)).select("*").single();
+
+    return mapProjectRecord(ensureOne(data, error));
+  }
+
   async listAdminProjects(): Promise<ProjectRecord[]> {
     const { data, error } = await this.client.from("projects").select("*").order("title", { ascending: true });
 
     return ensureArray(data, error).map(mapProjectRecord);
+  }
+
+  async getAdminProjectById(id: string): Promise<ProjectRecord | null> {
+    const { data, error } = await this.client.from("projects").select("*").eq("id", id).maybeSingle();
+    const row = maybeOne(data, error);
+
+    return row ? mapProjectRecord(row) : null;
   }
 
   async getProjectById(id: string): Promise<ProjectOption | null> {
@@ -214,5 +287,11 @@ export class SupabaseProjectsRepository implements ProjectsRepository {
     }
 
     return mapProjectRecord(row);
+  }
+
+  async updateProject(id: string, input: UpdateProjectInput): Promise<ProjectRecord> {
+    const { data, error } = await this.client.from("projects").update(mapUpdateInput(input)).eq("id", id).select("*").single();
+
+    return mapProjectRecord(ensureOne(data, error));
   }
 }

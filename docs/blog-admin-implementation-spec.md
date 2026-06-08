@@ -60,6 +60,11 @@
   - blog / project 關聯資料已透過 content / repository 邊界組裝，不散落在 page 層
   - projects 仍維持 Markdown source，但 public content path 已可透過 adapter 與 Supabase project identity 對接
   - admin post form 的 `Related project` 選單已可透過 project sync 實際選用既有案例
+- `Phase 6：Project identity admin`
+  - 已新增 `/admin/projects`、`/admin/projects/new`、`/admin/projects/[id]`
+  - 可在後台建立與編輯 project identity 的最小欄位：`title / slug / summary / status`
+  - published project 會出現在文章關聯選單；draft project 不會出現在公開 relation options
+  - 這一輪仍不包含完整 project body editor，public project page 內容主來源維持 Markdown
 
 ### 已完成但後續仍可補強
 

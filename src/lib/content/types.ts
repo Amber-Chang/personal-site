@@ -25,6 +25,15 @@ export type CreateBlogPostInput = {
 
 export type UpdateBlogPostInput = Partial<CreateBlogPostInput>;
 
+export type CreateProjectInput = {
+  slug: string;
+  status?: ContentStatus;
+  summary?: string | null;
+  title: string;
+};
+
+export type UpdateProjectInput = Partial<CreateProjectInput>;
+
 export type ProjectOption = {
   id: string;
   slug: string;

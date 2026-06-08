@@ -1,0 +1,317 @@
+import assert from "node:assert/strict";
+import test from "node:test";
+
+type AdminProjectFormState = {
+  error: string | null;
+};
+
+type ProjectRecord = {
+  contentMarkdown: string | null;
+  createdAt: string;
+  id: string;
+  publishedAt: string | null;
+  slug: string;
+  status: "draft" | "published";
+  summary: string | null;
+  title: string;
+  updatedAt: string;
+};
+
+type CreateProjectInput = {
+  slug: string;
+  status?: "draft" | "published";
+  summary?: string | null;
+  title: string;
+};
+
+type UpdateProjectInput = Partial<CreateProjectInput>;
+
+function createProject(overrides?: Partial<ProjectRecord>): ProjectRecord {
+  return {
+    contentMarkdown: null,
+    createdAt: "2026-06-09T00:00:00.000Z",
+    id: "project-1",
+    publishedAt: null,
+    slug: "sample-project",
+    status: "draft",
+    summary: "Project summary",
+    title: "Sample project",
+    updatedAt: "2026-06-09T00:00:00.000Z",
+    ...overrides,
+  };
+}
+
+async function loadModule<TModule>(pathName: string, label: string): Promise<TModule> {
+  const loadedModule = await import(pathName).catch(() => null);
+
+  assert.ok(loadedModule, `expected ${label} module to exist at ${pathName}`);
+
+  return loadedModule as TModule;
+}
+
+function createFormData(entries: Array<[string, string]>): FormData {
+  const formData = new FormData();
+
+  for (const [key, value] of entries) {
+    formData.set(key, value);
+  }
+
+  return formData;
+}
+
+test("createAdminProjectAction creates a project identity and redirects to the edit page", async () => {
+  const actionsModule = await loadModule<{
+    createAdminProjectMutationActions: (input: {
+      redirectTo: (path: string) => never;
+      revalidatePath: (path: string) => void;
+      service: {
+        createProject: (input: CreateProjectInput) => Promise<ProjectRecord>;
+        updateProject: (id: string, input: UpdateProjectInput) => Promise<ProjectRecord>;
+      };
+    }) => {
+      createProject: (state: AdminProjectFormState, formData: FormData) => Promise<AdminProjectFormState>;
+      updateProject: (state: AdminProjectFormState, formData: FormData) => Promise<AdminProjectFormState>;
+    };
+    initialAdminProjectFormState: AdminProjectFormState;
+  }>("./action-core.ts", "admin projects actions");
+
+  const createCalls: CreateProjectInput[] = [];
+  const revalidatedPaths: string[] = [];
+  const redirects: string[] = [];
+
+  const actions = actionsModule.createAdminProjectMutationActions({
+    redirectTo: (path) => {
+      redirects.push(path);
+      throw new Error(`redirect:${path}`);
+    },
+    revalidatePath: (path) => {
+      revalidatedPaths.push(path);
+    },
+    service: {
+      createProject: async (input) => {
+        createCalls.push(input);
+        return createProject({ id: "created-project", ...input });
+      },
+      updateProject: async () => {
+        throw new Error("updateProject should not be called during create");
+      },
+    },
+  });
+
+  const formData = createFormData([
+    ["title", "  New project  "],
+    ["slug", "  new-project  "],
+    ["summary", " New summary "],
+    ["status", "published"],
+  ]);
+
+  await assert.rejects(
+    () => actions.createProject(actionsModule.initialAdminProjectFormState, formData),
+    /redirect:\/admin\/projects\/created-project/,
+  );
+
+  assert.deepEqual(createCalls, [
+    {
+      slug: "new-project",
+      status: "published",
+      summary: "New summary",
+      title: "New project",
+    },
+  ]);
+  assert.deepEqual(revalidatedPaths, ["/admin/projects", "/admin/projects/created-project"]);
+  assert.deepEqual(redirects, ["/admin/projects/created-project"]);
+});
+
+test("updateAdminProjectAction updates an existing project identity and redirects back to the edit page", async () => {
+  const actionsModule = await loadModule<{
+    createAdminProjectMutationActions: (input: {
+      redirectTo: (path: string) => never;
+      revalidatePath: (path: string) => void;
+      service: {
+        createProject: (input: CreateProjectInput) => Promise<ProjectRecord>;
+        updateProject: (id: string, input: UpdateProjectInput) => Promise<ProjectRecord>;
+      };
+    }) => {
+      updateProject: (state: AdminProjectFormState, formData: FormData) => Promise<AdminProjectFormState>;
+    };
+    initialAdminProjectFormState: AdminProjectFormState;
+  }>("./action-core.ts", "admin projects actions");
+
+  const updateCalls: Array<{ id: string; input: UpdateProjectInput }> = [];
+  const revalidatedPaths: string[] = [];
+  const redirects: string[] = [];
+
+  const actions = actionsModule.createAdminProjectMutationActions({
+    redirectTo: (path) => {
+      redirects.push(path);
+      throw new Error(`redirect:${path}`);
+    },
+    revalidatePath: (path) => {
+      revalidatedPaths.push(path);
+    },
+    service: {
+      createProject: async () => {
+        throw new Error("createProject should not be called during update");
+      },
+      updateProject: async (id, input) => {
+        updateCalls.push({ id, input });
+        return createProject({ id, ...input });
+      },
+    },
+  });
+
+  const formData = createFormData([
+    ["id", "project-9"],
+    ["title", "  Updated project  "],
+    ["slug", " updated-project "],
+    ["summary", "Updated summary"],
+    ["status", "draft"],
+  ]);
+
+  await assert.rejects(
+    () => actions.updateProject(actionsModule.initialAdminProjectFormState, formData),
+    /redirect:\/admin\/projects\/project-9/,
+  );
+
+  assert.deepEqual(updateCalls, [
+    {
+      id: "project-9",
+      input: {
+        slug: "updated-project",
+        status: "draft",
+        summary: "Updated summary",
+        title: "Updated project",
+      },
+    },
+  ]);
+  assert.deepEqual(revalidatedPaths, ["/admin/projects", "/admin/projects/project-9"]);
+  assert.deepEqual(redirects, ["/admin/projects/project-9"]);
+});
+
+test("createAdminProjectAction returns a controlled error when the slug already exists", async () => {
+  const actionsModule = await loadModule<{
+    createAdminProjectMutationActions: (input: {
+      redirectTo: (path: string) => never;
+      revalidatePath: (path: string) => void;
+      service: {
+        createProject: (input: CreateProjectInput) => Promise<ProjectRecord>;
+        updateProject: (id: string, input: UpdateProjectInput) => Promise<ProjectRecord>;
+      };
+    }) => {
+      createProject: (state: AdminProjectFormState, formData: FormData) => Promise<AdminProjectFormState>;
+    };
+    initialAdminProjectFormState: AdminProjectFormState;
+  }>("./action-core.ts", "admin projects actions");
+
+  const actions = actionsModule.createAdminProjectMutationActions({
+    redirectTo: (path) => {
+      throw new Error(`unexpected redirect:${path}`);
+    },
+    revalidatePath: () => {},
+    service: {
+      createProject: async () => {
+        throw new Error("這個 slug 已經被其他專案使用，請換一個網址識別字。");
+      },
+      updateProject: async () => {
+        throw new Error("updateProject should not be called during create");
+      },
+    },
+  });
+
+  const result = await actions.createProject(
+    actionsModule.initialAdminProjectFormState,
+    createFormData([
+      ["title", "New project"],
+      ["slug", "duplicate-project"],
+      ["summary", ""],
+      ["status", "published"],
+    ]),
+  );
+
+  assert.deepEqual(result, {
+    error: "這個 slug 已經被其他專案使用，請換一個網址識別字。",
+  });
+});
+
+test("updateAdminProjectAction returns a controlled error when the project is missing", async () => {
+  const actionsModule = await loadModule<{
+    createAdminProjectMutationActions: (input: {
+      redirectTo: (path: string) => never;
+      revalidatePath: (path: string) => void;
+      service: {
+        createProject: (input: CreateProjectInput) => Promise<ProjectRecord>;
+        updateProject: (id: string, input: UpdateProjectInput) => Promise<ProjectRecord>;
+      };
+    }) => {
+      updateProject: (state: AdminProjectFormState, formData: FormData) => Promise<AdminProjectFormState>;
+    };
+    initialAdminProjectFormState: AdminProjectFormState;
+  }>("./action-core.ts", "admin projects actions");
+
+  const actions = actionsModule.createAdminProjectMutationActions({
+    redirectTo: (path) => {
+      throw new Error(`unexpected redirect:${path}`);
+    },
+    revalidatePath: () => {},
+    service: {
+      createProject: async () => {
+        throw new Error("createProject should not be called during update");
+      },
+      updateProject: async () => {
+        const serviceModule = await import("../../../lib/content/service.ts");
+        throw new serviceModule.ProjectNotFoundError("missing-project");
+      },
+    },
+  });
+
+  const result = await actions.updateProject(
+    actionsModule.initialAdminProjectFormState,
+    createFormData([
+      ["id", "missing-project"],
+      ["title", "Missing project"],
+      ["slug", "missing-project"],
+      ["summary", ""],
+      ["status", "draft"],
+    ]),
+  );
+
+  assert.deepEqual(result, {
+    error: "找不到指定專案。",
+  });
+});
+
+test("createAdminProjectAction returns a controlled error when the admin session is no longer allowed", async () => {
+  const actionsModule = await loadModule<{
+    createAdminProjectServerActions: (input: {
+      getActions: () => Promise<{
+        createProject: (state: AdminProjectFormState, formData: FormData) => Promise<AdminProjectFormState>;
+        updateProject: (state: AdminProjectFormState, formData: FormData) => Promise<AdminProjectFormState>;
+      }>;
+    }) => {
+      createProject: (state: AdminProjectFormState, formData: FormData) => Promise<AdminProjectFormState>;
+      updateProject: (state: AdminProjectFormState, formData: FormData) => Promise<AdminProjectFormState>;
+    };
+    initialAdminProjectFormState: AdminProjectFormState;
+  }>("./action-core.ts", "admin projects actions");
+
+  const guardsModule = await import("../../../lib/auth/guards.ts");
+  const actions = actionsModule.createAdminProjectServerActions({
+    getActions: async () => {
+      throw new guardsModule.AdminAuthorizationError("unauthenticated");
+    },
+  });
+
+  const result = await actions.createProject(
+    actionsModule.initialAdminProjectFormState,
+    createFormData([
+      ["title", "Draft project"],
+      ["slug", "draft-project"],
+      ["summary", ""],
+      ["status", "draft"],
+    ]),
+  );
+
+  assert.deepEqual(result, {
+    error: "登入狀態已失效，請重新登入。",
+  });
+});

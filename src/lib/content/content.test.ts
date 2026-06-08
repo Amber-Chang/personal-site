@@ -437,6 +437,228 @@ test("SupabaseProjectsRepository lists admin projects with sync fields", async (
   ]);
 });
 
+test("SupabaseProjectsRepository gets an admin project by id", async () => {
+  const repositoryModule = await loadModule<{
+    SupabaseProjectsRepository: new (client: {
+      from: (table: string) => {
+        select: (columns: string) => {
+          eq: (column: string, value: unknown) => {
+            maybeSingle: () => Promise<{
+              data: {
+                content_markdown: string | null;
+                created_at: string;
+                id: string;
+                published_at: string | null;
+                slug: string;
+                status: "draft" | "published";
+                summary: string | null;
+                title: string;
+                updated_at: string;
+              } | null;
+              error: null;
+            }>;
+          };
+        };
+      };
+    }) => {
+      getAdminProjectById: (id: string) => Promise<unknown>;
+    };
+  }>("../infra/repositories/supabase-projects-repository.ts", "Supabase projects repository");
+
+  const repository = new repositoryModule.SupabaseProjectsRepository({
+    from: () => ({
+      select: () => ({
+        eq: () => ({
+          maybeSingle: async () => ({
+            data: {
+              content_markdown: null,
+              created_at: "2026-06-09T00:00:00.000Z",
+              id: "project-1",
+              published_at: null,
+              slug: "sample-project",
+              status: "draft",
+              summary: "Project summary",
+              title: "Sample project",
+              updated_at: "2026-06-09T00:00:00.000Z",
+            },
+            error: null,
+          }),
+        }),
+      }),
+    }),
+  });
+
+  const result = await repository.getAdminProjectById("project-1");
+
+  assert.deepEqual(result, {
+    contentMarkdown: null,
+    createdAt: "2026-06-09T00:00:00.000Z",
+    id: "project-1",
+    publishedAt: null,
+    slug: "sample-project",
+    status: "draft",
+    summary: "Project summary",
+    title: "Sample project",
+    updatedAt: "2026-06-09T00:00:00.000Z",
+  });
+});
+
+test("SupabaseProjectsRepository creates and updates admin project identities", async () => {
+  const repositoryModule = await loadModule<{
+    SupabaseProjectsRepository: new (client: {
+      from: (table: string) => {
+        insert: (values: Record<string, unknown>) => {
+          select: (columns: string) => {
+            single: () => Promise<{
+              data: {
+                content_markdown: string | null;
+                created_at: string;
+                id: string;
+                published_at: string | null;
+                slug: string;
+                status: "draft" | "published";
+                summary: string | null;
+                title: string;
+                updated_at: string;
+              } | null;
+              error: null;
+            }>;
+          };
+        };
+        update: (values: Record<string, unknown>) => {
+          eq: (column: string, value: unknown) => {
+            select: (columns: string) => {
+              single: () => Promise<{
+                data: {
+                  content_markdown: string | null;
+                  created_at: string;
+                  id: string;
+                  published_at: string | null;
+                  slug: string;
+                  status: "draft" | "published";
+                  summary: string | null;
+                  title: string;
+                  updated_at: string;
+                } | null;
+                error: null;
+              }>;
+            };
+          };
+        };
+        select: (columns: string) => {
+          order: (column: string, options: { ascending: boolean }) => Promise<{ data: []; error: null }>;
+        };
+      };
+    }) => {
+      createProject: (input: {
+        slug: string;
+        status?: "draft" | "published";
+        summary?: string | null;
+        title: string;
+      }) => Promise<unknown>;
+      updateProject: (id: string, input: {
+        slug?: string;
+        status?: "draft" | "published";
+        summary?: string | null;
+        title?: string;
+      }) => Promise<unknown>;
+    };
+  }>("../infra/repositories/supabase-projects-repository.ts", "Supabase projects repository");
+
+  const insertCalls: Record<string, unknown>[] = [];
+  const updateCalls: Array<{ id: unknown; values: Record<string, unknown> }> = [];
+
+  const repository = new repositoryModule.SupabaseProjectsRepository({
+    from: () => ({
+      insert: (values) => {
+        insertCalls.push(values);
+        return {
+          select: () => ({
+            single: async () => ({
+              data: {
+                content_markdown: null,
+                created_at: "2026-06-09T00:00:00.000Z",
+                id: "project-created",
+                published_at: null,
+                slug: "new-project",
+                status: "published",
+                summary: "New summary",
+                title: "New project",
+                updated_at: "2026-06-09T00:00:00.000Z",
+              },
+              error: null,
+            }),
+          }),
+        };
+      },
+      select: () => ({
+        order: async () => ({
+          data: [],
+          error: null,
+        }),
+      }),
+      update: (values) => ({
+        eq: (_column, value) => {
+          updateCalls.push({ id: value, values });
+          return {
+            select: () => ({
+              single: async () => ({
+                data: {
+                  content_markdown: null,
+                  created_at: "2026-06-09T00:00:00.000Z",
+                  id: "project-created",
+                  published_at: null,
+                  slug: "updated-project",
+                  status: "draft",
+                  summary: "Updated summary",
+                  title: "Updated project",
+                  updated_at: "2026-06-09T00:10:00.000Z",
+                },
+                error: null,
+              }),
+            }),
+          };
+        },
+      }),
+    }),
+  });
+
+  const created = await repository.createProject({
+    slug: "new-project",
+    status: "published",
+    summary: "New summary",
+    title: "New project",
+  });
+  const updated = await repository.updateProject("project-created", {
+    slug: "updated-project",
+    status: "draft",
+    summary: "Updated summary",
+    title: "Updated project",
+  });
+
+  assert.deepEqual(insertCalls, [
+    {
+      slug: "new-project",
+      status: "published",
+      summary: "New summary",
+      title: "New project",
+    },
+  ]);
+  assert.deepEqual(updateCalls, [
+    {
+      id: "project-created",
+      values: {
+        slug: "updated-project",
+        status: "draft",
+        summary: "Updated summary",
+        title: "Updated project",
+      },
+    },
+  ]);
+  assert.equal((created as { id: string }).id, "project-created");
+  assert.equal((updated as { slug: string }).slug, "updated-project");
+});
+
 test("SupabaseProjectsRepository upserts project identities by slug", async () => {
   const repositoryModule = await loadModule<{
     SupabaseProjectsRepository: new (client: {
@@ -999,6 +1221,97 @@ test("createBlogContentService delegates admin project sync reads and writes thr
   assert.deepEqual(listedProjects, [{ slug: "existing-project" }]);
   assert.deepEqual(upsertCalls, [{ slug: "new-project", status: "published" }]);
   assert.deepEqual(syncedProject, { slug: "new-project" });
+});
+
+test("createBlogContentService creates and updates project identities through the repository", async () => {
+  const serviceModule = await loadModule<{
+    createBlogContentService: (input: {
+      posts: {
+        listAdminPosts: () => Promise<unknown[]>;
+      };
+      projects: {
+        createProject: (input: {
+          slug: string;
+          status?: "draft" | "published";
+          summary?: string | null;
+          title: string;
+        }) => Promise<{ id: string }>;
+        getAdminProjectById: (id: string) => Promise<{ id: string } | null>;
+        getProjectById: (id: string) => Promise<null>;
+        getPublicProjectById: (id: string) => Promise<null>;
+        getPublicProjectBySlug: (slug: string) => Promise<null>;
+        listAdminProjects: () => Promise<unknown[]>;
+        listProjectOptions: () => Promise<unknown[]>;
+        updateProject: (id: string, input: {
+          slug?: string;
+          status?: "draft" | "published";
+          summary?: string | null;
+          title?: string;
+        }) => Promise<{ id: string; slug: string }>;
+        upsertProject: (input: {
+          contentMarkdown: string | null;
+          publishedAt: string | null;
+          slug: string;
+          status: "draft" | "published";
+          summary: string | null;
+          title: string;
+        }) => Promise<{ slug: string }>;
+      };
+    }) => {
+      createProject: (input: {
+        slug: string;
+        status?: "draft" | "published";
+        summary?: string | null;
+        title: string;
+      }) => Promise<{ id: string }>;
+      updateProject: (id: string, input: {
+        slug?: string;
+        status?: "draft" | "published";
+        summary?: string | null;
+        title?: string;
+      }) => Promise<{ id: string; slug: string }>;
+    };
+  }>("./service.ts", "content service");
+
+  const createCalls: string[] = [];
+  const updateCalls: string[] = [];
+
+  const service = serviceModule.createBlogContentService({
+    posts: {
+      listAdminPosts: async () => [],
+    },
+    projects: {
+      createProject: async (input) => {
+        createCalls.push(input.slug);
+        return { id: "project-1" };
+      },
+      getAdminProjectById: async (id) => (id === "project-1" ? { id } : null),
+      getProjectById: async () => null,
+      getPublicProjectById: async () => null,
+      getPublicProjectBySlug: async () => null,
+      listAdminProjects: async () => [],
+      listProjectOptions: async () => [],
+      updateProject: async (id, input) => {
+        updateCalls.push(`${id}:${input.slug ?? ""}`);
+        return { id, slug: input.slug ?? "unchanged" };
+      },
+      upsertProject: async (input) => ({ slug: input.slug }),
+    },
+  });
+
+  await service.createProject({
+    slug: "new-project",
+    status: "published",
+    summary: "Summary",
+    title: "New project",
+  });
+  const updated = await service.updateProject("project-1", {
+    slug: "updated-project",
+  });
+
+  assert.deepEqual(createCalls, ["new-project"]);
+  assert.deepEqual(updateCalls, ["project-1:updated-project"]);
+  assert.deepEqual(updated, { id: "project-1", slug: "updated-project" });
 });
 
 test("createBlogContentService creates a published post with the current timestamp", async () => {
