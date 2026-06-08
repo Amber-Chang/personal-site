@@ -5,7 +5,10 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import ReactMarkdown from "react-markdown";
+import { RelatedPostsSection } from "@/components/RelatedPostsSection";
 import { Badge } from "@/components/ui/badge";
+import { getPublicBlogContentService } from "../../blog/blog-context";
+import { loadProjectPageData } from "./data";
 import { getProjectBySlug, getPublishedProjects } from "@/lib/projects";
 
 type ProjectPageProps = {
@@ -40,7 +43,10 @@ export async function generateMetadata({ params }: ProjectPageProps): Promise<Me
 
 export default async function ProjectPage({ params }: ProjectPageProps) {
   const { slug } = await params;
-  const project = getProjectBySlug(slug);
+  const project = await loadProjectPageData({
+    service: getPublicBlogContentService(),
+    slug,
+  });
 
   if (!project) {
     notFound();
@@ -94,6 +100,8 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
       <div className="prose prose-neutral max-w-none">
         <ReactMarkdown>{project.content}</ReactMarkdown>
       </div>
+
+      <RelatedPostsSection relatedPosts={project.relatedPosts} />
     </article>
   );
 }

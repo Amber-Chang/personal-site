@@ -45,7 +45,8 @@
 2. 直接實作
 3. 由主 agent 做輕量 review
 4. 補必要驗證
-5. 確認無明顯風險後，才可 `commit`、`push`
+5. 收尾前執行 `npm run review:doc-sync`
+6. 確認無明顯風險後，才可 `commit`、`push`
 
 ## 6. 角色分工
 
@@ -77,6 +78,7 @@
 - 實作已完成
 - 驗證已完成
 - review 已完成
+- 已執行 `npm run review:doc-sync`，並處理文件同步提醒
 
 ### 快速流程必須滿足
 
@@ -84,6 +86,14 @@
 - 變更已完成
 - 至少有基本驗證
 - 已做輕量 review
+- 已執行 `npm run review:doc-sync`，並處理文件同步提醒
+
+## 7.5 收尾文件同步 Gate
+
+- 進入 `commit` / `push` 前，固定執行一次 `npm run review:doc-sync`
+- 若 script 失敗，優先更新 `NOW.md` 與對應主文件
+- 若已明確人工確認本次不需更新文件，可用 `npm run review:doc-sync -- --ack` 作為人工覆核記錄
+- `review-doc-sync` 不是取代判斷，而是把「記得回頭看文件」這件事變成固定 gate
 
 ## 8. 與 spec 的關係
 

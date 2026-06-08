@@ -27,23 +27,27 @@
 - deployment security readiness round 已完成：login rate limit、7 天 session policy、文件同步、manual admin flow 驗證，以及 lint/test/build gate
 - 已新增 random server-side admin session change：cookie 不再直接使用 deterministic token，改為後端 session record 驗證
 - 已將 `supabase/migrations/202606070002_add_admin_sessions.sql` 套用到實際 Supabase 環境，並完成 admin 登入 / draft / 發佈 / 取消發佈 / 重新發佈手動驗證
-- 已保留 `admin-flow-check-20260607-0215` 作為部署後 smoke test 樣本
 - 已補上後台登出功能：可清除 `admin_session` cookie，並刪除目前 server-side session record
+- Vercel production 已部署於 `https://personal-site-two-opal.vercel.app/`
+- 已確認 production 首頁、`/blog`、既有公開文章與 `/admin/login` 可正常載入
+- 原先記錄的 smoke sample `admin-flow-check-20260607-0215` 已不在 production，部署後驗證記錄需改用新的樣本或直接記錄實際檢查路徑
+- 已建立 `npm run review:doc-sync` 與 `docs/development-workflow.md` 收尾 gate，降低忘記同步 `NOW.md` / 主文件的機率
+- 已完成 `blog post <-> project` 雙向連結 round：文章頁可顯示相關案例，project 頁可顯示延伸文章，且內容關聯已收斂到 content / repository 邊界
 
 ## 目前最重要的事
 
 - 持續調整網站視覺與品牌感
 - 視需要補 `title -> slug` 自動建議與更完整的後台錯誤訊息
-- 完成 Vercel production deployment 與 deploy 後 smoke check
+- 補齊 production deploy 後的 admin 登入 / 發佈 / 登出 smoke check 記錄
 - 若後續需要多人或遠端登入，重新評估 auth 升級路線
 - 讓後續開發工作可依標準流程規則化執行
 
 ## 下一步建議
 
-1. 打磨首頁視覺與文案
-2. 完成 Vercel production deploy，並確認 env 與實際站點網址一致
-3. deploy 後以 `admin-flow-check-20260607-0215` 重跑 smoke check
-4. 視需要補 `title -> slug` 自動建議與更完整的後台錯誤訊息
+1. 在 production 重跑一次完整 admin smoke check，補上登入、登出、draft / publish / unpublish 驗證記錄
+2. 重新指定一篇仍存在於 production 的 smoke sample，或建立新的固定驗證樣本
+3. 視需要補 `title -> slug` 自動建議與更完整的後台錯誤訊息
+4. 視需要把 blog / project 的關聯區塊再做更細的文案與視覺打磨
 5. 若後續需要多人或遠端登入，再評估升級成完整 auth 方案
 
 ## 備註
@@ -56,6 +60,7 @@
 - 後續 implementation spec 需以 [docs/system-architecture-principles.md](/Users/amberchang/Documents/New%20project/docs/system-architecture-principles.md) 作為最小架構參考
 - 目前後端分工是 Next.js 負責應用層，Supabase 負責資料庫與登入基礎
 - blog admin 的可實作規格已集中在 [docs/blog-admin-implementation-spec.md](/Users/amberchang/Documents/New%20project/docs/blog-admin-implementation-spec.md)
+- `blog post <-> project` 雙向連結的下一階段主 spec 已建立於 [docs/blog-project-linking-spec.md](/Users/amberchang/Documents/New%20project/docs/blog-project-linking-spec.md)
 - 開發流程規則已集中在 [docs/development-workflow.md](/Users/amberchang/Documents/New%20project/docs/development-workflow.md)
 - admin 內容讀寫第一版採 trusted Next.js server + Supabase service-role path，public published reads 則維持 RLS published-read policy
 - blog admin spec 的目前完成度與剩餘範圍已記在 [docs/blog-admin-implementation-spec.md](/Users/amberchang/Documents/New%20project/docs/blog-admin-implementation-spec.md) 的「目前進度」

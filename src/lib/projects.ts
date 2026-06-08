@@ -82,3 +82,13 @@ export function getProjectBySlug(slug: string): Project | null {
     content,
   };
 }
+
+export function getPublishedProjectBySlug(slug: string): Project | null {
+  const project = getProjectBySlug(slug);
+
+  if (!project || project.draft) {
+    return null;
+  }
+
+  return project;
+}

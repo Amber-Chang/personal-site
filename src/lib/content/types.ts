@@ -30,3 +30,19 @@ export type ProjectOption = {
   slug: string;
   title: string;
 };
+
+export type ProjectSummary = ProjectOption & {
+  summary: string;
+};
+
+export type PublicProjectRecord = {
+  content: string;
+  id: string | null;
+  outcomes: string[];
+  period: string;
+  role: string;
+  slug: string;
+  summary: string;
+  tags: string[];
+  title: string;
+};

@@ -14,6 +14,13 @@ type BlogPostRecord = {
   updatedAt: string;
 };
 
+type RelatedProjectRecord = {
+  id: string;
+  slug: string;
+  summary: string;
+  title: string;
+};
+
 function createPost(overrides?: Partial<BlogPostRecord>): BlogPostRecord {
   return {
     contentMarkdown: "第一段內容\n\n第二段內容",
@@ -132,10 +139,189 @@ test("loadBlogPostPageData maps a public post for metadata and rendering", async
     },
   });
 
+  assert.ok(result);
+  assert.equal(result.content, "第一段內容\n\n第二段內容");
+  assert.equal(result.date, "2026-06-02T10:00:00.000Z");
+  assert.equal(result.slug, "published-post");
+  assert.deepEqual(result.tags, []);
+  assert.equal(result.title, "Published post");
+  assert.equal(typeof result.description, "string");
+  assert.notEqual(result.description.length, 0);
+  assert.match(result.description, /第一段內容/);
+  assert.match(result.description, /第二段內容/);
+});
+
+test("loadBlogPostPageData includes related project context when the post references a resolvable project", async () => {
+  const dataModule = await loadModule<{
+    loadBlogPostPageData: (input: {
+      service: {
+        getPublicProjectById: (id: string) => Promise<RelatedProjectRecord | null>;
+        getPublicPostBySlug: (slug: string) => Promise<BlogPostRecord | null>;
+      };
+      slug: string;
+    }) => Promise<{
+      content: string;
+      date: string;
+      description: string;
+      relatedProject: {
+        slug: string;
+        summary: string;
+        title: string;
+      } | null;
+      slug: string;
+      tags: string[];
+      title: string;
+    } | null>;
+  }>("./data.ts", "blog data");
+
+  const publicPostSlugs: string[] = [];
+  const projectIds: string[] = [];
+  const result = await dataModule.loadBlogPostPageData({
+    slug: "published-post",
+    service: {
+      getPublicProjectById: async (id) => {
+        projectIds.push(id);
+
+        return {
+          id,
+          slug: "sms-management-platform",
+          summary: "把分散的營運需求產品化。",
+          title: "簡訊管理平台",
+        };
+      },
+      getPublicPostBySlug: async (slug) => {
+        publicPostSlugs.push(slug);
+
+        return createPost({
+          relatedProjectId: "project-1",
+        });
+      },
+    },
+  });
+
+  assert.deepEqual(publicPostSlugs, ["published-post"]);
+  assert.deepEqual(projectIds, ["project-1"]);
   assert.deepEqual(result, {
     content: "第一段內容\n\n第二段內容",
     date: "2026-06-02T10:00:00.000Z",
-    description: "第一段內容 第二段內容",
+    description: "文章摘要",
+    relatedProject: {
+      slug: "sms-management-platform",
+      summary: "把分散的營運需求產品化。",
+      title: "簡訊管理平台",
+    },
+    slug: "published-post",
+    tags: [],
+    title: "Published post",
+  });
+});
+
+test("loadBlogPostPageData falls back to a null related project when the reference cannot be resolved", async () => {
+  const dataModule = await loadModule<{
+    loadBlogPostPageData: (input: {
+      service: {
+        getPublicProjectById: (id: string) => Promise<RelatedProjectRecord | null>;
+        getPublicPostBySlug: (slug: string) => Promise<BlogPostRecord | null>;
+      };
+      slug: string;
+    }) => Promise<{
+      content: string;
+      date: string;
+      description: string;
+      relatedProject: {
+        slug: string;
+        summary: string;
+        title: string;
+      } | null;
+      slug: string;
+      tags: string[];
+      title: string;
+    } | null>;
+  }>("./data.ts", "blog data");
+
+  const publicPostSlugs: string[] = [];
+  const projectIds: string[] = [];
+  const result = await dataModule.loadBlogPostPageData({
+    slug: "published-post",
+    service: {
+      getPublicProjectById: async (id) => {
+        projectIds.push(id);
+
+        return null;
+      },
+      getPublicPostBySlug: async (slug) => {
+        publicPostSlugs.push(slug);
+
+        return createPost({
+          relatedProjectId: "project-missing",
+        });
+      },
+    },
+  });
+
+  assert.deepEqual(publicPostSlugs, ["published-post"]);
+  assert.deepEqual(projectIds, ["project-missing"]);
+  assert.deepEqual(result, {
+    content: "第一段內容\n\n第二段內容",
+    date: "2026-06-02T10:00:00.000Z",
+    description: "文章摘要",
+    relatedProject: null,
+    slug: "published-post",
+    tags: [],
+    title: "Published post",
+  });
+});
+
+test("loadBlogPostPageData falls back to a null related project when the post has no related project reference", async () => {
+  const dataModule = await loadModule<{
+    loadBlogPostPageData: (input: {
+      service: {
+        getPublicProjectById: (id: string) => Promise<RelatedProjectRecord | null>;
+        getPublicPostBySlug: (slug: string) => Promise<BlogPostRecord | null>;
+      };
+      slug: string;
+    }) => Promise<{
+      content: string;
+      date: string;
+      description: string;
+      relatedProject: {
+        slug: string;
+        summary: string;
+        title: string;
+      } | null;
+      slug: string;
+      tags: string[];
+      title: string;
+    } | null>;
+  }>("./data.ts", "blog data");
+
+  const publicPostSlugs: string[] = [];
+  const projectIds: string[] = [];
+  const result = await dataModule.loadBlogPostPageData({
+    slug: "published-post",
+    service: {
+      getPublicProjectById: async (id) => {
+        projectIds.push(id);
+
+        return null;
+      },
+      getPublicPostBySlug: async (slug) => {
+        publicPostSlugs.push(slug);
+
+        return createPost({
+          relatedProjectId: null,
+        });
+      },
+    },
+  });
+
+  assert.deepEqual(publicPostSlugs, ["published-post"]);
+  assert.equal(projectIds.length, 0);
+  assert.deepEqual(result, {
+    content: "第一段內容\n\n第二段內容",
+    date: "2026-06-02T10:00:00.000Z",
+    description: "文章摘要",
+    relatedProject: null,
     slug: "published-post",
     tags: [],
     title: "Published post",

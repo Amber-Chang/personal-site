@@ -5,6 +5,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import ReactMarkdown from "react-markdown";
+import { RelatedProjectSection } from "@/components/RelatedProjectSection";
 import { formatDate } from "@/lib/format";
 import { getPublicBlogContentService } from "../blog-context";
 import { loadBlogPostPageData } from "../data";
@@ -58,6 +59,8 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
         <h1 className="text-3xl font-semibold leading-tight">{post.title}</h1>
         <p className="mt-3 text-sm text-muted-foreground">{formatDate(post.date)}</p>
       </header>
+
+      <RelatedProjectSection relatedProject={post.relatedProject} />
 
       <div className="prose prose-neutral max-w-none">
         <ReactMarkdown>{post.content}</ReactMarkdown>

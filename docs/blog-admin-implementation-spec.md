@@ -51,6 +51,11 @@
   - post form 已補上欄位說明文字，降低第一次使用後台的理解成本
   - publish intent 改為 hidden input 顯式傳遞，避免 button submit value 在 server action 流程中掉失
   - Supabase duplicate slug 等常見錯誤已翻成較可讀的中文訊息
+- `Phase 5：Blog / Project linking`
+  - public blog post page 已可顯示 related project 區塊
+  - public project page 已可顯示 related published posts 區塊
+  - blog / project 關聯資料已透過 content / repository 邊界組裝，不散落在 page 層
+  - projects 仍維持 Markdown source，但 public content path 已可透過 adapter 與 Supabase project identity 對接
 
 ### 已完成但後續仍可補強
 
@@ -72,8 +77,8 @@
 
 ### 建議下一個 round
 
-- 做 markdown migration 與整體流程驗證
-- 在具備 Supabase env 的環境實際執行 import，並做完整手動流程驗證
+- 在 production 重跑完整 admin smoke check，補 deploy 後登入 / 發佈 / 取消發佈驗證紀錄
+- 視需要補 preview、`title -> slug` 自動建議與更完整的後台錯誤訊息
 
 ## 2. 決策摘要
 

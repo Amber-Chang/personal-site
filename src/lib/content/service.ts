@@ -17,10 +17,11 @@ export function createBlogContentService(input: {
     | "getPublishedPostBySlug"
     | "listAdminPosts"
     | "listPublishedPosts"
+    | "listPublishedPostsByProjectId"
     | "publishPost"
     | "updatePost"
   >;
-  projects: Pick<ProjectsRepository, "getProjectById" | "listProjectOptions">;
+  projects: Pick<ProjectsRepository, "getProjectById" | "getPublicProjectById" | "getPublicProjectBySlug" | "listProjectOptions">;
 }) {
   const now = input.now ?? (() => new Date());
 
@@ -54,8 +55,17 @@ export function createBlogContentService(input: {
     async getProjectById(id: string) {
       return input.projects.getProjectById(id);
     },
+    async getPublicProjectById(id: string) {
+      return input.projects.getPublicProjectById(id);
+    },
+    async getPublicProjectBySlug(slug: string) {
+      return input.projects.getPublicProjectBySlug(slug);
+    },
     async listPublicPosts(): Promise<BlogPostRecord[]> {
       return input.posts.listPublishedPosts();
+    },
+    async listPostsByProjectId(projectId: string): Promise<BlogPostRecord[]> {
+      return input.posts.listPublishedPostsByProjectId(projectId);
     },
     async publishPost(id: string): Promise<BlogPostRecord> {
       const existingPost = await input.posts.getAdminPostById(id);

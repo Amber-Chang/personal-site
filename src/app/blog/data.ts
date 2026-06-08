@@ -1,45 +1,53 @@
-import type { BlogPostRecord } from "../../lib/content/types.ts";
+import { mapPublicPostSummary, mapPublicPostTeaser, type PublicPostSummary } from "../../lib/content/public-post.ts";
+import type { BlogPostRecord, ProjectSummary } from "../../lib/content/types.ts";
 
-export type PublicBlogPostSummary = {
-  date: string;
-  slug: string;
-  tags: string[];
-  title: string;
-};
+export type PublicBlogPostSummary = PublicPostSummary;
 
-export type PublicBlogPost = PublicBlogPostSummary & {
+export type PublicBlogPost = ReturnType<typeof mapPublicPostTeaser> & {
   content: string;
   description: string;
+  relatedProject: {
+    slug: string;
+    summary: string;
+    title: string;
+  } | null;
 };
 
 type PublicBlogDataService = {
+  getPublicProjectById: (id: string) => Promise<ProjectSummary | null>;
   getPublicPostBySlug: (slug: string) => Promise<BlogPostRecord | null>;
   listPublicPosts: () => Promise<BlogPostRecord[]>;
 };
 
-function getPublicDate(post: BlogPostRecord): string {
-  return post.publishedAt ?? post.updatedAt;
-}
-
-function getDescription(post: BlogPostRecord): string {
-  return (post.excerpt?.trim() || post.contentMarkdown.slice(0, 160)).replace(/\s+/g, " ").trim();
-}
-
 export function mapPublicBlogPostSummary(post: BlogPostRecord): PublicBlogPostSummary {
-  return {
-    date: getPublicDate(post),
-    slug: post.slug,
-    tags: [],
-    title: post.title,
-  };
+  return mapPublicPostSummary(post);
 }
 
 export function mapPublicBlogPost(post: BlogPostRecord): PublicBlogPost {
   return {
-    ...mapPublicBlogPostSummary(post),
+    ...mapPublicPostTeaser(post),
     content: post.contentMarkdown,
-    description: getDescription(post),
+    relatedProject: null,
   };
+}
+
+async function getRelatedProject(input: {
+  post: BlogPostRecord;
+  service: Pick<PublicBlogDataService, "getPublicProjectById">;
+}) {
+  if (!input.post.relatedProjectId) {
+    return null;
+  }
+
+  const project = await input.service.getPublicProjectById(input.post.relatedProjectId);
+
+  return project
+    ? {
+        slug: project.slug,
+        summary: project.summary,
+        title: project.title,
+      }
+    : null;
 }
 
 export async function loadBlogIndexPageData(input: {
@@ -53,10 +61,20 @@ export async function loadBlogIndexPageData(input: {
 }
 
 export async function loadBlogPostPageData(input: {
-  service: Pick<PublicBlogDataService, "getPublicPostBySlug">;
+  service: Pick<PublicBlogDataService, "getPublicProjectById" | "getPublicPostBySlug">;
   slug: string;
 }) {
   const post = await input.service.getPublicPostBySlug(input.slug);
 
-  return post ? mapPublicBlogPost(post) : null;
+  if (!post) {
+    return null;
+  }
+
+  return {
+    ...mapPublicBlogPost(post),
+    relatedProject: await getRelatedProject({
+      post,
+      service: input.service,
+    }),
+  };
 }

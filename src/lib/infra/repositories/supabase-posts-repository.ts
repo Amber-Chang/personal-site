@@ -179,6 +179,17 @@ export class SupabaseBlogPostsRepository implements BlogPostsRepository {
     return row ? mapBlogPostRow(row) : null;
   }
 
+  async listPublishedPostsByProjectId(projectId: string): Promise<BlogPostRecord[]> {
+    const { data, error } = await this.client
+      .from("blog_posts")
+      .select("*")
+      .eq("related_project_id", projectId)
+      .eq("status", "published")
+      .order("published_at", { ascending: false });
+
+    return ensureArray(data, error).map(mapBlogPostRow);
+  }
+
   async listAdminPosts(): Promise<BlogPostRecord[]> {
     const { data, error } = await this.client.from("blog_posts").select("*").order("updated_at", { ascending: false });
 

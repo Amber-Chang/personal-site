@@ -146,6 +146,21 @@
 - `/blog/admin-flow-check-20260607-0215` 應可公開讀取
 - 後台重新登入後應可在 `/admin/posts/347c90c6-a881-4a7b-b232-4431f362e0c0` 正常編輯
 
+### 6.5.1 Production deploy 後補充確認
+
+- 確認日期：2026-06-08
+- production 網址：`https://personal-site-two-opal.vercel.app/`
+- 確認方式：實際開啟 production 頁面並檢查公開路由
+- 已確認可正常載入：
+  - `/`
+  - `/blog`
+  - `/blog/test-post-2026`
+  - `/admin/login`
+- 目前發現：
+  - 先前保留的 smoke sample `/blog/admin-flow-check-20260607-0215` 在 production 為 `404`
+  - 這代表 production deploy 已完成，但既有 smoke sample 記錄已與 production 現況不同步
+  - 後續應重新指定一篇仍存在的 production 文章作為 smoke sample，或建立新的固定驗證樣本
+
 ### 6.6 可重複執行的 admin publish / unpublish checklist
 
 以下流程設計成同一環境可重複執行，不依賴一次性資料狀態：
@@ -258,10 +273,14 @@
 
 ## 11. 目前判定
 
-- 判定日期：2026-06-07
+- 判定日期：2026-06-08
 - 自動化 gate：`npm run lint`、`npm test`、`npm run build` 全部通過
 - 手動 flow gate：admin login、建立 draft、發佈、取消發佈、重新發佈與前台顯示 / 隱藏驗證通過
-- 目前結論：**可部署到 production，但前提是明確接受目前是單人 admin 的密碼門模型**
+- production 狀態：
+  - `https://personal-site-two-opal.vercel.app/` 已上線
+  - 首頁、`/blog`、既有公開文章與 `/admin/login` 已確認可正常載入
+  - deploy 後完整 admin smoke check 尚未重新記錄
+- 目前結論：**production 已部署完成；目前仍需補齊 deploy 後的 admin smoke check 記錄，但整體上線基線已成立，前提仍是明確接受目前是單人 admin 的密碼門模型**
 
 這代表：
 
@@ -272,4 +291,5 @@
 
 - 已完成：deterministic cookie -> 隨機 server-side session 的程式碼與 migration
 - 已完成：`npm test`、`npm run build` 驗證通過
-- 待完成：將 `supabase/migrations/202606070002_add_admin_sessions.sql` 套用到實際 Supabase 環境後，再重跑一次 admin 手動驗證
+- 已完成：`supabase/migrations/202606070002_add_admin_sessions.sql` 已套用到實際 Supabase 環境
+- 待補記錄：production 環境下重新跑一次完整 admin 手動驗證，並更新 smoke sample

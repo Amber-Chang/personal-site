@@ -1,5 +1,6 @@
+import { getPublishedProjectBySlug, type Project } from "../../projects.ts";
 import type { ProjectsRepository } from "../../content/repository.ts";
-import type { ProjectOption } from "../../content/types.ts";
+import type { ProjectOption, ProjectSummary, PublicProjectRecord } from "../../content/types.ts";
 
 type ProjectRow = {
   id: string;
@@ -44,6 +45,29 @@ function mapProjectRow(row: ProjectRow): ProjectOption {
   };
 }
 
+function mapPublicProjectSummary(row: ProjectRow, project: Project): ProjectSummary {
+  return {
+    id: row.id,
+    slug: project.slug,
+    summary: project.summary,
+    title: project.title,
+  };
+}
+
+function mapPublicProjectRecord(project: Project, id: string | null): PublicProjectRecord {
+  return {
+    content: project.content,
+    id,
+    outcomes: project.outcomes,
+    period: project.period,
+    role: project.role,
+    slug: project.slug,
+    summary: project.summary,
+    tags: project.tags,
+    title: project.title,
+  };
+}
+
 function formatQueryError(error: Exclude<QueryError, null>) {
   return error.message ?? error.details ?? error.hint ?? "Supabase query failed.";
 }
@@ -66,9 +90,11 @@ function maybeOne<T>(data: T | null, error: QueryError | undefined): T | null {
 
 export class SupabaseProjectsRepository implements ProjectsRepository {
   private readonly client: QueryClient;
+  private readonly loadProjectBySlug: (slug: string) => Project | null;
 
-  constructor(client: QueryClient) {
+  constructor(client: QueryClient, loadProjectBySlug: (slug: string) => Project | null = getPublishedProjectBySlug) {
     this.client = client;
+    this.loadProjectBySlug = loadProjectBySlug;
   }
 
   async listProjectOptions(): Promise<ProjectOption[]> {
@@ -91,5 +117,43 @@ export class SupabaseProjectsRepository implements ProjectsRepository {
     const row = maybeOne(data, error);
 
     return row ? mapProjectRow(row) : null;
+  }
+
+  async getPublicProjectById(id: string): Promise<ProjectSummary | null> {
+    const { data, error } = await this.client
+      .from("projects")
+      .select("id, slug, title")
+      .eq("id", id)
+      .eq("status", "published")
+      .maybeSingle();
+
+    const row = maybeOne(data, error);
+
+    if (!row) {
+      return null;
+    }
+
+    const project = this.loadProjectBySlug(row.slug);
+
+    return project ? mapPublicProjectSummary(row, project) : null;
+  }
+
+  async getPublicProjectBySlug(slug: string): Promise<PublicProjectRecord | null> {
+    const project = this.loadProjectBySlug(slug);
+
+    if (!project) {
+      return null;
+    }
+
+    const { data, error } = await this.client
+      .from("projects")
+      .select("id, slug, title")
+      .eq("slug", slug)
+      .eq("status", "published")
+      .maybeSingle();
+
+    const row = maybeOne(data, error);
+
+    return mapPublicProjectRecord(project, row?.id ?? null);
   }
 }
