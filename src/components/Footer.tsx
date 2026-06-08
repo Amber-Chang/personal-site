@@ -8,10 +8,10 @@ export function Footer() {
         <p>
           聯絡我：
           <a
-            href="mailto:amber@yourdomain.com"
+            href="mailto:taco5239@gmail.com"
             className="ml-1 underline decoration-muted-foreground/70 underline-offset-2 hover:text-foreground"
           >
-            amber@yourdomain.com
+            taco5239@gmail.com
           </a>
         </p>
       </div>

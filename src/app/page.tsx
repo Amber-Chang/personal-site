@@ -178,10 +178,10 @@ export default async function HomePage() {
           如果你正在找一位能把需求、規格、AI 協作與落地串起來的產品夥伴，歡迎來信聊聊。
         </p>
         <a
-          href="mailto:amber@yourdomain.com"
+          href="mailto:taco5239@gmail.com"
           className="inline-block underline decoration-muted-foreground/70 underline-offset-4 hover:text-foreground"
         >
-          amber@yourdomain.com
+          taco5239@gmail.com
         </a>
       </section>
     </div>

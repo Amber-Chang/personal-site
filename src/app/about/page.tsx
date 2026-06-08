@@ -34,7 +34,7 @@ export default function AboutPage() {
       </ul>
       <p>
         如果你也在找一位能把策略、需求與落地串起來的產品夥伴，歡迎來信：
-        <a href="mailto:amber@yourdomain.com">amber@yourdomain.com</a>
+        <a href="mailto:taco5239@gmail.com">taco5239@gmail.com</a>
       </p>
     </article>
   );
