@@ -33,6 +33,7 @@
 - 原先記錄的 smoke sample `admin-flow-check-20260607-0215` 已不在 production，部署後驗證記錄需改用新的樣本或直接記錄實際檢查路徑
 - 已建立 `npm run review:doc-sync` 與 `docs/development-workflow.md` 收尾 gate，降低忘記同步 `NOW.md` / 主文件的機率
 - 已完成 `blog post <-> project` 雙向連結 round：文章頁可顯示相關案例，project 頁可顯示延伸文章，且內容關聯已收斂到 content / repository 邊界
+- 已補 `npm run content:sync-projects`，可把 `content/projects/*.md` 同步到 Supabase `projects` identity table，讓 admin post form 的 `Related project` 選單可實際選用案例
 
 ## 目前最重要的事
 
@@ -41,10 +42,11 @@
 - 補齊 production deploy 後的 admin 登入 / 發佈 / 登出 smoke check 記錄
 - 若後續需要多人或遠端登入，重新評估 auth 升級路線
 - 讓後續開發工作可依標準流程規則化執行
+- 確認 project sync 後的 admin 關聯編輯流程在 production 也可順利使用
 
 ## 下一步建議
 
-1. 在 production 重跑一次完整 admin smoke check，補上登入、登出、draft / publish / unpublish 驗證記錄
+1. 在 production 重跑一次完整 admin smoke check，包含 project sync 後的 `Related project` 選擇、登入、登出、draft / publish / unpublish 驗證記錄
 2. 重新指定一篇仍存在於 production 的 smoke sample，或建立新的固定驗證樣本
 3. 視需要補 `title -> slug` 自動建議與更完整的後台錯誤訊息
 4. 視需要把 blog / project 的關聯區塊再做更細的文案與視覺打磨
@@ -67,5 +69,6 @@
 - deployment / 資安上線準備的主文件已建立於 [docs/deployment-security-readiness.md](/Users/amberchang/Documents/New%20project/docs/deployment-security-readiness.md)
 - `/blog`、`/blog/[slug]` 與首頁 writing 區塊已改由 public repository 讀取 `published` posts；舊 `content/posts/*.md` 仍保留作為 import source
 - `npm run content:import-posts` 已成功匯入 `ai-membership-system`
+- `npm run content:sync-projects` 會把 Markdown project 同步成 Supabase `projects` identity，供 blog relation 與 admin select option 使用
 - admin post form 已改成 publish UX 按鈕，不再以 status dropdown 作為主要操作
 - 目前 admin 後台登入改採密碼門 MVP，不再依賴 Supabase magic link

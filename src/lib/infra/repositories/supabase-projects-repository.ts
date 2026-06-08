@@ -1,11 +1,17 @@
 import { getPublishedProjectBySlug, type Project } from "../../projects.ts";
 import type { ProjectsRepository } from "../../content/repository.ts";
-import type { ProjectOption, ProjectSummary, PublicProjectRecord } from "../../content/types.ts";
+import type { ProjectOption, ProjectRecord, ProjectSummary, PublicProjectRecord, SyncProjectInput } from "../../content/types.ts";
 
 type ProjectRow = {
+  content_markdown: string | null;
+  created_at: string;
   id: string;
+  published_at: string | null;
   slug: string;
+  status: "draft" | "published";
+  summary: string | null;
   title: string;
+  updated_at: string;
 };
 
 type QueryError = {
@@ -31,9 +37,16 @@ type SelectQuery<T> = {
   order: (column: string, options: { ascending: boolean }) => QueryArrayResult<T>;
 };
 
+type UpsertQuery<T> = {
+  maybeSingle: () => QuerySingleResult<T>;
+};
+
 type QueryClient = {
   from: (table: string) => {
     select: (columns: string) => SelectQuery<ProjectRow>;
+    upsert: (values: Record<string, unknown>, options: { onConflict: string }) => {
+      select: (columns: string) => UpsertQuery<ProjectRow>;
+    };
   };
 };
 
@@ -42,6 +55,20 @@ function mapProjectRow(row: ProjectRow): ProjectOption {
     id: row.id,
     slug: row.slug,
     title: row.title,
+  };
+}
+
+function mapProjectRecord(row: ProjectRow): ProjectRecord {
+  return {
+    contentMarkdown: row.content_markdown,
+    createdAt: row.created_at,
+    id: row.id,
+    publishedAt: row.published_at,
+    slug: row.slug,
+    status: row.status,
+    summary: row.summary,
+    title: row.title,
+    updatedAt: row.updated_at,
   };
 }
 
@@ -107,6 +134,12 @@ export class SupabaseProjectsRepository implements ProjectsRepository {
     return ensureArray(data, error).map(mapProjectRow);
   }
 
+  async listAdminProjects(): Promise<ProjectRecord[]> {
+    const { data, error } = await this.client.from("projects").select("*").order("title", { ascending: true });
+
+    return ensureArray(data, error).map(mapProjectRecord);
+  }
+
   async getProjectById(id: string): Promise<ProjectOption | null> {
     const { data, error } = await this.client
       .from("projects")
@@ -155,5 +188,31 @@ export class SupabaseProjectsRepository implements ProjectsRepository {
     const row = maybeOne(data, error);
 
     return mapPublicProjectRecord(project, row?.id ?? null);
+  }
+
+  async upsertProject(input: SyncProjectInput): Promise<ProjectRecord> {
+    const { data, error } = await this.client
+      .from("projects")
+      .upsert(
+        {
+          content_markdown: input.contentMarkdown ?? null,
+          published_at: input.publishedAt ?? null,
+          slug: input.slug,
+          status: input.status,
+          summary: input.summary ?? null,
+          title: input.title,
+        },
+        { onConflict: "slug" },
+      )
+      .select("*")
+      .maybeSingle();
+
+    const row = maybeOne(data, error);
+
+    if (!row) {
+      throw new Error(`Project upsert for slug "${input.slug}" returned no row.`);
+    }
+
+    return mapProjectRecord(row);
   }
 }

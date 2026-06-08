@@ -7,6 +7,7 @@
     "build": "next build --webpack",
     "build:turbo": "next build",
     "content:import-posts": "node --no-warnings --experimental-strip-types scripts/import-markdown-posts.ts",
+    "content:sync-projects": "node --no-warnings --experimental-strip-types scripts/sync-markdown-projects.ts",
     "review:doc-sync": "node scripts/review-doc-sync.mjs",
     "start": "next start",
     "lint": "eslint",

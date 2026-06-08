@@ -31,6 +31,27 @@ export type ProjectOption = {
   title: string;
 };
 
+export type ProjectRecord = {
+  contentMarkdown: string | null;
+  createdAt: string;
+  id: string;
+  publishedAt: string | null;
+  slug: string;
+  status: ContentStatus;
+  summary: string | null;
+  title: string;
+  updatedAt: string;
+};
+
+export type SyncProjectInput = {
+  contentMarkdown?: string | null;
+  publishedAt?: string | null;
+  slug: string;
+  status: ContentStatus;
+  summary?: string | null;
+  title: string;
+};
+
 export type ProjectSummary = ProjectOption & {
   summary: string;
 };

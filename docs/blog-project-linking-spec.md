@@ -30,6 +30,7 @@
 - 單篇文章頁顯示關聯 project
 - 單一 project 頁顯示相關已發佈文章列表
 - 前台資料讀取邊界補齊，讓 blog 與 project 關聯可透過同一套內容邏輯讀取
+- 補 project identity sync，讓 admin post form 的 `Related project` 下拉選單可實際選到既有案例
 - 補對應 spec / 文件，讓後續擴充不需要重新定義關聯模型
 
 本輪不包含：
@@ -114,7 +115,8 @@
 
 1. 保留 project 內容主來源仍為 Markdown
 2. 在內容層新增可讀取 project 基本資訊與 related posts 的能力
-3. 不在 page 裡直接做「先抓 project，再手動掃全部 posts」這種散寫邏輯
+3. 補一條 Markdown -> Supabase `projects` identity sync 流程，讓關聯欄位不再卡在空選單
+4. 不在 page 裡直接做「先抓 project，再手動掃全部 posts」這種散寫邏輯
 
 建議至少補出以下能力：
 
@@ -124,6 +126,28 @@
 - project 頁資料組合：
   - 取得單一 published project
   - 依 project id 列出相關 published posts
+- project sync：
+  - 從 `content/projects/*.md` 讀出 `slug/title/summary/status`
+  - 同步到 Supabase `projects` table`
+  - 以 `slug` 作為 identity key，避免重複建立 option
+
+## 8.5 Admin 關聯選單補洞
+
+目前 admin post form 雖然已存在 `Related project` 欄位，但它只會讀取 Supabase `projects` table` 中 `published` 的項目。
+
+這代表若 repo 只有 Markdown project、卻沒有同步進 Supabase identity table，站主在後台實際上仍無法選擇任何案例。這個缺口需要補齊，但又不應直接把範圍擴成完整 project admin。
+
+因此這一輪採以下原則：
+
+- `content/projects/*.md` 仍是 project 內容主來源
+- Supabase `projects` table` 第一版只承接：
+  - project identity
+  - blog relation target
+  - admin select option source
+- 不在後台新增 project CRUD
+- 以可重跑的 sync/import script 維持 Markdown 與 Supabase identity table 對齊
+
+這個 sync 流程應被視為 blog/project 關聯功能的一部分，而不是獨立的新 CMS 能力。
 
 ## 9. 資料讀取需求
 
@@ -140,6 +164,8 @@
 
 - `getProjectById(id)`
 - `getProjectBySlug(slug)`
+- `listAdminProjects()`
+- `upsertProjectIdentity(input)`
 - 若 project 仍以 Markdown 為主，需有對應 adapter 可提供最小前台所需欄位
 
 ### 9.3 View model
@@ -194,6 +220,12 @@
 - 補測試
 - 更新 `NOW.md`
 - 視需要回寫 blog admin 相關主 spec 的目前進度
+
+### Slice 6：Project identity sync
+
+- 建立 `content/projects/*.md` -> Supabase `projects` sync tooling
+- 補 npm script 與操作說明
+- 跑一次同步，讓 admin 關聯欄位可實際選用
 
 ## 13. 決策界線
 

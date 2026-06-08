@@ -1,5 +1,5 @@
 import type { BlogPostsRepository, ProjectsRepository } from "./repository.ts";
-import type { BlogPostRecord, CreateBlogPostInput, UpdateBlogPostInput } from "./types.ts";
+import type { BlogPostRecord, CreateBlogPostInput, ProjectRecord, SyncProjectInput, UpdateBlogPostInput } from "./types.ts";
 
 export class BlogPostNotFoundError extends Error {
   constructor(id: string) {
@@ -21,7 +21,10 @@ export function createBlogContentService(input: {
     | "publishPost"
     | "updatePost"
   >;
-  projects: Pick<ProjectsRepository, "getProjectById" | "getPublicProjectById" | "getPublicProjectBySlug" | "listProjectOptions">;
+  projects: Pick<
+    ProjectsRepository,
+    "getProjectById" | "getPublicProjectById" | "getPublicProjectBySlug" | "listAdminProjects" | "listProjectOptions" | "upsertProject"
+  >;
 }) {
   const now = input.now ?? (() => new Date());
 
@@ -52,6 +55,9 @@ export function createBlogContentService(input: {
     async listProjectOptions() {
       return input.projects.listProjectOptions();
     },
+    async listAdminProjects(): Promise<ProjectRecord[]> {
+      return input.projects.listAdminProjects();
+    },
     async getProjectById(id: string) {
       return input.projects.getProjectById(id);
     },
@@ -60,6 +66,9 @@ export function createBlogContentService(input: {
     },
     async getPublicProjectBySlug(slug: string) {
       return input.projects.getPublicProjectBySlug(slug);
+    },
+    async upsertProject(inputValue: SyncProjectInput): Promise<ProjectRecord> {
+      return input.projects.upsertProject(inputValue);
     },
     async listPublicPosts(): Promise<BlogPostRecord[]> {
       return input.posts.listPublishedPosts();

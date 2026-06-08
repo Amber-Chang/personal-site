@@ -40,8 +40,11 @@
   - admin posts pages 已標成 runtime dynamic，避免 build-time prerender 觸發 session / env 讀取
 - `Phase 4：Migration tooling 與 Markdown-only 清點`
   - 新增 `npm run content:import-posts` 一次性匯入指令
+  - 新增 `npm run content:sync-projects` project identity 同步指令
   - Markdown importer 會讀取 `content/posts/*.md` 並建立 `blog_posts`
+  - project sync 會讀取 `content/projects/*.md` 並同步 `projects` identity table
   - 匯入時同 slug 既有文章會跳過，不覆蓋人工調整資料
+  - project sync 以 `slug` 為 identity key，會更新既有項目而非重複建立
   - 首頁 writing 區塊改讀 public repository 的 published posts
   - 舊 `src/lib/posts.ts` 已移除，blog 前台不再依賴 Markdown reader
   - 已實際匯入 `ai-membership-system`
@@ -56,6 +59,7 @@
   - public project page 已可顯示 related published posts 區塊
   - blog / project 關聯資料已透過 content / repository 邊界組裝，不散落在 page 層
   - projects 仍維持 Markdown source，但 public content path 已可透過 adapter 與 Supabase project identity 對接
+  - admin post form 的 `Related project` 選單已可透過 project sync 實際選用既有案例
 
 ### 已完成但後續仍可補強
 
