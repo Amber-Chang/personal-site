@@ -36,6 +36,8 @@
 - 已補 `npm run content:sync-projects`，可把 `content/projects/*.md` 同步到 Supabase `projects` identity table，讓 admin post form 的 `Related project` 選單可實際選用案例
 - 已完成輕量 project identity admin：新增 `/admin/projects`、`/admin/projects/new`、`/admin/projects/[id]`，可直接在後台建立與編輯可被文章關聯的專案名單
 - 已完成 `projects Supabase-first` round：`/projects`、`/projects/[slug]`、首頁代表案例與 `/admin/projects` 已收斂到同一套 Supabase content source，Markdown `content/projects/*.md` 改退為 migration/import source
+- 已將 `supabase/migrations/202606090001_expand_projects_for_public_content.sql` 套用到實際 Supabase 環境，並重跑 `npm run content:sync-projects`，把既有 Markdown project 內容同步進 `role / period / tags / outcomes / featured / content_markdown`
+- 已確認 production 首頁、`/projects`、`/projects/ai-writing-review-product`、`/projects/sms-management-platform` 可正常顯示 Supabase-backed project 內容
 
 ## 目前最重要的事
 
@@ -45,15 +47,13 @@
 - 若後續需要多人或遠端登入，重新評估 auth 升級路線
 - 讓後續開發工作可依標準流程規則化執行
 - 確認 project sync 後的 admin 關聯編輯流程在 production 也可順利使用
-- 套用 `projects` 新 schema migration，並確認 production `/projects` 與 `/admin/projects` 流程正常
+- 補齊 production `/admin/projects` 建立 / 編輯流程的實際手動驗證記錄
 
 ## 下一步建議
 
-1. 套用 `supabase/migrations/202606090001_expand_projects_for_public_content.sql`
-2. 視需要重跑 `npm run content:sync-projects`，把既有 Markdown project 內容補進新欄位
-3. 在 production 重跑一次完整 admin smoke check，包含 `/admin/projects` 建立 / 編輯、`Related project` 選擇、登入、登出、draft / publish / unpublish 驗證記錄
-4. 重新指定一篇仍存在於 production 的 smoke sample，或建立新的固定驗證樣本
-5. 視需要補 `title -> slug` 自動建議與更完整的後台錯誤訊息
+1. 在 production 重跑一次完整 admin smoke check，包含 `/admin/projects` 建立 / 編輯、`Related project` 選擇、登入、登出、draft / publish / unpublish 驗證記錄
+2. 重新指定一篇仍存在於 production 的 smoke sample，或建立新的固定驗證樣本
+3. 視需要補 `title -> slug` 自動建議與更完整的後台錯誤訊息
 
 ## 備註
 

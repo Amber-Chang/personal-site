@@ -145,7 +145,9 @@ Supabase `projects` 至少需要完整承接目前前台 project card 與 projec
   - `/admin/projects` 可管理目前公開 project 欄位
   - `/projects`、`/projects/[slug]`、首頁代表案例已改讀 Supabase-first content path
   - Markdown project sync 已擴充，會同步 `role / period / tags / outcomes / featured / content_markdown`
-- 仍需在實際 Supabase / production 環境完成：
-  - 套用新 migration
-  - 視需要重跑 `npm run content:sync-projects`
-  - deploy 後補 production smoke check
+- 已在實際 Supabase / production 環境完成：
+  - 已套用新 migration
+  - 已重跑 `npm run content:sync-projects`
+  - 已確認 production `/`、`/projects`、`/projects/ai-writing-review-product`、`/projects/sms-management-platform` 可正常顯示
+- 仍待補：
+  - `/admin/projects` 建立 / 編輯流程的 production 手動 smoke check

@@ -161,6 +161,29 @@
   - 這代表 production deploy 已完成，但既有 smoke sample 記錄已與 production 現況不同步
   - 後續應重新指定一篇仍存在的 production 文章作為 smoke sample，或建立新的固定驗證樣本
 
+### 6.5.2 Projects Supabase-first migration 後補充確認
+
+- 確認日期：2026-06-09
+- 變更內容：
+  - 已套用 `supabase/migrations/202606090001_expand_projects_for_public_content.sql`
+  - 已重跑 `npm run content:sync-projects`
+- sync 結果：
+  - `Created: 0`
+  - `Updated: 2`
+  - `Updated slugs: ai-writing-review-product, sms-management-platform`
+- production 公開路由確認：
+  - `/`
+  - `/projects`
+  - `/projects/ai-writing-review-product`
+  - `/projects/sms-management-platform`
+- 目前判定：
+  - public `projects` 內容已可由 Supabase-first source 正常提供
+  - production `/projects` 清單已反映 DB-driven project entries
+  - `projects` 相關的公開讀取基線已成立
+- 仍待補：
+  - `/admin/projects` 建立 / 編輯流程的 production 手動驗證記錄
+  - project admin 對 public 頁面反映速度與 revalidation 行為的實際驗證
+
 ### 6.6 可重複執行的 admin publish / unpublish checklist
 
 以下流程設計成同一環境可重複執行，不依賴一次性資料狀態：
@@ -279,6 +302,7 @@
 - production 狀態：
   - `https://personal-site-two-opal.vercel.app/` 已上線
   - 首頁、`/blog`、既有公開文章與 `/admin/login` 已確認可正常載入
+  - 首頁、`/projects`、`/projects/ai-writing-review-product`、`/projects/sms-management-platform` 已確認可正常載入
   - deploy 後完整 admin smoke check 尚未重新記錄
 - 目前結論：**production 已部署完成；目前仍需補齊 deploy 後的 admin smoke check 記錄，但整體上線基線已成立，前提仍是明確接受目前是單人 admin 的密碼門模型**
 
