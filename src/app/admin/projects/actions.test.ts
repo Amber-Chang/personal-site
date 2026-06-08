@@ -8,19 +8,30 @@ type AdminProjectFormState = {
 type ProjectRecord = {
   contentMarkdown: string | null;
   createdAt: string;
+  featured: boolean;
   id: string;
+  outcomes: string[];
+  period: string | null;
   publishedAt: string | null;
+  role: string | null;
   slug: string;
   status: "draft" | "published";
   summary: string | null;
+  tags: string[];
   title: string;
   updatedAt: string;
 };
 
 type CreateProjectInput = {
+  contentMarkdown?: string | null;
+  featured?: boolean;
+  outcomes?: string[];
+  period?: string | null;
+  role?: string | null;
   slug: string;
   status?: "draft" | "published";
   summary?: string | null;
+  tags?: string[];
   title: string;
 };
 
@@ -30,11 +41,16 @@ function createProject(overrides?: Partial<ProjectRecord>): ProjectRecord {
   return {
     contentMarkdown: null,
     createdAt: "2026-06-09T00:00:00.000Z",
+    featured: false,
     id: "project-1",
+    outcomes: [],
+    period: null,
     publishedAt: null,
+    role: null,
     slug: "sample-project",
     status: "draft",
     summary: "Project summary",
+    tags: [],
     title: "Sample project",
     updatedAt: "2026-06-09T00:00:00.000Z",
     ...overrides,
@@ -59,7 +75,7 @@ function createFormData(entries: Array<[string, string]>): FormData {
   return formData;
 }
 
-test("createAdminProjectAction creates a project identity and redirects to the edit page", async () => {
+test("createAdminProjectAction creates a project with public content fields and redirects to the edit page", async () => {
   const actionsModule = await loadModule<{
     createAdminProjectMutationActions: (input: {
       redirectTo: (path: string) => never;
@@ -102,6 +118,12 @@ test("createAdminProjectAction creates a project identity and redirects to the e
     ["title", "  New project  "],
     ["slug", "  new-project  "],
     ["summary", " New summary "],
+    ["role", " Product lead "],
+    ["period", " 2025 "],
+    ["tags", "AI workflow, Product strategy, , "],
+    ["outcomes", " Outcome one \nOutcome two \n  "],
+    ["contentMarkdown", "  # Project body  "],
+    ["featured", "on"],
     ["status", "published"],
   ]);
 
@@ -112,9 +134,15 @@ test("createAdminProjectAction creates a project identity and redirects to the e
 
   assert.deepEqual(createCalls, [
     {
+      contentMarkdown: "# Project body",
+      featured: true,
+      outcomes: ["Outcome one", "Outcome two"],
+      period: "2025",
+      role: "Product lead",
       slug: "new-project",
       status: "published",
       summary: "New summary",
+      tags: ["AI workflow", "Product strategy"],
       title: "New project",
     },
   ]);
@@ -122,7 +150,7 @@ test("createAdminProjectAction creates a project identity and redirects to the e
   assert.deepEqual(redirects, ["/admin/projects/created-project"]);
 });
 
-test("updateAdminProjectAction updates an existing project identity and redirects back to the edit page", async () => {
+test("updateAdminProjectAction updates an existing project with public content fields and redirects back to the edit page", async () => {
   const actionsModule = await loadModule<{
     createAdminProjectMutationActions: (input: {
       redirectTo: (path: string) => never;
@@ -165,6 +193,11 @@ test("updateAdminProjectAction updates an existing project identity and redirect
     ["title", "  Updated project  "],
     ["slug", " updated-project "],
     ["summary", "Updated summary"],
+    ["role", " Staff PM "],
+    ["period", " 2026 "],
+    ["tags", "Growth, CRM"],
+    ["outcomes", " First outcome \nSecond outcome "],
+    ["contentMarkdown", " Updated body "],
     ["status", "draft"],
   ]);
 
@@ -177,9 +210,15 @@ test("updateAdminProjectAction updates an existing project identity and redirect
     {
       id: "project-9",
       input: {
+        contentMarkdown: "Updated body",
+        featured: false,
+        outcomes: ["First outcome", "Second outcome"],
+        period: "2026",
+        role: "Staff PM",
         slug: "updated-project",
         status: "draft",
         summary: "Updated summary",
+        tags: ["Growth", "CRM"],
         title: "Updated project",
       },
     },

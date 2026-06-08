@@ -1,4 +1,3 @@
-import { getPublishedProjectBySlug, type Project } from "../../projects.ts";
 import type { ProjectsRepository } from "../../content/repository.ts";
 import type {
   CreateProjectInput,
@@ -13,11 +12,16 @@ import type {
 type ProjectRow = {
   content_markdown: string | null;
   created_at: string;
+  featured: boolean | null;
   id: string;
+  outcomes: string[] | null;
+  period: string | null;
   published_at: string | null;
+  role: string | null;
   slug: string;
   status: "draft" | "published";
   summary: string | null;
+  tags: string[] | null;
   title: string;
   updated_at: string;
 };
@@ -84,36 +88,47 @@ function mapProjectRecord(row: ProjectRow): ProjectRecord {
   return {
     contentMarkdown: row.content_markdown,
     createdAt: row.created_at,
+    featured: Boolean(row.featured),
     id: row.id,
+    outcomes: row.outcomes ?? [],
+    period: row.period,
     publishedAt: row.published_at,
+    role: row.role,
     slug: row.slug,
     status: row.status,
     summary: row.summary,
+    tags: row.tags ?? [],
     title: row.title,
     updatedAt: row.updated_at,
   };
 }
 
-function mapPublicProjectSummary(row: ProjectRow, project: Project): ProjectSummary {
+function mapPublicProjectSummary(row: ProjectRow): ProjectSummary {
   return {
+    featured: Boolean(row.featured),
     id: row.id,
-    slug: project.slug,
-    summary: project.summary,
-    title: project.title,
+    outcomes: row.outcomes ?? [],
+    period: row.period ?? "",
+    role: row.role ?? "",
+    slug: row.slug,
+    summary: row.summary ?? "",
+    tags: row.tags ?? [],
+    title: row.title,
   };
 }
 
-function mapPublicProjectRecord(project: Project, id: string | null): PublicProjectRecord {
+function mapPublicProjectRecord(row: ProjectRow): PublicProjectRecord {
   return {
-    content: project.content,
-    id,
-    outcomes: project.outcomes,
-    period: project.period,
-    role: project.role,
-    slug: project.slug,
-    summary: project.summary,
-    tags: project.tags,
-    title: project.title,
+    content: row.content_markdown ?? "",
+    featured: Boolean(row.featured),
+    id: row.id,
+    outcomes: row.outcomes ?? [],
+    period: row.period ?? "",
+    role: row.role ?? "",
+    slug: row.slug,
+    summary: row.summary ?? "",
+    tags: row.tags ?? [],
+    title: row.title,
   };
 }
 
@@ -159,29 +174,39 @@ function ensureOne<T>(data: T | null, error: QueryError | undefined): T {
 
 function mapCreateInput(input: CreateProjectInput) {
   return {
+    content_markdown: input.contentMarkdown ?? null,
+    featured: input.featured ?? false,
+    outcomes: input.outcomes ?? [],
+    period: input.period ?? null,
+    role: input.role ?? null,
     slug: input.slug,
     status: input.status ?? "draft",
     summary: input.summary ?? null,
+    tags: input.tags ?? [],
     title: input.title,
   };
 }
 
 function mapUpdateInput(input: UpdateProjectInput) {
   return {
+    ...(input.contentMarkdown !== undefined ? { content_markdown: input.contentMarkdown } : {}),
+    ...(input.featured !== undefined ? { featured: input.featured } : {}),
+    ...(input.outcomes !== undefined ? { outcomes: input.outcomes } : {}),
+    ...(input.period !== undefined ? { period: input.period } : {}),
+    ...(input.role !== undefined ? { role: input.role } : {}),
     ...(input.slug !== undefined ? { slug: input.slug } : {}),
     ...(input.status !== undefined ? { status: input.status } : {}),
     ...(input.summary !== undefined ? { summary: input.summary } : {}),
+    ...(input.tags !== undefined ? { tags: input.tags } : {}),
     ...(input.title !== undefined ? { title: input.title } : {}),
   };
 }
 
 export class SupabaseProjectsRepository implements ProjectsRepository {
   private readonly client: QueryClient;
-  private readonly loadProjectBySlug: (slug: string) => Project | null;
 
-  constructor(client: QueryClient, loadProjectBySlug: (slug: string) => Project | null = getPublishedProjectBySlug) {
+  constructor(client: QueryClient) {
     this.client = client;
-    this.loadProjectBySlug = loadProjectBySlug;
   }
 
   async listProjectOptions(): Promise<ProjectOption[]> {
@@ -206,6 +231,20 @@ export class SupabaseProjectsRepository implements ProjectsRepository {
     return ensureArray(data, error).map(mapProjectRecord);
   }
 
+  async listPublishedProjects(): Promise<ProjectSummary[]> {
+    const { data, error } = await this.client
+      .from("projects")
+      .select("id, slug, title, summary, role, period, tags, outcomes, featured, published_at, status")
+      .eq("status", "published")
+      .order("title", { ascending: true });
+
+    return ensureArray(data, error).map(mapPublicProjectSummary);
+  }
+
+  async listFeaturedProjects(): Promise<ProjectSummary[]> {
+    return (await this.listPublishedProjects()).filter((project) => project.featured);
+  }
+
   async getAdminProjectById(id: string): Promise<ProjectRecord | null> {
     const { data, error } = await this.client.from("projects").select("*").eq("id", id).maybeSingle();
     const row = maybeOne(data, error);
@@ -228,39 +267,27 @@ export class SupabaseProjectsRepository implements ProjectsRepository {
   async getPublicProjectById(id: string): Promise<ProjectSummary | null> {
     const { data, error } = await this.client
       .from("projects")
-      .select("id, slug, title")
+      .select("id, slug, title, summary, role, period, tags, outcomes, featured, published_at, status")
       .eq("id", id)
       .eq("status", "published")
       .maybeSingle();
 
     const row = maybeOne(data, error);
 
-    if (!row) {
-      return null;
-    }
-
-    const project = this.loadProjectBySlug(row.slug);
-
-    return project ? mapPublicProjectSummary(row, project) : null;
+    return row ? mapPublicProjectSummary(row) : null;
   }
 
   async getPublicProjectBySlug(slug: string): Promise<PublicProjectRecord | null> {
-    const project = this.loadProjectBySlug(slug);
-
-    if (!project) {
-      return null;
-    }
-
     const { data, error } = await this.client
       .from("projects")
-      .select("id, slug, title")
+      .select("id, slug, title, summary, role, period, tags, outcomes, featured, content_markdown, published_at, status")
       .eq("slug", slug)
       .eq("status", "published")
       .maybeSingle();
 
     const row = maybeOne(data, error);
 
-    return mapPublicProjectRecord(project, row?.id ?? null);
+    return row ? mapPublicProjectRecord(row) : null;
   }
 
   async upsertProject(input: SyncProjectInput): Promise<ProjectRecord> {
@@ -269,10 +296,15 @@ export class SupabaseProjectsRepository implements ProjectsRepository {
       .upsert(
         {
           content_markdown: input.contentMarkdown ?? null,
+          featured: input.featured ?? false,
+          outcomes: input.outcomes ?? [],
+          period: input.period ?? null,
           published_at: input.publishedAt ?? null,
+          role: input.role ?? null,
           slug: input.slug,
           status: input.status,
           summary: input.summary ?? null,
+          tags: input.tags ?? [],
           title: input.title,
         },
         { onConflict: "slug" },

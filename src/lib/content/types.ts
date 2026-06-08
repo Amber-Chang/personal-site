@@ -26,9 +26,15 @@ export type CreateBlogPostInput = {
 export type UpdateBlogPostInput = Partial<CreateBlogPostInput>;
 
 export type CreateProjectInput = {
+  contentMarkdown?: string | null;
+  featured?: boolean;
+  outcomes?: string[];
+  period?: string | null;
+  role?: string | null;
   slug: string;
   status?: ContentStatus;
   summary?: string | null;
+  tags?: string[];
   title: string;
 };
 
@@ -43,31 +49,47 @@ export type ProjectOption = {
 export type ProjectRecord = {
   contentMarkdown: string | null;
   createdAt: string;
+  featured: boolean;
   id: string;
+  outcomes: string[];
+  period: string | null;
   publishedAt: string | null;
+  role: string | null;
   slug: string;
   status: ContentStatus;
   summary: string | null;
+  tags: string[];
   title: string;
   updatedAt: string;
 };
 
 export type SyncProjectInput = {
   contentMarkdown?: string | null;
+  featured?: boolean;
+  outcomes?: string[];
+  period?: string | null;
   publishedAt?: string | null;
+  role?: string | null;
   slug: string;
   status: ContentStatus;
   summary?: string | null;
+  tags?: string[];
   title: string;
 };
 
 export type ProjectSummary = ProjectOption & {
+  featured: boolean;
+  outcomes: string[];
+  period: string;
+  role: string;
   summary: string;
+  tags: string[];
 };
 
 export type PublicProjectRecord = {
   content: string;
-  id: string | null;
+  featured: boolean;
+  id: string;
   outcomes: string[];
   period: string;
   role: string;

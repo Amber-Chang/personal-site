@@ -9,19 +9,22 @@ import { RelatedPostsSection } from "@/components/RelatedPostsSection";
 import { Badge } from "@/components/ui/badge";
 import { getPublicBlogContentService } from "../../blog/blog-context";
 import { loadProjectPageData } from "./data";
-import { getProjectBySlug, getPublishedProjects } from "@/lib/projects";
 
 type ProjectPageProps = {
   params: Promise<{ slug: string }>;
 };
 
-export function generateStaticParams() {
-  return getPublishedProjects().map((project) => ({ slug: project.slug }));
+export const revalidate = 0;
+
+export async function generateStaticParams() {
+  const projects = await getPublicBlogContentService().listPublicProjects();
+
+  return projects.map((project) => ({ slug: project.slug }));
 }
 
 export async function generateMetadata({ params }: ProjectPageProps): Promise<Metadata> {
   const { slug } = await params;
-  const project = getProjectBySlug(slug);
+  const project = await getPublicBlogContentService().getPublicProjectBySlug(slug);
 
   if (!project) {
     return {

@@ -14,7 +14,7 @@
   - `/projects/[slug]`
 - 內容來源目前是：
   - blog：Supabase repository
-  - projects：Markdown 檔案
+  - projects：Supabase repository
 
 ## 最近完成
 
@@ -35,6 +35,7 @@
 - 已完成 `blog post <-> project` 雙向連結 round：文章頁可顯示相關案例，project 頁可顯示延伸文章，且內容關聯已收斂到 content / repository 邊界
 - 已補 `npm run content:sync-projects`，可把 `content/projects/*.md` 同步到 Supabase `projects` identity table，讓 admin post form 的 `Related project` 選單可實際選用案例
 - 已完成輕量 project identity admin：新增 `/admin/projects`、`/admin/projects/new`、`/admin/projects/[id]`，可直接在後台建立與編輯可被文章關聯的專案名單
+- 已完成 `projects Supabase-first` round：`/projects`、`/projects/[slug]`、首頁代表案例與 `/admin/projects` 已收斂到同一套 Supabase content source，Markdown `content/projects/*.md` 改退為 migration/import source
 
 ## 目前最重要的事
 
@@ -44,15 +45,15 @@
 - 若後續需要多人或遠端登入，重新評估 auth 升級路線
 - 讓後續開發工作可依標準流程規則化執行
 - 確認 project sync 後的 admin 關聯編輯流程在 production 也可順利使用
-- 之後再決定是否把 projects 從 Markdown-first 升級成完整 project CMS
+- 套用 `projects` 新 schema migration，並確認 production `/projects` 與 `/admin/projects` 流程正常
 
 ## 下一步建議
 
-1. 在 production 重跑一次完整 admin smoke check，包含 `/admin/projects` 建立 / 編輯、`Related project` 選擇、登入、登出、draft / publish / unpublish 驗證記錄
-2. 重新指定一篇仍存在於 production 的 smoke sample，或建立新的固定驗證樣本
-3. 視需要補 `title -> slug` 自動建議與更完整的後台錯誤訊息
-4. 視需要把 blog / project 的關聯區塊再做更細的文案與視覺打磨
-5. 若後續要讓 project 內容本身可在後台完整維護，再評估升級成 full project admin
+1. 套用 `supabase/migrations/202606090001_expand_projects_for_public_content.sql`
+2. 視需要重跑 `npm run content:sync-projects`，把既有 Markdown project 內容補進新欄位
+3. 在 production 重跑一次完整 admin smoke check，包含 `/admin/projects` 建立 / 編輯、`Related project` 選擇、登入、登出、draft / publish / unpublish 驗證記錄
+4. 重新指定一篇仍存在於 production 的 smoke sample，或建立新的固定驗證樣本
+5. 視需要補 `title -> slug` 自動建議與更完整的後台錯誤訊息
 
 ## 備註
 
@@ -66,12 +67,13 @@
 - blog admin 的可實作規格已集中在 [docs/blog-admin-implementation-spec.md](/Users/amberchang/Documents/New%20project/docs/blog-admin-implementation-spec.md)
 - `blog post <-> project` 雙向連結的下一階段主 spec 已建立於 [docs/blog-project-linking-spec.md](/Users/amberchang/Documents/New%20project/docs/blog-project-linking-spec.md)
 - `project identity admin` 主 spec 已建立於 [docs/admin-project-identity-management-spec.md](/Users/amberchang/Documents/New%20project/docs/admin-project-identity-management-spec.md)
+- `projects Supabase-first` 主 spec 已建立於 [docs/projects-supabase-first-spec.md](/Users/amberchang/Documents/New%20project/docs/projects-supabase-first-spec.md)
 - 開發流程規則已集中在 [docs/development-workflow.md](/Users/amberchang/Documents/New%20project/docs/development-workflow.md)
 - admin 內容讀寫第一版採 trusted Next.js server + Supabase service-role path，public published reads 則維持 RLS published-read policy
 - blog admin spec 的目前完成度與剩餘範圍已記在 [docs/blog-admin-implementation-spec.md](/Users/amberchang/Documents/New%20project/docs/blog-admin-implementation-spec.md) 的「目前進度」
 - deployment / 資安上線準備的主文件已建立於 [docs/deployment-security-readiness.md](/Users/amberchang/Documents/New%20project/docs/deployment-security-readiness.md)
 - `/blog`、`/blog/[slug]` 與首頁 writing 區塊已改由 public repository 讀取 `published` posts；舊 `content/posts/*.md` 仍保留作為 import source
 - `npm run content:import-posts` 已成功匯入 `ai-membership-system`
-- `npm run content:sync-projects` 會把 Markdown project 同步成 Supabase `projects` identity，供 blog relation 與 admin select option 使用
+- `npm run content:sync-projects` 會把 Markdown project 同步成 Supabase `projects` content，供 blog relation、public projects 與 admin form 使用
 - admin post form 已改成 publish UX 按鈕，不再以 status dropdown 作為主要操作
 - 目前 admin 後台登入改採密碼門 MVP，不再依賴 Supabase magic link

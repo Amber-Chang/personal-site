@@ -1,6 +1,8 @@
 # Admin Project Identity Management Spec
 
 > 用途：定義輕量 project identity admin，讓站主可在後台管理可被 blog post 關聯的 project 名單，而不把 `projects` 一次升級成完整 CMS。
+>
+> 註：這份 spec 已完成其原始目標；後續 `projects` 已另起 [docs/projects-supabase-first-spec.md](/Users/amberchang/Documents/New%20project/docs/projects-supabase-first-spec.md) 往完整公開內容來源升級。
 
 ## 1. 目標
 

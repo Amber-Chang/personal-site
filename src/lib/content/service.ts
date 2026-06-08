@@ -44,6 +44,8 @@ export function createBlogContentService(input: {
     | "getPublicProjectById"
     | "getPublicProjectBySlug"
     | "listAdminProjects"
+    | "listFeaturedProjects"
+    | "listPublishedProjects"
     | "listProjectOptions"
     | "updateProject"
     | "upsertProject"
@@ -86,6 +88,12 @@ export function createBlogContentService(input: {
     },
     async listAdminProjects(): Promise<ProjectRecord[]> {
       return input.projects.listAdminProjects();
+    },
+    async listPublicProjects() {
+      return input.projects.listPublishedProjects();
+    },
+    async listFeaturedProjects() {
+      return input.projects.listFeaturedProjects();
     },
     async getProjectById(id: string) {
       return input.projects.getProjectById(id);

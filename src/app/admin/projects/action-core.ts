@@ -41,11 +41,39 @@ function parseStatus(formData: FormData): "draft" | "published" {
   throw new Error("專案狀態無效。");
 }
 
+function parseOptionalTrimmedField(formData: FormData, key: string) {
+  return getStringValue(formData, key)?.trim() || null;
+}
+
+function parseCommaSeparatedValues(formData: FormData, key: string) {
+  return (
+    getStringValue(formData, key)
+      ?.split(",")
+      .map((value) => value.trim())
+      .filter(Boolean) ?? []
+  );
+}
+
+function parseLineSeparatedValues(formData: FormData, key: string) {
+  return (
+    getStringValue(formData, key)
+      ?.split(/\r?\n/)
+      .map((value) => value.trim())
+      .filter(Boolean) ?? []
+  );
+}
+
 function parseFormValues(formData: FormData): CreateProjectInput {
   return {
+    contentMarkdown: parseOptionalTrimmedField(formData, "contentMarkdown"),
+    featured: formData.get("featured") === "on",
+    outcomes: parseLineSeparatedValues(formData, "outcomes"),
+    period: parseOptionalTrimmedField(formData, "period"),
+    role: parseOptionalTrimmedField(formData, "role"),
     slug: parseRequiredTrimmedField(formData, "slug", "slug"),
     status: parseStatus(formData),
-    summary: getStringValue(formData, "summary")?.trim() || null,
+    summary: parseOptionalTrimmedField(formData, "summary"),
+    tags: parseCommaSeparatedValues(formData, "tags"),
     title: parseRequiredTrimmedField(formData, "title", "標題"),
   };
 }

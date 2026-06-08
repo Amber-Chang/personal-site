@@ -78,3 +78,84 @@ test("loadHomeWritingData lists latest public posts for the homepage", async () 
     ],
   });
 });
+
+test("loadHomeFeaturedProjectsData lists featured public projects for the homepage", async () => {
+  const dataModule = await loadModule<{
+    loadHomeFeaturedProjectsData: (input: {
+      limit?: number;
+      service: {
+        listFeaturedProjects: () => Promise<
+          Array<{
+            featured: boolean;
+            id: string;
+            outcomes: string[];
+            period: string;
+            role: string;
+            slug: string;
+            summary: string;
+            tags: string[];
+            title: string;
+          }>
+        >;
+      };
+    }) => Promise<{
+      projects: Array<{
+        featured: boolean;
+        id: string;
+        outcomes: string[];
+        period: string;
+        role: string;
+        slug: string;
+        summary: string;
+        tags: string[];
+        title: string;
+      }>;
+    }>;
+  }>("./home-data.ts", "home data");
+
+  const result = await dataModule.loadHomeFeaturedProjectsData({
+    limit: 1,
+    service: {
+      listFeaturedProjects: async () => [
+        {
+          featured: true,
+          id: "project-1",
+          outcomes: ["Outcome 1"],
+          period: "2025",
+          role: "PM",
+          slug: "project-1",
+          summary: "Summary 1",
+          tags: ["Tag 1"],
+          title: "Project 1",
+        },
+        {
+          featured: true,
+          id: "project-2",
+          outcomes: ["Outcome 2"],
+          period: "2026",
+          role: "Product",
+          slug: "project-2",
+          summary: "Summary 2",
+          tags: ["Tag 2"],
+          title: "Project 2",
+        },
+      ],
+    },
+  });
+
+  assert.deepEqual(result, {
+    projects: [
+      {
+        featured: true,
+        id: "project-1",
+        outcomes: ["Outcome 1"],
+        period: "2025",
+        role: "PM",
+        slug: "project-1",
+        summary: "Summary 1",
+        tags: ["Tag 1"],
+        title: "Project 1",
+      },
+    ],
+  });
+});

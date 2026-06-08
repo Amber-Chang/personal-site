@@ -3,9 +3,9 @@
 
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
-import type { ProjectMeta } from "@/lib/projects";
+import type { ProjectSummary } from "@/lib/content/types";
 
-export function ProjectCard({ project }: { project: ProjectMeta }) {
+export function ProjectCard({ project }: { project: ProjectSummary }) {
   return (
     <Link
       href={`/projects/${project.slug}`}

@@ -5,9 +5,8 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { PostCard } from "@/components/PostCard";
 import { ProjectCard } from "@/components/ProjectCard";
-import { getFeaturedProjects } from "@/lib/projects";
 import { getPublicBlogContentService } from "./blog/blog-context";
-import { loadHomeWritingData } from "./home-data";
+import { loadHomeFeaturedProjectsData, loadHomeWritingData } from "./home-data";
 
 export const metadata: Metadata = {
   title: "Amber Chang — AI-native Product Builder",
@@ -21,10 +20,15 @@ export const metadata: Metadata = {
 export const revalidate = 0;
 
 export default async function HomePage() {
-  const { posts: latestPosts } = await loadHomeWritingData({
-    service: getPublicBlogContentService(),
-  });
-  const featuredProjects = getFeaturedProjects();
+  const service = getPublicBlogContentService();
+  const [{ posts: latestPosts }, { projects: featuredProjects }] = await Promise.all([
+    loadHomeWritingData({
+      service,
+    }),
+    loadHomeFeaturedProjectsData({
+      service,
+    }),
+  ]);
   const outcomes = [
     "AI 寫作批改產品上線後月均使用量提升 2000%",
     "完成可實際運行的簡訊管理平台，作為自建 Delivery Core 第一階段",

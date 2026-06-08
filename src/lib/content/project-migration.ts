@@ -36,10 +36,15 @@ function getStringValue(rawData: Record<string, unknown>, key: string): string |
 function normalizeProjectInput(input: SyncProjectInput) {
   return {
     contentMarkdown: input.contentMarkdown ?? null,
+    featured: input.featured ?? false,
+    outcomes: input.outcomes ?? [],
+    period: input.period ?? null,
     publishedAt: input.publishedAt ?? null,
+    role: input.role ?? null,
     slug: input.slug,
     status: input.status,
     summary: input.summary ?? null,
+    tags: input.tags ?? [],
     title: input.title,
   };
 }
@@ -49,12 +54,23 @@ function matchesExistingProject(existingProject: ProjectRecord, input: SyncProje
 
   return (
     existingProject.contentMarkdown === normalizedInput.contentMarkdown &&
+    existingProject.featured === normalizedInput.featured &&
+    JSON.stringify(existingProject.outcomes) === JSON.stringify(normalizedInput.outcomes) &&
+    existingProject.period === normalizedInput.period &&
     existingProject.publishedAt === normalizedInput.publishedAt &&
+    existingProject.role === normalizedInput.role &&
     existingProject.slug === normalizedInput.slug &&
     existingProject.status === normalizedInput.status &&
     existingProject.summary === normalizedInput.summary &&
+    JSON.stringify(existingProject.tags) === JSON.stringify(normalizedInput.tags) &&
     existingProject.title === normalizedInput.title
   );
+}
+
+function getStringArrayValue(rawData: Record<string, unknown>, key: string) {
+  const value = rawData[key];
+
+  return Array.isArray(value) ? value.filter((item): item is string => typeof item === "string" && item.trim().length > 0) : [];
 }
 
 export async function loadMarkdownProjectInputs(directory = path.join(process.cwd(), "content/projects")): Promise<SyncProjectInput[]> {
@@ -70,14 +86,24 @@ export async function loadMarkdownProjectInputs(directory = path.join(process.cw
       const slug = getStringValue(rawData, "slug") ?? slugFromFile;
       const title = getStringValue(rawData, "title") ?? slug;
       const summary = getStringValue(rawData, "summary");
+      const role = getStringValue(rawData, "role");
+      const period = getStringValue(rawData, "period");
+      const tags = getStringArrayValue(rawData, "tags");
+      const outcomes = getStringArrayValue(rawData, "outcomes");
+      const featured = Boolean(rawData.featured);
       const isDraft = Boolean(rawData.draft);
 
       return {
         contentMarkdown: content.trim(),
+        featured,
+        outcomes,
+        period,
         publishedAt: null,
+        role,
         slug,
         status: isDraft ? "draft" : "published",
         summary,
+        tags,
         title,
       } satisfies SyncProjectInput;
     }),

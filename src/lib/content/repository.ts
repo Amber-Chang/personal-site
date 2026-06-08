@@ -30,6 +30,8 @@ export interface ProjectsRepository {
   getPublicProjectById(id: string): Promise<ProjectSummary | null>;
   getPublicProjectBySlug(slug: string): Promise<PublicProjectRecord | null>;
   listAdminProjects(): Promise<ProjectRecord[]>;
+  listFeaturedProjects(): Promise<ProjectSummary[]>;
+  listPublishedProjects(): Promise<ProjectSummary[]>;
   listProjectOptions(): Promise<ProjectOption[]>;
   updateProject(id: string, input: UpdateProjectInput): Promise<ProjectRecord>;
   upsertProject(input: SyncProjectInput): Promise<ProjectRecord>;

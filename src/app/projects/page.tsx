@@ -3,7 +3,8 @@
 
 import type { Metadata } from "next";
 import { ProjectCard } from "@/components/ProjectCard";
-import { getPublishedProjects } from "@/lib/projects";
+import { getPublicBlogContentService } from "../blog/blog-context";
+import { loadProjectsPageData } from "./data";
 
 export const metadata: Metadata = {
   title: "專案 — Amber Chang",
@@ -14,8 +15,12 @@ export const metadata: Metadata = {
   },
 };
 
-export default function ProjectsPage() {
-  const projects = getPublishedProjects();
+export const revalidate = 0;
+
+export default async function ProjectsPage() {
+  const { projects } = await loadProjectsPageData({
+    service: getPublicBlogContentService(),
+  });
 
   return (
     <div className="space-y-6">

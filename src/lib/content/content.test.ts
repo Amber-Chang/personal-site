@@ -470,17 +470,22 @@ test("SupabaseProjectsRepository gets an admin project by id", async () => {
       select: () => ({
         eq: () => ({
           maybeSingle: async () => ({
-            data: {
-              content_markdown: null,
-              created_at: "2026-06-09T00:00:00.000Z",
-              id: "project-1",
-              published_at: null,
-              slug: "sample-project",
-              status: "draft",
-              summary: "Project summary",
-              title: "Sample project",
-              updated_at: "2026-06-09T00:00:00.000Z",
-            },
+              data: {
+                content_markdown: null,
+                created_at: "2026-06-09T00:00:00.000Z",
+                featured: false,
+                id: "project-1",
+                outcomes: [],
+                period: null,
+                published_at: null,
+                role: null,
+                slug: "sample-project",
+                status: "draft",
+                summary: "Project summary",
+                tags: [],
+                title: "Sample project",
+                updated_at: "2026-06-09T00:00:00.000Z",
+              },
             error: null,
           }),
         }),
@@ -493,11 +498,16 @@ test("SupabaseProjectsRepository gets an admin project by id", async () => {
   assert.deepEqual(result, {
     contentMarkdown: null,
     createdAt: "2026-06-09T00:00:00.000Z",
+    featured: false,
     id: "project-1",
+    outcomes: [],
+    period: null,
     publishedAt: null,
+    role: null,
     slug: "sample-project",
     status: "draft",
     summary: "Project summary",
+    tags: [],
     title: "Sample project",
     updatedAt: "2026-06-09T00:00:00.000Z",
   });
@@ -578,11 +588,16 @@ test("SupabaseProjectsRepository creates and updates admin project identities", 
               data: {
                 content_markdown: null,
                 created_at: "2026-06-09T00:00:00.000Z",
+                featured: false,
                 id: "project-created",
+                outcomes: [],
+                period: null,
                 published_at: null,
+                role: null,
                 slug: "new-project",
                 status: "published",
                 summary: "New summary",
+                tags: [],
                 title: "New project",
                 updated_at: "2026-06-09T00:00:00.000Z",
               },
@@ -606,11 +621,16 @@ test("SupabaseProjectsRepository creates and updates admin project identities", 
                 data: {
                   content_markdown: null,
                   created_at: "2026-06-09T00:00:00.000Z",
+                  featured: false,
                   id: "project-created",
+                  outcomes: [],
+                  period: null,
                   published_at: null,
+                  role: null,
                   slug: "updated-project",
                   status: "draft",
                   summary: "Updated summary",
+                  tags: [],
                   title: "Updated project",
                   updated_at: "2026-06-09T00:10:00.000Z",
                 },
@@ -638,9 +658,15 @@ test("SupabaseProjectsRepository creates and updates admin project identities", 
 
   assert.deepEqual(insertCalls, [
     {
+      content_markdown: null,
+      featured: false,
+      outcomes: [],
+      period: null,
+      role: null,
       slug: "new-project",
       status: "published",
       summary: "New summary",
+      tags: [],
       title: "New project",
     },
   ]);
@@ -718,11 +744,16 @@ test("SupabaseProjectsRepository upserts project identities by slug", async () =
               data: {
                 content_markdown: "Project body",
                 created_at: "2026-06-09T00:00:00.000Z",
+                featured: false,
                 id: "project-1",
+                outcomes: [],
+                period: null,
                 published_at: null,
+                role: null,
                 slug: "sms-management-platform",
                 status: "published",
                 summary: "Project summary",
+                tags: [],
                 title: "SMS Management Platform",
                 updated_at: "2026-06-09T00:00:00.000Z",
               },
@@ -749,10 +780,15 @@ test("SupabaseProjectsRepository upserts project identities by slug", async () =
       table: "projects",
       values: {
         content_markdown: "Project body",
+        featured: false,
+        outcomes: [],
+        period: null,
         published_at: null,
+        role: null,
         slug: "sms-management-platform",
         status: "published",
         summary: "Project summary",
+        tags: [],
         title: "SMS Management Platform",
       },
     },
@@ -760,52 +796,54 @@ test("SupabaseProjectsRepository upserts project identities by slug", async () =
   assert.deepEqual(result, {
     contentMarkdown: "Project body",
     createdAt: "2026-06-09T00:00:00.000Z",
+    featured: false,
     id: "project-1",
+    outcomes: [],
+    period: null,
     publishedAt: null,
+    role: null,
     slug: "sms-management-platform",
     status: "published",
     summary: "Project summary",
+    tags: [],
     title: "SMS Management Platform",
     updatedAt: "2026-06-09T00:00:00.000Z",
   });
 });
 
-test("SupabaseProjectsRepository resolves a public project by slug with markdown-backed content", async () => {
+test("SupabaseProjectsRepository resolves a public project by slug with Supabase-backed content", async () => {
   const repositoryModule = await loadModule<{
-    SupabaseProjectsRepository: new (
-      client: {
-        from: (table: string) => {
-          select: (columns: string) => {
+    SupabaseProjectsRepository: new (client: {
+      from: (table: string) => {
+        select: (columns: string) => {
+          eq: (column: string, value: unknown) => {
             eq: (column: string, value: unknown) => {
-              eq: (column: string, value: unknown) => {
-                maybeSingle: () => Promise<{
-                  data: {
-                    id: string;
-                    slug: string;
-                    title: string;
-                  } | null;
-                  error: null;
-                }>;
-              };
+              maybeSingle: () => Promise<{
+                data: {
+                  content_markdown: string | null;
+                  featured: boolean | null;
+                  id: string;
+                  outcomes: string[] | null;
+                  period: string | null;
+                  published_at: string | null;
+                  role: string | null;
+                  slug: string;
+                  status: "draft" | "published";
+                  summary: string | null;
+                  tags: string[] | null;
+                  title: string;
+                } | null;
+                error: null;
+              }>;
             };
           };
         };
-      },
-      loadProjectBySlug: (slug: string) => {
-        content: string;
-        draft: boolean;
-        outcomes: string[];
-        period: string;
-        role: string;
-        slug: string;
-        summary: string;
-        tags: string[];
-        title: string;
-      } | null,
-    ) => {
+      };
+    }) => {
       getPublicProjectBySlug: (slug: string) => Promise<{
         content: string;
-        id: string | null;
+        featured: boolean;
+        id: string;
         outcomes: string[];
         period: string;
         role: string;
@@ -823,63 +861,57 @@ test("SupabaseProjectsRepository resolves a public project by slug with markdown
     table: string;
   }> = [];
 
-  const repository = new repositoryModule.SupabaseProjectsRepository(
-    {
-      from: (table) => ({
-        select: (columns) => {
-          const call = {
-            columns,
-            filters: [] as Array<{ column: string; value: unknown }>,
-            table,
-          };
+  const repository = new repositoryModule.SupabaseProjectsRepository({
+    from: (table) => ({
+      select: (columns) => {
+        const call = {
+          columns,
+          filters: [] as Array<{ column: string; value: unknown }>,
+          table,
+        };
 
-          calls.push(call);
+        calls.push(call);
 
-          return {
-            eq: (column, value) => {
-              call.filters.push({ column, value });
+        return {
+          eq: (column, value) => {
+            call.filters.push({ column, value });
 
-              return {
-                eq: (nestedColumn, nestedValue) => {
-                  call.filters.push({ column: nestedColumn, value: nestedValue });
+            return {
+              eq: (nestedColumn, nestedValue) => {
+                call.filters.push({ column: nestedColumn, value: nestedValue });
 
-                  return {
-                    maybeSingle: async () => ({
-                      data: {
-                        id: "project-1",
-                        slug: "sms-management-platform",
-                        title: "簡訊管理平台",
-                      },
-                      error: null,
-                    }),
-                  };
-                },
-              };
-            },
-          };
-        },
-      }),
-    },
-    (slug) =>
-      slug === "sms-management-platform"
-        ? {
-            content: "專案內容",
-            draft: false,
-            outcomes: ["把需求整理成可執行流程"],
-            period: "2025",
-            role: "PM",
-            slug,
-            summary: "把分散需求產品化。",
-            tags: ["產品策略"],
-            title: "簡訊管理平台",
-          }
-        : null,
-  );
+                return {
+                  maybeSingle: async () => ({
+                    data: {
+                      content_markdown: "專案內容",
+                      featured: true,
+                      id: "project-1",
+                      outcomes: ["把需求整理成可執行流程"],
+                      period: "2025",
+                      published_at: "2026-06-09T00:00:00.000Z",
+                      role: "PM",
+                      slug: "sms-management-platform",
+                      status: "published",
+                      summary: "把分散需求產品化。",
+                      tags: ["產品策略"],
+                      title: "簡訊管理平台",
+                    },
+                    error: null,
+                  }),
+                };
+              },
+            };
+          },
+        };
+      },
+    }),
+  });
 
   const result = await repository.getPublicProjectBySlug("sms-management-platform");
 
   assert.deepEqual(result, {
     content: "專案內容",
+    featured: true,
     id: "project-1",
     outcomes: ["把需求整理成可執行流程"],
     period: "2025",
@@ -892,11 +924,134 @@ test("SupabaseProjectsRepository resolves a public project by slug with markdown
   assert.deepEqual(calls, [
     {
       table: "projects",
-      columns: "id, slug, title",
+      columns: "id, slug, title, summary, role, period, tags, outcomes, featured, content_markdown, published_at, status",
       filters: [
         { column: "slug", value: "sms-management-platform" },
         { column: "status", value: "published" },
       ],
+    },
+  ]);
+});
+
+test("SupabaseProjectsRepository lists published public projects with full card fields from Supabase", async () => {
+  const repositoryModule = await loadModule<{
+    SupabaseProjectsRepository: new (client: {
+      from: (table: string) => {
+        select: (columns: string) => {
+          eq: (column: string, value: unknown) => {
+            order: (column: string, options: { ascending: boolean }) => Promise<{
+              data: Array<{
+                featured: boolean;
+                id: string;
+                outcomes: string[] | null;
+                period: string | null;
+                published_at: string | null;
+                role: string | null;
+                slug: string;
+                status: "draft" | "published";
+                summary: string | null;
+                tags: string[] | null;
+                title: string;
+              }>;
+              error: null;
+            }>;
+          };
+        };
+      };
+    }) => {
+      listPublishedProjects: () => Promise<
+        Array<{
+          featured: boolean;
+          id: string;
+          outcomes: string[];
+          period: string;
+          role: string;
+          slug: string;
+          summary: string;
+          tags: string[];
+          title: string;
+        }>
+      >;
+    };
+  }>("../infra/repositories/supabase-projects-repository.ts", "Supabase projects repository");
+
+  const calls: Array<{
+    columns: string;
+    filters: Array<{ column: string; value: unknown }>;
+    order: { ascending: boolean; column: string } | null;
+    table: string;
+  }> = [];
+
+  const repository = new repositoryModule.SupabaseProjectsRepository({
+    from: (table) => ({
+      select: (columns) => {
+        const call = {
+          columns,
+          filters: [] as Array<{ column: string; value: unknown }>,
+          order: null as { ascending: boolean; column: string } | null,
+          table,
+        };
+
+        calls.push(call);
+
+        return {
+          eq: (column, value) => {
+            call.filters.push({ column, value });
+
+            return {
+              order: async (orderColumn, options) => {
+                call.order = {
+                  ascending: options.ascending,
+                  column: orderColumn,
+                };
+
+                return {
+                  data: [
+                    {
+                      featured: true,
+                      id: "project-1",
+                      outcomes: ["把需求整理成可執行流程"],
+                      period: "2025",
+                      published_at: "2026-06-09T00:00:00.000Z",
+                      role: "PM",
+                      slug: "sms-management-platform",
+                      status: "published",
+                      summary: "把分散需求產品化。",
+                      tags: ["產品策略"],
+                      title: "簡訊管理平台",
+                    },
+                  ],
+                  error: null,
+                };
+              },
+            };
+          },
+        };
+      },
+    }),
+  });
+
+  const result = await repository.listPublishedProjects();
+
+  assert.deepEqual(result, [
+    {
+      featured: true,
+      id: "project-1",
+      outcomes: ["把需求整理成可執行流程"],
+      period: "2025",
+      role: "PM",
+      slug: "sms-management-platform",
+      summary: "把分散需求產品化。",
+      tags: ["產品策略"],
+      title: "簡訊管理平台",
+    },
+  ]);
+  assert.deepEqual(calls, [
+    {
+      table: "projects",
+      columns: "id, slug, title, summary, role, period, tags, outcomes, featured, published_at, status",
+      filters: [{ column: "status", value: "published" }],
+      order: { ascending: true, column: "title" },
     },
   ]);
 });
@@ -1147,6 +1302,80 @@ test("createBlogContentService returns a public project by slug through the repo
     summary: "把分散需求產品化。",
     title: "簡訊管理平台",
   });
+});
+
+test("createBlogContentService lists public projects through the repository", async () => {
+  const serviceModule = await loadModule<{
+    createBlogContentService: (input: {
+      posts: {
+        listAdminPosts: () => Promise<unknown[]>;
+      };
+      projects: {
+        listProjectOptions: () => Promise<unknown[]>;
+        listPublishedProjects: () => Promise<Array<{ slug: string; title: string }>>;
+      };
+    }) => {
+      listPublicProjects: () => Promise<Array<{ slug: string; title: string }>>;
+    };
+  }>("./service.ts", "content service");
+
+  const calls: string[] = [];
+  const projects = [{ slug: "sms-management-platform", title: "簡訊管理平台" }];
+
+  const service = serviceModule.createBlogContentService({
+    posts: {
+      listAdminPosts: async () => [],
+    },
+    projects: {
+      listProjectOptions: async () => [],
+      listPublishedProjects: async () => {
+        calls.push("listPublishedProjects");
+        return projects;
+      },
+    },
+  });
+
+  const result = await service.listPublicProjects();
+
+  assert.deepEqual(calls, ["listPublishedProjects"]);
+  assert.deepEqual(result, projects);
+});
+
+test("createBlogContentService lists featured public projects through the repository", async () => {
+  const serviceModule = await loadModule<{
+    createBlogContentService: (input: {
+      posts: {
+        listAdminPosts: () => Promise<unknown[]>;
+      };
+      projects: {
+        listFeaturedProjects: () => Promise<Array<{ slug: string; title: string }>>;
+        listProjectOptions: () => Promise<unknown[]>;
+      };
+    }) => {
+      listFeaturedProjects: () => Promise<Array<{ slug: string; title: string }>>;
+    };
+  }>("./service.ts", "content service");
+
+  const calls: string[] = [];
+  const projects = [{ slug: "sms-management-platform", title: "簡訊管理平台" }];
+
+  const service = serviceModule.createBlogContentService({
+    posts: {
+      listAdminPosts: async () => [],
+    },
+    projects: {
+      listFeaturedProjects: async () => {
+        calls.push("listFeaturedProjects");
+        return projects;
+      },
+      listProjectOptions: async () => [],
+    },
+  });
+
+  const result = await service.listFeaturedProjects();
+
+  assert.deepEqual(calls, ["listFeaturedProjects"]);
+  assert.deepEqual(result, projects);
 });
 
 test("createBlogContentService delegates admin project sync reads and writes through the repository", async () => {

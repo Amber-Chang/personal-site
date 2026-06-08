@@ -18,7 +18,7 @@ export default async function AdminProjectsPage() {
           <p className="text-sm uppercase tracking-[0.24em] text-black/50">Project Admin</p>
           <h1 className="text-3xl font-semibold text-black">管理專案</h1>
           <p className="max-w-2xl text-sm leading-6 text-black/65">
-            這裡管理的是可被文章關聯的 project identity，不是完整專案內容頁編輯器。
+            這裡管理的是公開 project 內容來源；published 專案會同步出現在 `/projects`、首頁代表案例與文章關聯選單。
           </p>
           <div className="flex flex-wrap gap-3 text-sm">
             <Link className="underline decoration-black/20 underline-offset-4 hover:text-black" href="/admin/posts">
@@ -67,7 +67,7 @@ export default async function AdminProjectsPage() {
         </div>
       ) : (
         <section className="rounded-3xl border border-dashed border-black/15 bg-white/60 p-8 text-sm leading-6 text-black/65">
-          目前還沒有可管理的專案，先建立第一個 project identity 吧。
+          目前還沒有可管理的專案，先建立第一個公開案例吧。
         </section>
       )}
     </main>
