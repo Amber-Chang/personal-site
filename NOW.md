@@ -29,8 +29,8 @@
 - 已將 `supabase/migrations/202606070002_add_admin_sessions.sql` 套用到實際 Supabase 環境，並完成 admin 登入 / draft / 發佈 / 取消發佈 / 重新發佈手動驗證
 - 已補上後台登出功能：可清除 `admin_session` cookie，並刪除目前 server-side session record
 - Vercel production 已部署於 `https://personal-site-two-opal.vercel.app/`
-- 已確認 production 首頁、`/blog`、既有公開文章與 `/admin/login` 可正常載入
-- 原先記錄的 smoke sample `admin-flow-check-20260607-0215` 已不在 production，部署後驗證記錄需改用新的樣本或直接記錄實際檢查路徑
+- 已確認 production 首頁、`/blog`、既有公開文章與 `/admin/login` 可正常載入；未登入直接進 `/admin/posts` 也會正確導回 `/admin/login`
+- `admin-flow-check-20260607-0215` 目前仍存在於 production，可繼續作為 smoke sample；其文章頁到關聯 project 頁的前台鏈路也已確認可用
 - 已建立 `npm run review:doc-sync` 與 [docs/development-workflow.md](./docs/development-workflow.md) 收尾 gate，降低忘記同步 `NOW.md` / 主文件的機率
 - 已完成 `blog post <-> project` 雙向連結 round：文章頁可顯示相關案例，project 頁可顯示延伸文章，且內容關聯已收斂到 content / repository 邊界
 - 已補 `npm run content:sync-projects`，可把 `content/projects/*.md` 同步到 Supabase `projects` identity table，讓 admin post form 的 `Related project` 選單可實際選用案例
@@ -44,17 +44,16 @@
 
 - 持續調整網站視覺與品牌感
 - 視需要補 `title -> slug` 自動建議與更完整的後台錯誤訊息
-- 補齊 production deploy 後的 admin 登入 / 發佈 / 登出 smoke check 記錄
+- 把已手動完成的 production admin 登入後流程驗證記錄補回文件，避免實際狀態與文件脫節
 - 若後續需要多人或遠端登入，重新評估 auth 升級路線
 - 讓後續開發工作可依標準流程規則化執行
-- 確認 project sync 後的 admin 關聯編輯流程在 production 也可順利使用
-- 補齊 production `/admin/projects` 建立 / 編輯流程的實際手動驗證記錄
+- 收斂 production `/admin/projects`、`Related project` 與 publish flow 的手動驗證紀錄表述
 - 收斂 repo 文件，避免治理文件與目前實作狀態脫節
 
 ## 下一步建議
 
-1. 在 production 重跑一次完整 admin smoke check，包含 `/admin/projects` 建立 / 編輯、`Related project` 選擇、登入、登出、draft / publish / unpublish 驗證記錄
-2. 重新指定一篇仍存在於 production 的 smoke sample，或建立新的固定驗證樣本
+1. 把已完成的 production admin 手動驗證整理成單一記錄，包含 `/admin/projects` 建立 / 編輯、`Related project` 選擇、登入、登出、draft / publish / unpublish
+2. 以 `admin-flow-check-20260607-0215` 為目前 smoke sample，補齊其用途與驗證路徑說明
 3. 視需要補 `title -> slug` 自動建議與更完整的後台錯誤訊息
 4. 打磨首頁視覺與文案
 5. 持續把 `NOW.md` / `FOUNDATION.md` 中過時描述收斂掉

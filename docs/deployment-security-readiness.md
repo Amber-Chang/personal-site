@@ -155,11 +155,12 @@
   - `/`
   - `/blog`
   - `/blog/test-post-2026`
+  - `/blog/admin-flow-check-20260607-0215`
   - `/admin/login`
 - 目前發現：
-  - 先前保留的 smoke sample `/blog/admin-flow-check-20260607-0215` 在 production 為 `404`
-  - 這代表 production deploy 已完成，但既有 smoke sample 記錄已與 production 現況不同步
-  - 後續應重新指定一篇仍存在的 production 文章作為 smoke sample，或建立新的固定驗證樣本
+  - `admin-flow-check-20260607-0215` 目前仍存在於 production，可繼續作為 smoke sample
+  - 未登入直接開啟 `/admin/posts` 會被導回 `/admin/login`
+  - `admin-flow-check-20260607-0215` 文章頁可連到關聯 project 頁，前台 article -> project 鏈路正常
 
 ### 6.5.2 Projects Supabase-first migration 後補充確認
 
@@ -181,8 +182,8 @@
   - production `/projects` 清單已反映 DB-driven project entries
   - `projects` 相關的公開讀取基線已成立
 - 仍待補：
-  - `/admin/projects` 建立 / 編輯流程的 production 手動驗證記錄
-  - project admin 對 public 頁面反映速度與 revalidation 行為的實際驗證
+  - 把已手動完成的 `/admin/projects` 建立 / 編輯流程驗證記錄回填到文件
+  - project admin 對 public 頁面反映速度與 revalidation 行為的實際驗證描述再收斂成固定格式
 
 ### 6.6 可重複執行的 admin publish / unpublish checklist
 
@@ -316,4 +317,4 @@
 - 已完成：deterministic cookie -> 隨機 server-side session 的程式碼與 migration
 - 已完成：`npm test`、`npm run build` 驗證通過
 - 已完成：`supabase/migrations/202606070002_add_admin_sessions.sql` 已套用到實際 Supabase 環境
-- 待補記錄：production 環境下重新跑一次完整 admin 手動驗證，並更新 smoke sample
+- 待補記錄：把已完成的 production admin 手動驗證與目前 smoke sample 狀態整理回文件
