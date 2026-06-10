@@ -10,6 +10,8 @@
   --color-foreground: var(--foreground);
   --font-sans:
     "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", "Helvetica Neue", Arial, sans-serif;
+  --font-display:
+    "Iowan Old Style", "Palatino Linotype", "Times New Roman", "Noto Serif TC", serif;
   --font-mono:
     "JetBrains Mono", "SF Mono", "Roboto Mono", Menlo, Monaco, Consolas, "Liberation Mono",
     "Courier New", monospace;
@@ -53,24 +55,24 @@
 
 :root {
   --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
+  --background: oklch(0.986 0.004 95);
+  --foreground: oklch(0.18 0.01 260);
+  --card: oklch(0.995 0.002 95);
+  --card-foreground: oklch(0.18 0.01 260);
+  --popover: oklch(0.995 0.002 95);
+  --popover-foreground: oklch(0.18 0.01 260);
+  --primary: oklch(0.27 0.03 255);
   --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.968 0.006 95);
+  --secondary-foreground: oklch(0.22 0.01 260);
+  --muted: oklch(0.965 0.006 95);
+  --muted-foreground: oklch(0.51 0.02 255);
+  --accent: oklch(0.956 0.014 250);
+  --accent-foreground: oklch(0.24 0.02 255);
   --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
+  --border: oklch(0.91 0.008 95);
+  --input: oklch(0.91 0.008 95);
+  --ring: oklch(0.66 0.03 250);
   --chart-1: oklch(0.646 0.222 41.116);
   --chart-2: oklch(0.6 0.118 184.704);
   --chart-3: oklch(0.398 0.07 227.392);
@@ -124,7 +126,25 @@
   * {
     @apply border-border outline-ring/50;
   }
+  html {
+    scroll-behavior: smooth;
+  }
   body {
     @apply bg-background text-foreground font-sans antialiased;
+    background-image:
+      radial-gradient(circle at top left, color-mix(in oklab, var(--accent) 42%, transparent) 0, transparent 32rem),
+      linear-gradient(to bottom, color-mix(in oklab, var(--background) 96%, white) 0%, var(--background) 100%);
+  }
+  ::selection {
+    background: color-mix(in oklab, var(--accent) 70%, white);
+    color: var(--foreground);
+  }
+  a {
+    @apply transition-colors duration-200;
+  }
+  h1,
+  h2,
+  h3 {
+    letter-spacing: -0.03em;
   }
 }

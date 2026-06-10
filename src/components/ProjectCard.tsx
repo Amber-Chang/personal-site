@@ -9,22 +9,22 @@ export function ProjectCard({ project }: { project: ProjectSummary }) {
   return (
     <Link
       href={`/projects/${project.slug}`}
-      className="group block rounded-xl border border-border/70 p-5 transition-colors hover:border-foreground/35"
+      className="group block rounded-[1.75rem] border border-border/70 bg-card/40 px-5 py-5 transition-colors hover:border-foreground/35 md:px-7 md:py-6"
     >
-      <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
-        <div className="space-y-2">
-          <h3 className="text-base font-medium group-hover:underline">{project.title}</h3>
-          <p className="text-sm text-muted-foreground">{project.summary}</p>
+      <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+        <div className="max-w-xl space-y-2.5">
+          <h3 className="text-lg font-medium tracking-tight group-hover:underline">{project.title}</h3>
+          <p className="text-sm leading-7 text-muted-foreground">{project.summary}</p>
         </div>
         {project.period ? (
-          <span className="shrink-0 text-xs text-muted-foreground">{project.period}</span>
+          <span className="shrink-0 pt-0.5 text-xs uppercase tracking-[0.16em] text-muted-foreground md:text-right">{project.period}</span>
         ) : null}
       </div>
 
-      {project.role ? <p className="mt-3 text-sm text-foreground/80">角色：{project.role}</p> : null}
+      {project.role ? <p className="mt-5 text-sm text-foreground/80">角色：{project.role}</p> : null}
 
       {project.outcomes.length > 0 ? (
-        <ul className="mt-3 space-y-1 text-sm text-muted-foreground">
+        <ul className="mt-4 space-y-1.5 text-sm leading-7 text-muted-foreground">
           {project.outcomes.slice(0, 2).map((outcome) => (
             <li key={outcome}>- {outcome}</li>
           ))}
@@ -32,7 +32,7 @@ export function ProjectCard({ project }: { project: ProjectSummary }) {
       ) : null}
 
       {project.tags.length > 0 ? (
-        <div className="mt-4 flex flex-wrap gap-2">
+        <div className="mt-5 flex flex-wrap gap-2">
           {project.tags.map((tag) => (
             <Badge key={tag} variant="secondary" className="font-normal">
               {tag}

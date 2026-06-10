@@ -23,12 +23,12 @@ export default async function BlogPage() {
   });
 
   return (
-    <div className="space-y-6">
-      <header>
-        <h1 className="text-2xl font-semibold">文章</h1>
-        <p className="mt-2 text-sm text-muted-foreground">我在 AI、PM 工作與產品實作上的紀錄與思考。</p>
+    <div className="space-y-8 md:space-y-10">
+      <header className="space-y-2">
+        <h1 className="font-[family-name:var(--font-display)] text-3xl font-semibold tracking-tight">文章</h1>
+        <p className="text-sm text-muted-foreground">工作裡的思考，也一些生活裡的觀察。</p>
       </header>
-      <div className="space-y-3">
+      <div className="space-y-4 md:space-y-5">
         {posts.length > 0 ? (
           posts.map((post) => <PostCard key={post.slug} post={post} />)
         ) : (

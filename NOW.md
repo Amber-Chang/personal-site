@@ -18,6 +18,7 @@
 
 ## 最近完成
 
+- 已完成公開頁面視覺與 RWD 收斂：首頁改成更明確的 editorial / portfolio 節奏，外框放寬為 `max-w-5xl`，blog / projects / about 與文章、案例內頁已補一輪 mobile-first 閱讀與導覽調整
 - 完成網站最小治理集合與核心方向整理，確立 `AGENTS.md`、`FOUNDATION.md`、`NOW.md`、`docs/` 的責任分工
 - 完成 blog admin MVP 的主 spec、系統架構原則與標準開發流程規則
 - 完成 blog admin 前四個主要 round：foundation 底座、admin posts skeleton、前台 blog 切 repository、Markdown import tooling
@@ -42,7 +43,7 @@
 
 ## 目前最重要的事
 
-- 持續調整網站視覺與品牌感
+- 持續微調網站視覺與品牌感，特別是公開頁面的 typography、footer 與首頁敘事細節
 - 視需要補 `title -> slug` 自動建議與更完整的後台錯誤訊息
 - 把已手動完成的 production admin 登入後流程驗證記錄補回文件，避免實際狀態與文件脫節
 - 若後續需要多人或遠端登入，重新評估 auth 升級路線
@@ -55,7 +56,7 @@
 1. 把已完成的 production admin 手動驗證整理成單一記錄，包含 `/admin/projects` 建立 / 編輯、`Related project` 選擇、登入、登出、draft / publish / unpublish
 2. 以 `admin-flow-check-20260607-0215` 為目前 smoke sample，補齊其用途與驗證路徑說明
 3. 視需要補 `title -> slug` 自動建議與更完整的後台錯誤訊息
-4. 打磨首頁視覺與文案
+4. 視公開頁面實際使用感再微調 footer、文章內頁 typography 與首頁 section 節奏
 5. 持續把 `NOW.md` / `FOUNDATION.md` 中過時描述收斂掉
 
 ## 備註

@@ -15,28 +15,62 @@ export async function Header() {
   });
 
   return (
-    <header className="border-b border-border/80 bg-background/80 backdrop-blur">
-      <div className="mx-auto flex w-full max-w-3xl items-center justify-between px-4 py-4 md:px-6">
-        <Link href="/" className="text-base font-semibold tracking-tight">
-          Amber Chang
-        </Link>
-        <nav className="flex items-center gap-5 text-sm text-muted-foreground">
-          <Link href="/projects" className="transition-colors hover:text-foreground">
+    <header className="sticky top-0 z-30 border-b border-border/70 bg-background/78 backdrop-blur-md">
+      <div className="mx-auto w-full max-w-5xl px-4 py-4 md:px-6 md:py-5">
+        <div className="flex items-center justify-between gap-4">
+          <Link href="/" className="text-[1.02rem] font-semibold tracking-[-0.02em] text-foreground/92">
+            Amber Chang
+          </Link>
+
+          <details className="group lg:hidden">
+            <summary className="flex min-h-11 cursor-pointer list-none items-center rounded-full border border-border/80 px-4 text-sm text-foreground/82 transition-colors hover:border-foreground/30">
+              Menu
+            </summary>
+            <nav className="absolute inset-x-4 top-full mt-3 rounded-[1.5rem] border border-border/80 bg-background/96 p-4 shadow-sm backdrop-blur md:inset-x-6">
+              <div className="flex flex-col gap-3 text-sm text-muted-foreground">
+                <Link href="/projects" className="rounded-full px-2 py-1 hover:text-foreground">
+                  專案
+                </Link>
+                <Link href="/blog" className="rounded-full px-2 py-1 hover:text-foreground">
+                  文章
+                </Link>
+                <Link href="/about" className="rounded-full px-2 py-1 hover:text-foreground">
+                  關於我
+                </Link>
+                {hasAdminSession ? (
+                  <>
+                    <Link href="/admin/posts" className="rounded-full px-2 py-1 font-medium text-foreground hover:text-foreground/80">
+                      後台
+                    </Link>
+                    <form action={requestAdminLogout}>
+                      <Button className="h-auto w-full rounded-full border-border/80 px-3 py-2" size="sm" type="submit" variant="outline">
+                        登出
+                      </Button>
+                    </form>
+                  </>
+                ) : null}
+              </div>
+            </nav>
+          </details>
+        </div>
+
+        <nav className="hidden items-center justify-end gap-5 text-sm text-muted-foreground lg:flex">
+          <Link href="/projects" className="hover:text-foreground">
             專案
           </Link>
-          <Link href="/blog" className="transition-colors hover:text-foreground">
+          <Link href="/blog" className="hover:text-foreground">
             文章
           </Link>
-          <Link href="/about" className="transition-colors hover:text-foreground">
+          <Link href="/about" className="hover:text-foreground">
             關於我
           </Link>
           {hasAdminSession ? (
             <>
-              <Link href="/admin/posts" className="font-medium text-foreground transition-colors hover:text-foreground/80">
+              <Link href="/admin/posts" className="font-medium text-foreground hover:text-foreground/80">
                 後台
               </Link>
               <form action={requestAdminLogout}>
-                <Button className="h-auto rounded-full px-3 py-1.5" size="sm" type="submit" variant="outline">
+                <Button className="h-auto rounded-full border-border/80 px-3 py-1.5" size="sm" type="submit" variant="outline">
                   登出
                 </Button>
               </form>

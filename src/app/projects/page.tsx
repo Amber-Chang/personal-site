@@ -23,15 +23,15 @@ export default async function ProjectsPage() {
   });
 
   return (
-    <div className="space-y-6">
-      <header>
-        <h1 className="text-2xl font-semibold">專案</h1>
-        <p className="mt-2 text-sm text-muted-foreground">
+    <div className="space-y-8 md:space-y-10">
+      <header className="space-y-2">
+        <h1 className="font-[family-name:var(--font-display)] text-3xl font-semibold tracking-tight">專案</h1>
+        <p className="text-sm text-muted-foreground">
           我如何把模糊需求轉成產品方向、可執行規格與真正能落地的成果。
         </p>
       </header>
 
-      <div className="space-y-4">
+      <div className="space-y-5 md:space-y-6">
         {projects.length > 0 ? (
           projects.map((project) => <ProjectCard key={project.slug} project={project} />)
         ) : (

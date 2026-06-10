@@ -56,32 +56,34 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
   }
 
   return (
-    <article className="space-y-8">
+    <article className="space-y-8 md:space-y-10">
       <Link href="/projects" className="inline-block text-sm text-muted-foreground hover:underline">
         ← 返回專案列表
       </Link>
 
-      <header className="space-y-4 border-b border-border/70 pb-6">
+      <header className="space-y-5 border-b border-border/70 pb-6 md:pb-8">
         <div className="space-y-3">
-          <h1 className="text-3xl font-semibold leading-tight">{project.title}</h1>
-          <p className="max-w-2xl text-sm text-muted-foreground">{project.summary}</p>
+          <h1 className="font-[family-name:var(--font-display)] text-4xl font-semibold leading-[1.08] tracking-tight md:text-5xl">
+            {project.title}
+          </h1>
+          <p className="max-w-3xl text-base leading-8 text-muted-foreground">{project.summary}</p>
         </div>
 
-        <div className="grid gap-4 rounded-xl border border-border/70 bg-muted/25 p-4 text-sm md:grid-cols-2">
+        <div className="grid gap-4 rounded-[1.5rem] border border-border/70 bg-muted/25 p-5 text-sm md:grid-cols-2 md:p-6">
           <div className="space-y-1">
             <p className="text-muted-foreground">角色</p>
-            <p>{project.role || "未提供"}</p>
+            <p className="leading-7">{project.role || "未提供"}</p>
           </div>
           <div className="space-y-1">
             <p className="text-muted-foreground">期間</p>
-            <p>{project.period || "未提供"}</p>
+            <p className="leading-7">{project.period || "未提供"}</p>
           </div>
         </div>
 
         {project.outcomes.length > 0 ? (
-          <div className="space-y-2">
+          <div className="space-y-3">
             <p className="text-sm font-medium">關鍵成果</p>
-            <ul className="space-y-2 text-sm text-muted-foreground">
+            <ul className="space-y-2 text-sm leading-7 text-muted-foreground">
               {project.outcomes.map((outcome) => (
                 <li key={outcome}>- {outcome}</li>
               ))}
@@ -100,7 +102,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
         ) : null}
       </header>
 
-      <div className="prose prose-neutral max-w-none">
+      <div className="prose prose-neutral max-w-none text-[1.02rem] leading-8 prose-headings:font-[family-name:var(--font-display)] prose-headings:tracking-tight prose-h2:mt-12 prose-h2:text-[1.9rem] prose-h2:leading-tight prose-h3:mt-8 prose-h3:text-[1.45rem] prose-h3:leading-snug prose-p:leading-8 prose-li:leading-8 prose-blockquote:border-l-border prose-blockquote:text-foreground/78 prose-strong:text-foreground prose-a:text-foreground prose-a:decoration-muted-foreground/60 prose-a:underline-offset-4 hover:prose-a:text-primary prose-code:rounded prose-code:bg-muted/65 prose-code:px-1 prose-code:py-0.5 prose-code:text-[0.92em] prose-pre:rounded-2xl prose-pre:border prose-pre:border-border/70 prose-pre:bg-card/80 prose-img:rounded-2xl prose-img:border prose-img:border-border/60 md:text-[1.08rem] md:leading-9 md:prose-h2:text-[2.1rem] md:prose-h3:text-[1.6rem]">
         <ReactMarkdown>{project.content}</ReactMarkdown>
       </div>
 

@@ -27,7 +27,7 @@ export function RelatedPostsSection({ relatedPosts }: { relatedPosts: RelatedPos
             href={`/blog/${post.slug}`}
             className="block rounded-xl border border-border/70 p-4 transition-colors hover:border-foreground/35"
           >
-            <div className="flex items-start justify-between gap-4">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
               <h3 className="text-base font-medium leading-snug">{post.title}</h3>
               <span className="shrink-0 text-xs text-muted-foreground">{formatDate(post.date)}</span>
             </div>

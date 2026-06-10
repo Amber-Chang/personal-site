@@ -14,7 +14,7 @@ export const metadata: Metadata = {
 
 export default function AboutPage() {
   return (
-    <article className="prose prose-neutral max-w-none">
+    <article className="prose prose-neutral mx-auto max-w-3xl">
       <h1>關於我</h1>
       <p>
         我是 Amber，在媒體科技產業做產品工作。這些年我越來越在意一件事：
