@@ -44,7 +44,7 @@
 ## 4. 技術方向
 
 - 前台維持 Next.js App Router + TypeScript
-- 後台登入採 email magic link
+- 後台登入第一版採單一 admin 密碼 + httpOnly session cookie
 - 文章內容改存資料庫
 - 第一版正式採用 Supabase 作為資料儲存與登入基礎
 - 內文編輯體驗以 Markdown 為主，不追求 Notion-like rich text
@@ -136,7 +136,7 @@
 - 建立 `blog_posts` table
 - 建立 `blog_posts.related_project_id`
 - 建立 `status`、`published_at`、`created_at`、`updated_at`
-- 建立 email magic link 登入流程
+- 建立單一 admin 密碼登入流程與 session cookie
 - 建立後台只允許登入使用者存取的基本權限邏輯
 
 完成標準：
@@ -188,7 +188,7 @@
 
 包含：
 
-- magic link 登入流程
+- admin 密碼登入流程
 - 建立草稿
 - 編輯草稿
 - 發佈後前台可見
