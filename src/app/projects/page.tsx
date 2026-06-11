@@ -31,7 +31,7 @@ export default async function ProjectsPage() {
         </p>
       </header>
 
-      <div className="space-y-5 md:space-y-6">
+      <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3 md:gap-6">
         {projects.length > 0 ? (
           projects.map((project) => <ProjectCard key={project.slug} project={project} />)
         ) : (

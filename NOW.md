@@ -23,6 +23,7 @@
 - 已調整公開頁面資訊分工：首頁 `How I Work` 收成短引言，完整做事方式改放到 `/about`
 - 已將 header 品牌識別改成個人頭像插圖搭配名字文字，保留回首頁入口並增加個人感
 - 已將網站分頁圖示改成同一張個人頭像圖，讓 header 與 favicon 識別一致
+- 已收斂首頁 hero 與專案列表呈現：header 改為純頭像識別、首頁改成 `Amber Chang / AI-native product portfolio` 層級、Projects 卡片精簡為標題與描述並在桌機改為多欄
 - 完成網站最小治理集合與核心方向整理，確立 `AGENTS.md`、`FOUNDATION.md`、`NOW.md`、`docs/` 的責任分工
 - 完成 blog admin MVP 的主 spec、系統架構原則與標準開發流程規則
 - 完成 blog admin 前四個主要 round：foundation 底座、admin posts skeleton、前台 blog 切 repository、Markdown import tooling

@@ -33,32 +33,34 @@ export default async function HomePage() {
     <div className="space-y-20 pb-6 md:space-y-32 md:pb-10">
       <section className="space-y-10 border-b border-border/70 pb-14 pt-6 md:space-y-14 md:pb-20 md:pt-10">
         <div className="space-y-5 md:space-y-6">
-          <p className="text-xs uppercase tracking-[0.22em] text-muted-foreground">Amber Chang / AI-native product portfolio</p>
-          <h1 className="max-w-[13ch] font-[family-name:var(--font-display)] text-5xl font-semibold leading-[1.02] tracking-[-0.04em] md:text-7xl">
-            AI-native
+          <div className="space-y-1.5">
+            <p className="text-xl font-semibold tracking-[-0.03em] text-foreground/92 md:text-2xl">Amber Chang</p>
+            <p className="text-sm font-medium uppercase tracking-[0.14em] text-muted-foreground md:text-[0.95rem]">
+              AI-native product portfolio
+            </p>
+          </div>
+          <h1 className="max-w-4xl text-balance font-[family-name:var(--font-display)] text-3xl font-semibold leading-[1.22] tracking-[-0.04em] md:text-4xl xl:text-[3.25rem]">
+            我用產品思維、系統理解與寫作，
             <br />
-            Product Builder
+            整理那些在工作現場與生活裡還說不清楚的問題。
           </h1>
         </div>
 
         <div className="grid gap-10 md:grid-cols-[1.5fr_0.7fr] md:items-end md:gap-12">
           <div className="space-y-8">
-            <p className="max-w-xl text-lg leading-relaxed text-foreground/84 md:text-xl">
-              我用產品思維、系統理解與寫作，整理工作現場與生活裡那些還說不清楚的問題。
-            </p>
             <p className="max-w-xl text-sm leading-7 text-muted-foreground md:text-base">
               這裡放我做過的專案，也放我持續在想的事。
             </p>
             <div className="flex flex-wrap gap-3 text-sm">
               <Link
                 href="/projects"
-                className="inline-flex min-h-11 items-center rounded-full bg-foreground px-5 py-2.5 text-background transition-colors hover:bg-foreground/90"
+                className="inline-flex min-h-12 items-center rounded-full bg-foreground px-6 py-3 text-base text-background transition-colors hover:bg-foreground/90"
               >
                 Projects
               </Link>
               <Link
                 href="/blog"
-                className="inline-flex min-h-11 items-center rounded-full border border-border px-5 py-2.5 text-foreground transition-colors hover:border-foreground/35"
+                className="inline-flex min-h-12 items-center rounded-full border border-border px-6 py-3 text-base text-foreground transition-colors hover:border-foreground/35"
               >
                 文章與筆記
               </Link>
@@ -87,7 +89,7 @@ export default async function HomePage() {
           </Link>
         </div>
 
-        <div className="space-y-5 md:space-y-6">
+        <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3 md:gap-6">
           {featuredProjects.length > 0 ? (
             featuredProjects.map((project) => <ProjectCard key={project.slug} project={project} />)
           ) : (

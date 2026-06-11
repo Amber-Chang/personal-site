@@ -21,19 +21,19 @@ export async function Header() {
         <div className="flex items-center justify-between gap-4">
           <Link
             href="/"
-            className="inline-flex items-center gap-2.5 text-[1.02rem] font-semibold tracking-[-0.02em] text-foreground/92"
+            className="inline-flex items-center text-[1.02rem] font-semibold tracking-[-0.02em] text-foreground/92"
+            aria-label="回到首頁"
           >
-            <span className="flex size-9 items-center justify-center overflow-hidden rounded-full bg-transparent">
+            <span className="flex size-11 items-center justify-center overflow-hidden rounded-full bg-transparent">
               <Image
                 src="/amber-avatar.png"
                 alt="Amber Chang avatar"
-                width={36}
-                height={36}
-                className="size-9"
+                width={44}
+                height={44}
+                className="size-11"
                 priority
               />
             </span>
-            <span>Amber Chang</span>
           </Link>
 
           <details className="group lg:hidden">
