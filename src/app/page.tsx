@@ -62,7 +62,7 @@ export default async function HomePage() {
                 href="/blog"
                 className="inline-flex min-h-12 items-center rounded-full border border-border px-6 py-3 text-base text-foreground transition-colors hover:border-foreground/35"
               >
-                文章與筆記
+                Writing &amp; Notes
               </Link>
             </div>
           </div>
