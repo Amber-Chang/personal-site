@@ -21,6 +21,7 @@
 - 已完成公開頁面視覺與 RWD 收斂：首頁改成更明確的 editorial / portfolio 節奏，外框放寬為 `max-w-5xl`，blog / projects / about 與文章、案例內頁已補一輪 mobile-first 閱讀與導覽調整
 - 已收斂首頁品牌文案方向：第一屏先建立 `AI-native Product Builder` 定位，同時保留工作與生活觀察並存的個人筆記感
 - 已調整公開頁面資訊分工：首頁 `How I Work` 收成短引言，完整做事方式改放到 `/about`
+- 已將 header 品牌識別改成個人頭像插圖搭配名字文字，保留回首頁入口並增加個人感
 - 完成網站最小治理集合與核心方向整理，確立 `AGENTS.md`、`FOUNDATION.md`、`NOW.md`、`docs/` 的責任分工
 - 完成 blog admin MVP 的主 spec、系統架構原則與標準開發流程規則
 - 完成 blog admin 前四個主要 round：foundation 底座、admin posts skeleton、前台 blog 切 repository、Markdown import tooling

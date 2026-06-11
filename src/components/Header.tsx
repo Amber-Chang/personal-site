@@ -2,6 +2,7 @@
 // 功能：全站導覽列，提供首頁、文章與關於我入口。
 
 import { cookies } from "next/headers";
+import Image from "next/image";
 import Link from "next/link";
 
 import { requestAdminLogout } from "@/app/admin/logout/actions";
@@ -18,8 +19,21 @@ export async function Header() {
     <header className="sticky top-0 z-30 border-b border-border/70 bg-background/78 backdrop-blur-md">
       <div className="mx-auto w-full max-w-5xl px-4 py-4 md:px-6 md:py-5">
         <div className="flex items-center justify-between gap-4">
-          <Link href="/" className="text-[1.02rem] font-semibold tracking-[-0.02em] text-foreground/92">
-            Amber Chang
+          <Link
+            href="/"
+            className="inline-flex items-center gap-2.5 text-[1.02rem] font-semibold tracking-[-0.02em] text-foreground/92"
+          >
+            <span className="flex size-9 items-center justify-center overflow-hidden rounded-full bg-transparent">
+              <Image
+                src="/amber-avatar.png"
+                alt="Amber Chang avatar"
+                width={36}
+                height={36}
+                className="size-9"
+                priority
+              />
+            </span>
+            <span>Amber Chang</span>
           </Link>
 
           <details className="group lg:hidden">
