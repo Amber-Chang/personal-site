@@ -66,31 +66,31 @@ export async function Header() {
               </div>
             </nav>
           </details>
-        </div>
 
-        <nav className="hidden items-center justify-end gap-5 text-sm text-muted-foreground lg:flex">
-          <Link href="/projects" className="hover:text-foreground">
-            專案
-          </Link>
-          <Link href="/blog" className="hover:text-foreground">
-            文章
-          </Link>
-          <Link href="/about" className="hover:text-foreground">
-            關於我
-          </Link>
-          {hasAdminSession ? (
-            <>
-              <Link href="/admin/posts" className="font-medium text-foreground hover:text-foreground/80">
-                後台
-              </Link>
-              <form action={requestAdminLogout}>
-                <Button className="h-auto rounded-full border-border/80 px-3 py-1.5" size="sm" type="submit" variant="outline">
-                  登出
-                </Button>
-              </form>
-            </>
-          ) : null}
-        </nav>
+          <nav className="hidden items-center gap-5 text-sm text-muted-foreground lg:flex">
+            <Link href="/projects" className="hover:text-foreground">
+              專案
+            </Link>
+            <Link href="/blog" className="hover:text-foreground">
+              文章
+            </Link>
+            <Link href="/about" className="hover:text-foreground">
+              關於我
+            </Link>
+            {hasAdminSession ? (
+              <>
+                <Link href="/admin/posts" className="font-medium text-foreground hover:text-foreground/80">
+                  後台
+                </Link>
+                <form action={requestAdminLogout}>
+                  <Button className="h-auto rounded-full border-border/80 px-3 py-1.5" size="sm" type="submit" variant="outline">
+                    登出
+                  </Button>
+                </form>
+              </>
+            ) : null}
+          </nav>
+        </div>
       </div>
     </header>
   );

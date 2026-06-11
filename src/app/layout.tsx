@@ -9,6 +9,11 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "Amber Chang | Personal Site",
   description: "一個正在學著用 AI 槓桿出更大效益、朝 builder 之路邁進的 PM。",
+  icons: {
+    icon: "/amber-avatar.png",
+    shortcut: "/amber-avatar.png",
+    apple: "/amber-avatar.png",
+  },
 };
 
 export default function RootLayout({
