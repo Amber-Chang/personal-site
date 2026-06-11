@@ -43,13 +43,13 @@ export async function Header() {
             <nav className="absolute inset-x-4 top-full mt-3 rounded-[1.5rem] border border-border/80 bg-background/96 p-4 shadow-sm backdrop-blur md:inset-x-6">
               <div className="flex flex-col gap-3 text-sm text-muted-foreground">
                 <Link href="/projects" className="rounded-full px-2 py-1 hover:text-foreground">
-                  專案
+                  Projects
                 </Link>
                 <Link href="/blog" className="rounded-full px-2 py-1 hover:text-foreground">
-                  文章
+                  Writing &amp; Notes
                 </Link>
                 <Link href="/about" className="rounded-full px-2 py-1 hover:text-foreground">
-                  關於我
+                  About
                 </Link>
                 {hasAdminSession ? (
                   <>
@@ -69,13 +69,13 @@ export async function Header() {
 
           <nav className="hidden items-center gap-5 text-sm text-muted-foreground lg:flex">
             <Link href="/projects" className="hover:text-foreground">
-              專案
+              Projects
             </Link>
             <Link href="/blog" className="hover:text-foreground">
-              文章
+              Writing &amp; Notes
             </Link>
             <Link href="/about" className="hover:text-foreground">
-              關於我
+              About
             </Link>
             {hasAdminSession ? (
               <>

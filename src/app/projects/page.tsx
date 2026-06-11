@@ -7,10 +7,10 @@ import { getPublicBlogContentService } from "../blog/blog-context";
 import { loadProjectsPageData } from "./data";
 
 export const metadata: Metadata = {
-  title: "專案 — Amber Chang",
+  title: "Projects — Amber Chang",
   description: "一些我如何理解問題、整理脈絡，並把它們推進成產品成果的紀錄。",
   openGraph: {
-    title: "專案 — Amber Chang",
+    title: "Projects — Amber Chang",
     description: "一些我如何理解問題、整理脈絡，並把它們推進成產品成果的紀錄。",
   },
 };
@@ -25,7 +25,7 @@ export default async function ProjectsPage() {
   return (
     <div className="space-y-8 md:space-y-10">
       <header className="space-y-2">
-        <h1 className="font-[family-name:var(--font-display)] text-3xl font-semibold tracking-tight">專案</h1>
+        <h1 className="font-[family-name:var(--font-display)] text-3xl font-semibold tracking-tight">Projects</h1>
         <p className="text-sm text-muted-foreground">
           這裡收的是一些我如何理解問題、整理脈絡，並把它們推進成產品成果的紀錄。
         </p>

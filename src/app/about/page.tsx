@@ -11,10 +11,10 @@ const workMethod = [
 ];
 
 export const metadata: Metadata = {
-  title: "關於我 — Amber Chang",
+  title: "About / 關於我 — Amber Chang",
   description: "用產品思維、系統理解與寫作，整理工作現場與生活裡那些還說不清楚的問題。",
   openGraph: {
-    title: "關於我 — Amber Chang",
+    title: "About / 關於我 — Amber Chang",
     description: "用產品思維、系統理解與寫作，整理工作現場與生活裡那些還說不清楚的問題。",
   },
 };
@@ -22,7 +22,7 @@ export const metadata: Metadata = {
 export default function AboutPage() {
   return (
     <article className="prose prose-neutral mx-auto max-w-3xl">
-      <h1>關於我</h1>
+      <h1>About / 關於我</h1>
       <p>
         我是 Amber。平常用產品思維、系統理解與寫作，整理工作現場與生活裡那些還說不清楚的問題。
       </p>
