@@ -1,6 +1,7 @@
 // [AI-ASSISTED] Generated with Codex, 2026-02-19
 // 功能：文章列表頁，顯示所有已發布文章。
 
+import Link from "next/link";
 import type { Metadata } from "next";
 import { PostCard } from "@/components/PostCard";
 import { getPublicBlogContentService } from "./blog-context";
@@ -25,7 +26,12 @@ export default async function BlogPage() {
   return (
     <div className="space-y-8 md:space-y-10">
       <header className="space-y-2">
-        <h1 className="font-[family-name:var(--font-display)] text-3xl font-semibold tracking-tight">Writing &amp; Notes</h1>
+        <Link href="/" className="inline-block text-sm text-muted-foreground hover:underline">
+          ← 返回首頁
+        </Link>
+        <h1 className="font-[family-name:var(--font-display)] text-[2.25rem] font-semibold tracking-[-0.03em] md:text-[2.6rem]">
+          Writing &amp; Notes
+        </h1>
         <p className="text-sm text-muted-foreground">工作裡的思考，也一些生活裡的觀察。</p>
       </header>
       <div className="space-y-4 md:space-y-5">

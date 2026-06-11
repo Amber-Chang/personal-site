@@ -23,9 +23,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="zh-Hant">
-      <body className="antialiased">
+      <body className="flex min-h-screen flex-col antialiased">
         <Header />
-        <main className="mx-auto w-full max-w-5xl px-4 py-10 md:px-6 md:py-14">{children}</main>
+        <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-10 md:px-6 md:py-14">{children}</main>
         <Footer />
       </body>
     </html>

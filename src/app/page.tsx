@@ -34,12 +34,12 @@ export default async function HomePage() {
       <section className="space-y-10 border-b border-border/70 pb-14 pt-6 md:space-y-14 md:pb-20 md:pt-10">
         <div className="space-y-5 md:space-y-6">
           <div className="space-y-1.5">
-            <p className="text-xl font-semibold tracking-[-0.03em] text-foreground/92 md:text-2xl">Amber Chang</p>
-            <p className="text-sm font-medium uppercase tracking-[0.14em] text-muted-foreground md:text-[0.95rem]">
+            <p className="text-lg font-medium tracking-[-0.02em] text-foreground/90 md:text-xl">Amber Chang</p>
+            <p className="text-sm tracking-[0.08em] text-muted-foreground md:text-[0.95rem]">
               AI-native product portfolio
             </p>
           </div>
-          <h1 className="max-w-4xl text-balance font-[family-name:var(--font-display)] text-3xl font-semibold leading-[1.22] tracking-[-0.04em] md:text-4xl xl:text-[3.25rem]">
+          <h1 className="max-w-4xl text-balance font-[family-name:var(--font-display)] text-3xl font-semibold leading-[1.22] tracking-[-0.03em] md:text-4xl xl:text-[3.25rem]">
             我用產品思維、系統理解與寫作，
             <br />
             整理那些在工作現場與生活裡還說不清楚的問題。
@@ -54,13 +54,13 @@ export default async function HomePage() {
             <div className="flex flex-wrap gap-3 text-sm">
               <Link
                 href="/projects"
-                className="inline-flex min-h-12 items-center rounded-full bg-foreground px-6 py-3 text-base text-background transition-colors hover:bg-foreground/90"
+                className="inline-flex min-h-12 items-center rounded-full bg-foreground px-6 py-3 text-base font-medium text-background transition-colors hover:bg-foreground/90"
               >
                 Projects
               </Link>
               <Link
                 href="/blog"
-                className="inline-flex min-h-12 items-center rounded-full border border-border px-6 py-3 text-base text-foreground transition-colors hover:border-foreground/35"
+                className="inline-flex min-h-12 items-center rounded-full border border-border px-6 py-3 text-base font-medium text-foreground transition-colors hover:border-foreground/35"
               >
                 Writing &amp; Notes
               </Link>
@@ -68,7 +68,7 @@ export default async function HomePage() {
           </div>
 
           <div className="space-y-4 border-t border-border/70 pt-6 md:border-t-0 md:border-l md:pt-0 md:pl-8">
-            <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Focus</p>
+            <p className="text-xs tracking-[0.12em] text-muted-foreground">Focus</p>
             <ul className="space-y-2.5 text-sm leading-6 text-foreground/78">
               <li>AI-native workflow</li>
               <li>Product &amp; systems thinking</li>
@@ -81,7 +81,7 @@ export default async function HomePage() {
       <section className="space-y-7 md:space-y-9">
         <div className="flex items-end justify-between gap-4">
           <div className="space-y-2">
-            <h2 className="font-[family-name:var(--font-display)] text-3xl font-semibold tracking-tight">Projects</h2>
+            <h2 className="font-[family-name:var(--font-display)] text-[2rem] font-semibold tracking-[-0.03em]">Projects</h2>
             <p className="text-sm text-muted-foreground">這些是我怎麼理解問題、整理脈絡，並把它們慢慢推進成成果的紀錄。</p>
           </div>
           <Link href="/projects" className="shrink-0 text-sm underline underline-offset-4 hover:text-foreground">
@@ -101,7 +101,7 @@ export default async function HomePage() {
       <section className="space-y-7 md:space-y-9">
         <div className="flex items-end justify-between gap-4">
           <div className="space-y-2">
-            <h2 className="font-[family-name:var(--font-display)] text-3xl font-semibold tracking-tight">Writing & Notes</h2>
+            <h2 className="font-[family-name:var(--font-display)] text-[2rem] font-semibold tracking-[-0.03em]">Writing &amp; Notes</h2>
             <p className="text-sm text-muted-foreground">我記工作裡的判斷，也記生活裡那些還值得想一下的事。</p>
           </div>
           <Link href="/blog" className="shrink-0 text-sm underline underline-offset-4 hover:text-foreground">
@@ -119,7 +119,7 @@ export default async function HomePage() {
       </section>
 
       <section className="space-y-4 pt-2 md:pt-4">
-        <p className="font-[family-name:var(--font-display)] text-3xl font-semibold tracking-tight">Contact</p>
+        <p className="font-[family-name:var(--font-display)] text-[2rem] font-semibold tracking-[-0.03em]">Contact</p>
         <a
           href="mailto:taco5239@gmail.com"
           className="inline-block text-base text-muted-foreground underline decoration-muted-foreground/70 underline-offset-4 hover:text-foreground"
