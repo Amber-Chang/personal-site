@@ -3,12 +3,19 @@
 
 import type { Metadata } from "next";
 
+const workMethod = [
+  "先把問題說清楚",
+  "再把脈絡理順",
+  "把想法推進成做法",
+  "邊做邊修正",
+];
+
 export const metadata: Metadata = {
   title: "關於我 — Amber Chang",
-  description: "PM × AI Builder。用 AI 槓桿出更大效益，朝 builder 之路邁進。",
+  description: "用產品思維、系統理解與寫作，整理工作現場與生活裡那些還說不清楚的問題。",
   openGraph: {
     title: "關於我 — Amber Chang",
-    description: "PM × AI Builder。用 AI 槓桿出更大效益，朝 builder 之路邁進。",
+    description: "用產品思維、系統理解與寫作，整理工作現場與生活裡那些還說不清楚的問題。",
   },
 };
 
@@ -17,15 +24,21 @@ export default function AboutPage() {
     <article className="prose prose-neutral mx-auto max-w-3xl">
       <h1>關於我</h1>
       <p>
-        我是 Amber，在媒體科技產業做產品工作。這些年我越來越在意一件事：
-        在資源和時間都有限的情況下，產品人到底怎麼把價值做大。
+        我是 Amber。平常用產品思維、系統理解與寫作，整理工作現場與生活裡那些還說不清楚的問題。
       </p>
       <p>
-        我開始把 AI 當成工作流程的一部分，不是為了追工具潮流，而是希望把思考、驗證、溝通和實作串得更緊，讓每個決策更可追溯。
+        我在媒體科技產業做產品工作，這些年越來越在意的是：在資源與時間都有限的情況下，怎麼把模糊需求整理成可以被討論、驗證與推進的方向。
       </p>
       <p>
-        這個網站就是我的公開筆記：我會記錄專案裡的判斷、踩過的坑、和我如何把模糊需求轉成可執行的任務。
+        我開始把 AI 當成工作流程的一部分，不是為了追工具潮流，而是希望把思考、驗證、溝通和實作串得更緊，讓每個決策更可追溯。這個網站也因此成了我的公開筆記，記錄專案裡的判斷、踩過的坑，以及一些從工作延伸到生活的觀察。
       </p>
+      <h2>How I Work</h2>
+      <p>我通常不是先急著找答案，而是先找到比較對的理解方式。</p>
+      <ol>
+        {workMethod.map((step) => (
+          <li key={step}>{step}</li>
+        ))}
+      </ol>
       <h2>我在意什麼</h2>
       <ul>
         <li>需求要回到使用者與商業目標，不是功能清單。</li>

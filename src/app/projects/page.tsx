@@ -8,10 +8,10 @@ import { loadProjectsPageData } from "./data";
 
 export const metadata: Metadata = {
   title: "專案 — Amber Chang",
-  description: "Amber 的代表專案與案例：AI-native 產品、MarTech、內容與流程建構。",
+  description: "一些我如何理解問題、整理脈絡，並把它們推進成產品成果的紀錄。",
   openGraph: {
     title: "專案 — Amber Chang",
-    description: "Amber 的代表專案與案例：AI-native 產品、MarTech、內容與流程建構。",
+    description: "一些我如何理解問題、整理脈絡，並把它們推進成產品成果的紀錄。",
   },
 };
 
@@ -27,7 +27,7 @@ export default async function ProjectsPage() {
       <header className="space-y-2">
         <h1 className="font-[family-name:var(--font-display)] text-3xl font-semibold tracking-tight">專案</h1>
         <p className="text-sm text-muted-foreground">
-          我如何把模糊需求轉成產品方向、可執行規格與真正能落地的成果。
+          這裡收的是一些我如何理解問題、整理脈絡，並把它們推進成產品成果的紀錄。
         </p>
       </header>
 

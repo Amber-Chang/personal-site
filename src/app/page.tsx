@@ -10,10 +10,10 @@ import { loadHomeFeaturedProjectsData, loadHomeWritingData } from "./home-data";
 
 export const metadata: Metadata = {
   title: "Amber Chang — AI-native Product Builder",
-  description: "用 AI-native workflow 把模糊需求轉成可落地產品、流程與案例的產品工作者。",
+  description: "用產品思維、系統理解與寫作，整理工作現場與生活裡那些還說不清楚的問題。",
   openGraph: {
     title: "Amber Chang — AI-native Product Builder",
-    description: "用 AI-native workflow 把模糊需求轉成可落地產品、流程與案例的產品工作者。",
+    description: "用產品思維、系統理解與寫作，整理工作現場與生活裡那些還說不清楚的問題。",
   },
 };
 
@@ -29,28 +29,24 @@ export default async function HomePage() {
       service,
     }),
   ]);
-  const method = [
-    "定義問題",
-    "整理脈絡",
-    "推進落地",
-    "持續修正",
-  ];
-
   return (
     <div className="space-y-20 pb-6 md:space-y-32 md:pb-10">
       <section className="space-y-10 border-b border-border/70 pb-14 pt-6 md:space-y-14 md:pb-20 md:pt-10">
         <div className="space-y-5 md:space-y-6">
           <p className="text-xs uppercase tracking-[0.22em] text-muted-foreground">Amber Chang / AI-native product portfolio</p>
           <h1 className="max-w-[13ch] font-[family-name:var(--font-display)] text-5xl font-semibold leading-[1.02] tracking-[-0.04em] md:text-7xl">
-            我把模糊的需求、想法與觀察，
+            AI-native
             <br />
-            整理成可以被推進的產品、內容與工作方式。
+            Product Builder
           </h1>
         </div>
 
         <div className="grid gap-10 md:grid-cols-[1.5fr_0.7fr] md:items-end md:gap-12">
           <div className="space-y-8">
             <p className="max-w-xl text-lg leading-relaxed text-foreground/84 md:text-xl">
+              我用產品思維、系統理解與寫作，整理工作現場與生活裡那些還說不清楚的問題。
+            </p>
+            <p className="max-w-xl text-sm leading-7 text-muted-foreground md:text-base">
               這裡放我做過的專案，也放我持續在想的事。
             </p>
             <div className="flex flex-wrap gap-3 text-sm">
@@ -73,8 +69,8 @@ export default async function HomePage() {
             <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Focus</p>
             <ul className="space-y-2.5 text-sm leading-6 text-foreground/78">
               <li>AI-native workflow</li>
-              <li>Product thinking</li>
-              <li>Writing and observation</li>
+              <li>Product &amp; systems thinking</li>
+              <li>Notes from work and life</li>
             </ul>
           </div>
         </div>
@@ -82,7 +78,10 @@ export default async function HomePage() {
 
       <section className="space-y-7 md:space-y-9">
         <div className="flex items-end justify-between gap-4">
-          <h2 className="font-[family-name:var(--font-display)] text-3xl font-semibold tracking-tight">Projects</h2>
+          <div className="space-y-2">
+            <h2 className="font-[family-name:var(--font-display)] text-3xl font-semibold tracking-tight">Projects</h2>
+            <p className="text-sm text-muted-foreground">這些是我怎麼理解問題、整理脈絡，並把它們慢慢推進成成果的紀錄。</p>
+          </div>
           <Link href="/projects" className="shrink-0 text-sm underline underline-offset-4 hover:text-foreground">
             All projects
           </Link>
@@ -97,23 +96,11 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section className="grid gap-10 border-y border-border/70 py-12 md:grid-cols-[0.7fr_1.3fr] md:gap-12 md:py-16">
-        <h2 className="font-[family-name:var(--font-display)] text-3xl font-semibold tracking-tight">How I Work</h2>
-        <ol className="grid gap-4 sm:grid-cols-2">
-          {method.map((step, index) => (
-            <li key={step} className="rounded-2xl border border-border/70 bg-muted/20 px-5 py-5 md:px-6 md:py-6">
-              <span className="block text-xs tracking-[0.22em] text-foreground/45">{String(index + 1).padStart(2, "0")}</span>
-              <span className="mt-4 block text-lg text-foreground/82">{step}</span>
-            </li>
-          ))}
-        </ol>
-      </section>
-
       <section className="space-y-7 md:space-y-9">
         <div className="flex items-end justify-between gap-4">
           <div className="space-y-2">
             <h2 className="font-[family-name:var(--font-display)] text-3xl font-semibold tracking-tight">Writing & Notes</h2>
-            <p className="text-sm text-muted-foreground">一些工作中的思考，也一些生活裡的觀察。</p>
+            <p className="text-sm text-muted-foreground">我記工作裡的判斷，也記生活裡那些還值得想一下的事。</p>
           </div>
           <Link href="/blog" className="shrink-0 text-sm underline underline-offset-4 hover:text-foreground">
             All posts
