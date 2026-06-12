@@ -75,7 +75,7 @@ function mapAttemptRow(row: AdminLoginAttemptRow): AdminLoginAttemptRecord {
 
 export async function createAdminLoginAttemptRepository(input?: {
   createAdminClient?: () => AdminLoginAttemptQueryClient;
-}): AdminLoginAttemptRepository {
+}): Promise<AdminLoginAttemptRepository> {
   const client =
     input?.createAdminClient?.() ??
     ((await import("../infra/supabase/admin.ts")).createAdminSupabaseClient() as AdminLoginAttemptQueryClient);

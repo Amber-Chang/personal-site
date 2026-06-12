@@ -33,7 +33,7 @@ type AdminSessionQueryClient = {
 
 export async function createAdminSessionRepository(input?: {
   createAdminClient?: () => AdminSessionQueryClient;
-}): AdminSessionRepository {
+}): Promise<AdminSessionRepository> {
   const client =
     input?.createAdminClient?.() ??
     ((await import("../infra/supabase/admin.ts")).createAdminSupabaseClient() as AdminSessionQueryClient);
