@@ -1,4 +1,4 @@
-import { createClient as createSupabaseClient } from "@supabase/supabase-js";
+import { createRequire } from "node:module";
 
 import { readSupabaseEnv } from "./env.ts";
 
@@ -14,7 +14,9 @@ export function createAdminSupabaseClient(input?: {
   };
 }) {
   const env = input?.env ?? readSupabaseEnv();
-  const createClient = input?.createClient ?? createSupabaseClient;
+  const createClient =
+    input?.createClient ??
+    (createRequire(import.meta.url)("@supabase/supabase-js").createClient as NonNullable<typeof input>["createClient"]);
 
   return createClient(env.url, env.serviceRoleKey, {
     auth: {

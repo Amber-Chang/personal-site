@@ -192,3 +192,50 @@ test("createAdminLoginAction resets prior failures after a successful login", as
   assert.deepEqual(recordedFailures, []);
   assert.deepEqual(resetIdentifiers, ["127.0.0.1"]);
 });
+
+test("createAdminLoginAction supports async rate limit dependencies", async () => {
+  const loginActionModule = await loadModule<{
+    createAdminLoginAction: (input: {
+      adminPassword: string;
+      createAdminSession: () => Promise<string> | string;
+      loginIdentifier: string;
+      getRateLimitState: (identifier: string) => Promise<{ blockedUntil: number | null; remainingAttempts: number }>;
+      recordFailedAttempt: (identifier: string) => Promise<void>;
+      resetAttempts: (identifier: string) => Promise<void>;
+      setAdminSession: (sessionToken: string) => void;
+    }) => (formData: FormData) => Promise<{ error: string; ok: false } | { ok: true }>;
+  }>("./login-action.ts", "admin login action");
+
+  const calledIdentifiers: string[] = [];
+
+  const action = loginActionModule.createAdminLoginAction({
+    adminPassword: "super-secret",
+    createAdminSession: () => "server-session-token",
+    loginIdentifier: "127.0.0.1",
+    getRateLimitState: async (identifier) => {
+      calledIdentifiers.push(`state:${identifier}`);
+      return {
+        blockedUntil: null,
+        remainingAttempts: 5,
+      };
+    },
+    recordFailedAttempt: async (identifier) => {
+      calledIdentifiers.push(`fail:${identifier}`);
+    },
+    resetAttempts: async (identifier) => {
+      calledIdentifiers.push(`reset:${identifier}`);
+    },
+    setAdminSession: () => undefined,
+  });
+
+  const formData = new FormData();
+  formData.set("password", "wrong-password");
+
+  const result = await action(formData);
+
+  assert.deepEqual(result, {
+    ok: false,
+    error: "密碼錯誤",
+  });
+  assert.deepEqual(calledIdentifiers, ["state:127.0.0.1", "fail:127.0.0.1"]);
+});

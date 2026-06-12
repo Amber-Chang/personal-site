@@ -1,4 +1,3 @@
-import { createAdminSupabaseClient } from "../infra/supabase/admin.ts";
 import { readSupabaseEnv } from "../infra/supabase/env.ts";
 import { ADMIN_SESSION_COOKIE_NAME } from "./session.ts";
 import type { AdminSessionRecord, AdminSessionRepository } from "./session.ts";
@@ -32,10 +31,12 @@ type AdminSessionQueryClient = {
   };
 };
 
-export function createAdminSessionRepository(input?: {
+export async function createAdminSessionRepository(input?: {
   createAdminClient?: () => AdminSessionQueryClient;
 }): AdminSessionRepository {
-  const client = input?.createAdminClient?.() ?? (createAdminSupabaseClient() as AdminSessionQueryClient);
+  const client =
+    input?.createAdminClient?.() ??
+    ((await import("../infra/supabase/admin.ts")).createAdminSupabaseClient() as AdminSessionQueryClient);
 
   return {
     async createSession(session: AdminSessionRecord) {
@@ -88,7 +89,7 @@ export async function createAdminServerSession(input: {
   adminPassword: string;
 }): Promise<string> {
   const manager = createAdminSessionManager({
-    repository: createAdminSessionRepository(),
+    repository: await createAdminSessionRepository(),
   });
 
   return manager.createSession({
@@ -112,7 +113,7 @@ export async function hasActiveAdminSession(input?: {
   }
 
   const manager = createAdminSessionManager({
-    repository: input?.repository ?? createAdminSessionRepository(),
+    repository: input?.repository ?? (await createAdminSessionRepository()),
   });
 
   return manager.hasValidSession({
@@ -140,5 +141,7 @@ export async function clearActiveAdminSession(input?: {
     return;
   }
 
-  await (input?.repository ?? createAdminSessionRepository()).deleteSessionByTokenHash(hashAdminSessionToken(rawSessionToken));
+  await (input?.repository ?? (await createAdminSessionRepository())).deleteSessionByTokenHash(
+    hashAdminSessionToken(rawSessionToken),
+  );
 }

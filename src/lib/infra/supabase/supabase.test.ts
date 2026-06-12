@@ -128,12 +128,12 @@ test("createBrowserSupabaseClient uses public runtime keys", async () => {
         anonKey: string;
         url: string;
       };
-    }) => unknown;
+    }) => Promise<unknown>;
   }>("./client.ts", "Supabase browser client");
 
   let receivedArgs: [string, string] | null = null;
 
-  clientModule.createBrowserSupabaseClient({
+  await clientModule.createBrowserSupabaseClient({
     env: {
       url: "https://project.supabase.co",
       anonKey: "anon-key",
@@ -283,4 +283,22 @@ test("admin session hardening migration defines server-side admin session storag
   assert.match(content, /password_version_hash text not null/i);
   assert.match(content, /expires_at timestamptz not null/i);
   assert.match(content, /grant all on public\.admin_sessions to service_role/i);
+});
+
+test("admin login attempts hardening migration defines server-side rate limit storage", () => {
+  const migrationPath = path.join(
+    process.cwd(),
+    "supabase/migrations/202606120001_add_admin_login_attempts.sql",
+  );
+
+  assert.equal(fs.existsSync(migrationPath), true);
+
+  const content = fs.readFileSync(migrationPath, "utf8");
+
+  assert.match(content, /create table if not exists public\.admin_login_attempts/i);
+  assert.match(content, /identifier text primary key/i);
+  assert.match(content, /failure_count integer not null default 0/i);
+  assert.match(content, /first_failed_at timestamptz not null/i);
+  assert.match(content, /grant all on public\.admin_login_attempts to service_role/i);
+  assert.match(content, /set_admin_login_attempts_updated_at/i);
 });

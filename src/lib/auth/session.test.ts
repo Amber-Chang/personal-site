@@ -134,13 +134,13 @@ test("hasValidAdminSessionToken rejects mismatched tokens", async () => {
   );
 });
 
-test("admin session cookie defaults use 7 day lifetime with httpOnly and lax sameSite", async () => {
+test("admin session cookie defaults use 24 hour lifetime with httpOnly and lax sameSite", async () => {
   const sessionModule = await loadSessionModuleWithNodeEnv("test");
 
-  assert.equal(sessionModule.ADMIN_SESSION_MAX_AGE, 60 * 60 * 24 * 7);
+  assert.equal(sessionModule.ADMIN_SESSION_MAX_AGE, 60 * 60 * 24);
   assert.deepEqual(sessionModule.ADMIN_SESSION_COOKIE_OPTIONS, {
     httpOnly: true,
-    maxAge: 60 * 60 * 24 * 7,
+    maxAge: 60 * 60 * 24,
     path: "/",
     sameSite: "lax",
     secure: false,
@@ -182,7 +182,7 @@ test("admin session rejects expired server-side sessions", async () => {
   }> = [];
 
   const issueTime = new Date("2026-06-07T12:00:00.000Z");
-  const validateTime = new Date("2026-06-15T12:00:01.000Z");
+  const validateTime = new Date("2026-06-08T12:00:01.000Z");
 
   const issuingManager = sessionModule.createAdminSessionManager({
     repository: {

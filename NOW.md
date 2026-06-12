@@ -18,6 +18,8 @@
 
 ## 最近完成
 
+- 已完成一輪 `/admin` security hardening：新增 Supabase-backed login rate limit、trusted origin 檢查、24 小時 session policy、`/admin` noindex 與對應 migration / 測試 / 主文件同步
+- 已完成 production admin 外層防護上線：`admin_login_attempts` migration 已透過 Supabase SQL Editor 套用，Vercel `Admin login rate limit` 與 `Admin area challenge` 規則已 publish，且實測 `/admin/login` 第 6 次請求會被擋下
 - 已完成公開頁面視覺與 RWD 收斂：首頁改成更明確的 editorial / portfolio 節奏，外框放寬為 `max-w-5xl`，blog / projects / about 與文章、案例內頁已補一輪 mobile-first 閱讀與導覽調整
 - 已收斂首頁品牌文案方向：第一屏先建立 `AI-native Product Builder` 定位，同時保留工作與生活觀察並存的個人筆記感
 - 已調整公開頁面資訊分工：首頁 `How I Work` 收成短引言，完整做事方式改放到 `/about`
@@ -32,7 +34,7 @@
 - admin 登入 MVP 已從 Supabase magic link 改成單一密碼 + httpOnly session cookie，避免被內建 email rate limit 卡住
 - admin 後台補上欄位說明文字、前台登入後可見的 `後台` 入口，以及較穩定的 publish intent 傳遞與較清楚的 Supabase 錯誤訊息
 - 已建立 deployment security readiness 主文件，並補上單人 admin 部署前的 env、session 與手動發佈驗證基線
-- deployment security readiness round 已完成：login rate limit、7 天 session policy、文件同步、manual admin flow 驗證，以及 lint/test/build gate
+- deployment security readiness round 已完成，且後續已再補一輪 hardening：login rate limit 改為持久化、session policy 收斂為 24 小時、trusted origin 檢查與文件同步
 - 已新增 random server-side admin session change：cookie 不再直接使用 deterministic token，改為後端 session record 驗證
 - 已將 `supabase/migrations/202606070002_add_admin_sessions.sql` 套用到實際 Supabase 環境，並完成 admin 登入 / draft / 發佈 / 取消發佈 / 重新發佈手動驗證
 - 已補上後台登出功能：可清除 `admin_session` cookie，並刪除目前 server-side session record

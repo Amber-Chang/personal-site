@@ -29,7 +29,7 @@ test("createAdminSessionRepository writes hashed sessions through the admin clie
           };
         };
       };
-    }) => {
+    }) => Promise<{
       createSession: (input: {
         expiresAt: string;
         passwordVersionHash: string;
@@ -41,12 +41,12 @@ test("createAdminSessionRepository writes hashed sessions through the admin clie
         sessionTokenHash: string;
       } | null>;
       deleteSessionByTokenHash: (sessionTokenHash: string) => Promise<void>;
-    };
+    }>;
   }>("./session-server.ts", "server-side admin sessions");
 
   const calls: Array<{ kind: "delete" | "insert" | "select"; payload: Record<string, unknown>; table: string }> = [];
 
-  const repository = sessionServerModule.createAdminSessionRepository({
+  const repository = await sessionServerModule.createAdminSessionRepository({
     createAdminClient: () => ({
       from: (table) => ({
         insert: (values) => {

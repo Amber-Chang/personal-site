@@ -1,4 +1,4 @@
-import { createServerClient as createSupabaseServerClient } from "@supabase/ssr";
+import { createRequire } from "node:module";
 
 import { readSupabasePublicEnv } from "./env.ts";
 
@@ -22,7 +22,11 @@ export function createServerSupabaseClient(input: {
   };
 }) {
   const env = input.env ?? readSupabasePublicEnv();
-  const createServerClient = input.createServerClient ?? createSupabaseServerClient;
+  const createServerClient =
+    input.createServerClient ??
+    (createRequire(import.meta.url)("@supabase/ssr").createServerClient as NonNullable<
+      typeof input.createServerClient
+    >);
 
   return createServerClient(env.url, env.anonKey, {
     cookies: input.cookies,
