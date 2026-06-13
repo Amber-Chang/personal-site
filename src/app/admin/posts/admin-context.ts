@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 
 import { getAdminGuardResult, requireAdminMutationSession } from "../../../lib/auth/guards.ts";
 import { hasActiveAdminSession } from "../../../lib/auth/session-server.ts";
+import { requireTrustedAdminOrigin } from "../../../lib/auth/trusted-origin.ts";
 import { createBlogContentService } from "../../../lib/content/service.ts";
 import { createAdminContentRepositories } from "../../../lib/infra/repositories/factory.ts";
 
@@ -31,6 +32,7 @@ export async function getAdminPageContentService() {
 }
 
 export async function requireAdminContentService() {
+  await requireTrustedAdminOrigin();
   await requireAdminMutationSession({
     hasAdminSession,
   });

@@ -8,6 +8,7 @@ type BlogPostRow = {
   id: string;
   published_at: string | null;
   related_project_id: string | null;
+  sort_order: number;
   slug: string;
   status: "draft" | "published";
   title: string;
@@ -48,15 +49,27 @@ type UpdateQuery<T> = {
   };
 };
 
+type DeleteQueryResult = Promise<{
+  error: QueryError;
+}>;
+
+type DeleteQuery = {
+  eq: (column: string, value: unknown) => DeleteQueryResult;
+};
+
 type QueryClient = {
   from: (table: string) => {
+    delete: () => DeleteQuery;
     insert: (input: Record<string, unknown>) => {
       select: (columns: string) => MutationSelectQuery<BlogPostRow>;
     };
     select: (columns: string) => SelectQuery<BlogPostRow>;
     update: (input: Record<string, unknown>) => UpdateQuery<BlogPostRow>;
   };
+  rpc: (fn: string, args: Record<string, unknown>) => Promise<{ error: QueryError }>;
 };
+
+const DEFAULT_SORT_ORDER = 2_147_483_647;
 
 function mapBlogPostRow(row: BlogPostRow): BlogPostRecord {
   return {
@@ -66,6 +79,7 @@ function mapBlogPostRow(row: BlogPostRow): BlogPostRecord {
     id: row.id,
     publishedAt: row.published_at,
     relatedProjectId: row.related_project_id,
+    sortOrder: row.sort_order,
     slug: row.slug,
     status: row.status,
     title: row.title,
@@ -79,6 +93,7 @@ function mapCreateInput(input: CreateBlogPostInput) {
     excerpt: input.excerpt ?? null,
     published_at: input.publishedAt ?? null,
     related_project_id: input.relatedProjectId ?? null,
+    sort_order: input.sortOrder ?? DEFAULT_SORT_ORDER,
     slug: input.slug,
     status: input.status ?? "draft",
     title: input.title,
@@ -91,6 +106,7 @@ function mapUpdateInput(input: UpdateBlogPostInput) {
     ...(input.excerpt !== undefined ? { excerpt: input.excerpt } : {}),
     ...(input.publishedAt !== undefined ? { published_at: input.publishedAt } : {}),
     ...(input.relatedProjectId !== undefined ? { related_project_id: input.relatedProjectId } : {}),
+    ...(input.sortOrder !== undefined ? { sort_order: input.sortOrder } : {}),
     ...(input.slug !== undefined ? { slug: input.slug } : {}),
     ...(input.status !== undefined ? { status: input.status } : {}),
     ...(input.title !== undefined ? { title: input.title } : {}),
@@ -149,6 +165,18 @@ function maybeOne<T>(data: T | null, error: QueryError | undefined): T | null {
   return data;
 }
 
+function ensureNoError(error: QueryError | undefined): void {
+  if (error) {
+    throw new Error(formatQueryError(error));
+  }
+}
+
+function orderBySortOrderWithUpdatedAtFallback<T>(query: { order: (column: string, options: { ascending: boolean }) => unknown }) {
+  return (query.order("sort_order", { ascending: true }) as {
+    order: (column: string, options: { ascending: boolean }) => QueryArrayResult<T>;
+  }).order("updated_at", { ascending: false });
+}
+
 export class SupabaseBlogPostsRepository implements BlogPostsRepository {
   private readonly client: QueryClient;
 
@@ -157,11 +185,9 @@ export class SupabaseBlogPostsRepository implements BlogPostsRepository {
   }
 
   async listPublishedPosts(): Promise<BlogPostRecord[]> {
-    const { data, error } = await this.client
-      .from("blog_posts")
-      .select("*")
-      .eq("status", "published")
-      .order("published_at", { ascending: false });
+    const { data, error } = await orderBySortOrderWithUpdatedAtFallback<BlogPostRow>(
+      this.client.from("blog_posts").select("*").eq("status", "published"),
+    );
 
     return ensureArray(data, error).map(mapBlogPostRow);
   }
@@ -180,18 +206,17 @@ export class SupabaseBlogPostsRepository implements BlogPostsRepository {
   }
 
   async listPublishedPostsByProjectId(projectId: string): Promise<BlogPostRecord[]> {
-    const { data, error } = await this.client
-      .from("blog_posts")
-      .select("*")
-      .eq("related_project_id", projectId)
-      .eq("status", "published")
-      .order("published_at", { ascending: false });
+    const { data, error } = await orderBySortOrderWithUpdatedAtFallback<BlogPostRow>(
+      this.client.from("blog_posts").select("*").eq("related_project_id", projectId).eq("status", "published"),
+    );
 
     return ensureArray(data, error).map(mapBlogPostRow);
   }
 
   async listAdminPosts(): Promise<BlogPostRecord[]> {
-    const { data, error } = await this.client.from("blog_posts").select("*").order("updated_at", { ascending: false });
+    const { data, error } = await orderBySortOrderWithUpdatedAtFallback<BlogPostRow>(
+      this.client.from("blog_posts").select("*"),
+    );
 
     return ensureArray(data, error).map(mapBlogPostRow);
   }
@@ -224,6 +249,12 @@ export class SupabaseBlogPostsRepository implements BlogPostsRepository {
     return mapBlogPostRow(ensureOne(data, error));
   }
 
+  async deletePost(id: string): Promise<void> {
+    const { error } = await this.client.from("blog_posts").delete().eq("id", id);
+
+    ensureNoError(error);
+  }
+
   async publishPost(id: string, publishedAt: string): Promise<BlogPostRecord> {
     const { data, error } = await this.client
       .from("blog_posts")
@@ -249,5 +280,13 @@ export class SupabaseBlogPostsRepository implements BlogPostsRepository {
       .single();
 
     return mapBlogPostRow(ensureOne(data, error));
+  }
+
+  async reorderPosts(idsInOrder: string[]): Promise<void> {
+    const { error } = await this.client.rpc("reorder_blog_posts", {
+      ids_in_order: idsInOrder,
+    });
+
+    ensureNoError(error);
   }
 }

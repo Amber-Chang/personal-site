@@ -1,5 +1,7 @@
 import Link from "next/link";
 
+import { SortableAdminPostList } from "../../../components/admin/sortable-admin-post-list.tsx";
+import { reorderAdminPostsAction } from "./actions.ts";
 import { getAdminPageContentService } from "./admin-context.ts";
 import { loadAdminPostsPageData } from "./data.ts";
 
@@ -18,7 +20,7 @@ export default async function AdminPostsPage() {
           <p className="text-sm uppercase tracking-[0.24em] text-black/50">Blog Admin</p>
           <h1 className="text-3xl font-semibold text-black">管理文章</h1>
           <p className="max-w-2xl text-sm leading-6 text-black/65">
-            這裡會列出目前資料庫中的 blog posts，可直接新增草稿或進入編輯頁。
+            這裡會列出目前資料庫中的 blog posts，可直接拖曳排序、新增草稿，或進入編輯頁調整內容生命週期。
           </p>
           <div className="flex flex-wrap gap-3 text-sm">
             <Link className="underline decoration-black/20 underline-offset-4 hover:text-black" href="/admin/posts">
@@ -39,35 +41,7 @@ export default async function AdminPostsPage() {
       </div>
 
       {posts.length > 0 ? (
-        <div className="grid gap-4">
-          {posts.map((post) => (
-            <article
-              className="rounded-3xl border border-black/10 bg-white/80 p-6 shadow-sm"
-              key={post.id}
-            >
-              <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
-                <div className="space-y-3">
-                  <div className="flex flex-wrap items-center gap-2 text-xs uppercase tracking-[0.18em] text-black/45">
-                    <span>{post.status}</span>
-                    <span>{post.slug}</span>
-                  </div>
-                  <div className="space-y-1">
-                    <h2 className="text-xl font-semibold text-black">{post.title}</h2>
-                    <p className="text-sm leading-6 text-black/65">{post.excerpt ?? "尚未填寫摘要。"}</p>
-                  </div>
-                  <p className="text-xs text-black/45">最後更新：{new Date(post.updatedAt).toLocaleString("zh-TW")}</p>
-                </div>
-
-                <Link
-                  className="inline-flex w-fit rounded-full border border-black/10 px-4 py-2 text-sm font-medium text-black transition hover:border-black/25 hover:bg-black/[0.03]"
-                  href={`/admin/posts/${post.id}`}
-                >
-                  編輯文章
-                </Link>
-              </div>
-            </article>
-          ))}
-        </div>
+        <SortableAdminPostList posts={posts} reorderAction={reorderAdminPostsAction} />
       ) : (
         <section className="rounded-3xl border border-dashed border-black/15 bg-white/60 p-8 text-sm leading-6 text-black/65">
           目前還沒有文章，先建立第一篇草稿吧。

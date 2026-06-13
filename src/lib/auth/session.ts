@@ -1,7 +1,7 @@
 import { createHash, randomBytes } from "node:crypto";
 
 export const ADMIN_SESSION_COOKIE_NAME = "admin_session";
-export const ADMIN_SESSION_MAX_AGE = 60 * 60 * 24 * 7;
+export const ADMIN_SESSION_MAX_AGE = 60 * 60 * 24;
 
 export const ADMIN_SESSION_COOKIE_OPTIONS = {
   httpOnly: true,

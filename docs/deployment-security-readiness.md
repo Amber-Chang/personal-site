@@ -46,7 +46,9 @@
 目前這一版至少應具備以下條件，才可視為進入「可部署」狀態：
 
 - admin login 有最小防暴力登入保護
+- admin login rate limit 狀態可跨 instance 持久化，不只存在 process memory
 - admin session cookie 採 production-safe 預設，且 session 驗證留在 server 端
+- admin mutation path 有 trusted origin 檢查
 - 必要 env 已在部署環境完整配置
 - lint、test、production build 通過
 - admin 發文流程手動驗證完成
@@ -94,16 +96,18 @@
 - [ ] 連續失敗登入會觸發最小 rate limit / cooldown
 - [ ] 被 block 期間，即使輸入正確密碼也不建立 session
 - [ ] 成功登入後，失敗次數狀態會被清除
+- [ ] login rate limit 狀態不依賴單一 process memory，可跨 deployment runtime 成立
 - [ ] session cookie 在 production 具備 `httpOnly`、`secure`、`sameSite=lax` 等安全預設
+- [ ] admin login / logout / content mutation 已限制 trusted origin
 - [ ] session lifetime 已被明確定義並可接受目前單人站主管理情境
 
-目前 session lifetime 定義為 7 天（`60 * 60 * 24 * 7` 秒），cookie 只保存隨機 session token，本體驗證則走 server-side session record。
+目前 session lifetime 定義為 24 小時（`60 * 60 * 24` 秒），cookie 只保存隨機 session token，本體驗證則走 server-side session record。
 
-採 7 天的理由：
+採 24 小時的理由：
 
-- 對單人站主管理情境來說，已足夠降低每次登入摩擦，不需要頻繁重新輸入密碼
-- 相比更長期 cookie，7 天較容易接受裝置遺失、共用裝置或忘記登出的風險
-- 這一版尚未提供完整 session revocation 或裝置管理，因此不把 session 放得過長
+- 對單人站主管理情境來說，仍保留可接受的登入摩擦，不需要每次刷新頁面都重登
+- 相比 7 天 cookie，24 小時更能收斂裝置遺失、共用裝置或忘記登出的風險
+- 這一版尚未提供完整 session revocation、裝置管理與 rotation，因此先採較保守基線
 
 ### 6.4 Admin 發文手動驗證 gate
 
@@ -185,6 +189,31 @@
   - 把已手動完成的 `/admin/projects` 建立 / 編輯流程驗證記錄回填到文件
   - project admin 對 public 頁面反映速度與 revalidation 行為的實際驗證描述再收斂成固定格式
 
+### 6.5.3 Admin security hardening deploy 後補充確認
+
+- 確認日期：2026-06-12
+- 執行內容：
+  - 已在 Supabase SQL Editor 套用 `supabase/migrations/202606120001_add_admin_login_attempts.sql`
+  - 已在 Vercel `personal-site` project publish 以下 live firewall rules：
+    - `Admin login rate limit`
+    - `Admin area challenge`
+- live 規則內容：
+  - `Admin login rate limit`
+    - path equals `/admin/login`
+    - `5 requests / 900s / ip`
+    - exceeded action: `deny`
+  - `Admin area challenge`
+    - path starts with `/admin/posts`
+    - OR path starts with `/admin/projects`
+    - action: `challenge`
+    - duration: `30m`
+- 實測結果：
+  - 直接開啟 production `/admin/login` 可正常回 `200`
+  - 連續請求 `/admin/login` 6 次時，前 5 次回 `200`，第 6 次回 `403`
+- 目前判定：
+  - 外層 `/admin/login` request throttling 已在 production 生效
+  - `/admin/login` 不會再被過寬的 challenge 規則誤攔
+
 ### 6.6 可重複執行的 admin publish / unpublish checklist
 
 以下流程設計成同一環境可重複執行，不依賴一次性資料狀態：
@@ -253,6 +282,7 @@
 - [ ] production 網址與 `NEXT_PUBLIC_SITE_URL` 一致
 - [ ] 瀏覽器實際 cookie 行為符合 production 預期
 - [ ] 管理站主已保存目前 admin password 的安全副本
+- [ ] Vercel `/admin` 路徑已補 WAF / Bot Protection / rate limit 類規則
 
 ## 8. 已知限制
 

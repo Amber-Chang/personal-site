@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 
 import { AdminPostForm } from "../../../../components/admin/post-form.tsx";
-import { updateAdminPostAction } from "../actions.ts";
+import { deleteAdminPostAction, updateAdminPostAction } from "../actions.ts";
 import { getAdminPageContentService } from "../admin-context.ts";
 import { loadAdminPostEditPageData } from "../data.ts";
 
@@ -26,6 +26,7 @@ export default async function EditAdminPostPage(input: {
       <AdminPostForm
         action={updateAdminPostAction}
         description="調整既有文章的最小欄位集，內容仍走目前的 markdown skeleton。"
+        deleteAction={deleteAdminPostAction}
         projectOptions={data.projectOptions}
         submitLabel="儲存變更"
         title="編輯文章"

@@ -1,5 +1,3 @@
-import { createAdminSupabaseClient } from "../infra/supabase/admin.ts";
-import { readSupabaseEnv } from "../infra/supabase/env.ts";
 import { ADMIN_SESSION_COOKIE_NAME } from "./session.ts";
 import type { AdminSessionRecord, AdminSessionRepository } from "./session.ts";
 import { createAdminSessionManager } from "./session.ts";
@@ -32,10 +30,12 @@ type AdminSessionQueryClient = {
   };
 };
 
-export function createAdminSessionRepository(input?: {
+export async function createAdminSessionRepository(input?: {
   createAdminClient?: () => AdminSessionQueryClient;
-}): AdminSessionRepository {
-  const client = input?.createAdminClient?.() ?? (createAdminSupabaseClient() as AdminSessionQueryClient);
+}): Promise<AdminSessionRepository> {
+  const client =
+    input?.createAdminClient?.() ??
+    ((await import("../infra/supabase/admin.ts")).createAdminSupabaseClient() as AdminSessionQueryClient);
 
   return {
     async createSession(session: AdminSessionRecord) {
@@ -88,7 +88,7 @@ export async function createAdminServerSession(input: {
   adminPassword: string;
 }): Promise<string> {
   const manager = createAdminSessionManager({
-    repository: createAdminSessionRepository(),
+    repository: await createAdminSessionRepository(),
   });
 
   return manager.createSession({
@@ -103,7 +103,6 @@ export async function hasActiveAdminSession(input?: {
   };
   repository?: AdminSessionRepository;
 }): Promise<boolean> {
-  const env = readSupabaseEnv();
   let resolvedCookieStore = input?.cookieStore;
 
   if (!resolvedCookieStore) {
@@ -111,13 +110,25 @@ export async function hasActiveAdminSession(input?: {
     resolvedCookieStore = await cookies();
   }
 
+  const sessionToken = resolvedCookieStore.get(ADMIN_SESSION_COOKIE_NAME)?.value;
+
+  if (!sessionToken?.trim()) {
+    return false;
+  }
+
+  const adminPassword = input?.adminPassword ?? process.env.ADMIN_LOGIN_PASSWORD?.trim();
+
+  if (!adminPassword) {
+    return false;
+  }
+
   const manager = createAdminSessionManager({
-    repository: input?.repository ?? createAdminSessionRepository(),
+    repository: input?.repository ?? (await createAdminSessionRepository()),
   });
 
   return manager.hasValidSession({
-    adminPassword: input?.adminPassword ?? env.adminPassword,
-    sessionToken: resolvedCookieStore.get(ADMIN_SESSION_COOKIE_NAME)?.value,
+    adminPassword,
+    sessionToken,
   });
 }
 
@@ -140,5 +151,7 @@ export async function clearActiveAdminSession(input?: {
     return;
   }
 
-  await (input?.repository ?? createAdminSessionRepository()).deleteSessionByTokenHash(hashAdminSessionToken(rawSessionToken));
+  await (input?.repository ?? (await createAdminSessionRepository())).deleteSessionByTokenHash(
+    hashAdminSessionToken(rawSessionToken),
+  );
 }

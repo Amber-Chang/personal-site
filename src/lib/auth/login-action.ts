@@ -20,7 +20,7 @@ export function createAdminLoginAction(input: {
   adminPassword: string;
   createAdminSession: () => Promise<string> | string;
   loginIdentifier?: string;
-  getRateLimitState?: (identifier: string) => LoginRateLimitState;
+  getRateLimitState?: (identifier: string) => LoginRateLimitState | Promise<LoginRateLimitState>;
   recordFailedAttempt?: (identifier: string) => void | Promise<void>;
   resetAttempts?: (identifier: string) => void | Promise<void>;
   setAdminSession: (sessionToken: string) => void;
@@ -29,7 +29,7 @@ export function createAdminLoginAction(input: {
     formData: FormData,
   ): Promise<{ error: string; ok: false } | { ok: true }> {
     const loginIdentifier = input.loginIdentifier ?? ADMIN_LOGIN_RATE_LIMIT_FALLBACK_IDENTIFIER;
-    const rateLimitState = input.getRateLimitState?.(loginIdentifier);
+    const rateLimitState = await input.getRateLimitState?.(loginIdentifier);
 
     if (rateLimitState?.blockedUntil && rateLimitState.blockedUntil > Date.now()) {
       return {

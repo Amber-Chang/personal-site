@@ -6,6 +6,7 @@ type ProjectRecord = {
   createdAt: string;
   id: string;
   publishedAt: string | null;
+  sortOrder: number;
   slug: string;
   status: "draft" | "published";
   summary: string | null;
@@ -19,6 +20,7 @@ function createProject(overrides?: Partial<ProjectRecord>): ProjectRecord {
     createdAt: "2026-06-09T00:00:00.000Z",
     id: "project-1",
     publishedAt: null,
+    sortOrder: 1,
     slug: "sample-project",
     status: "draft",
     summary: "Project summary",
@@ -59,6 +61,26 @@ test("loadAdminProjectsPageData lists projects through the admin content path", 
 
   assert.deepEqual(calls, ["listAdminProjects"]);
   assert.deepEqual(result, { projects });
+});
+
+test("loadAdminProjectsPageData preserves sortOrder for admin ordering UI", async () => {
+  const dataModule = await loadModule<{
+    loadAdminProjectsPageData: (input: {
+      service: {
+        listAdminProjects: () => Promise<ProjectRecord[]>;
+      };
+    }) => Promise<{ projects: ProjectRecord[] }>;
+  }>("./data.ts", "admin projects data");
+
+  const projects = [createProject({ id: "project-2", sortOrder: 9 })];
+
+  const result = await dataModule.loadAdminProjectsPageData({
+    service: {
+      listAdminProjects: async () => projects,
+    },
+  });
+
+  assert.equal(result.projects[0]?.sortOrder, 9);
 });
 
 test("loadAdminProjectEditPageData returns null when the project does not exist", async () => {
@@ -111,4 +133,29 @@ test("loadAdminProjectEditPageData returns the editable project identity", async
   });
 
   assert.deepEqual(result, { project });
+});
+
+test("loadAdminProjectEditPageData preserves project status for delete UI decisions", async () => {
+  const dataModule = await loadModule<{
+    loadAdminProjectEditPageData: (input: {
+      id: string;
+      service: {
+        getAdminProjectById: (id: string) => Promise<ProjectRecord | null>;
+      };
+    }) => Promise<{ project: ProjectRecord } | null>;
+  }>("./data.ts", "admin projects data");
+
+  const result = await dataModule.loadAdminProjectEditPageData({
+    id: "project-3",
+    service: {
+      getAdminProjectById: async (id) =>
+        createProject({
+          id,
+          publishedAt: "2026-06-09T12:00:00.000Z",
+          status: "published",
+        }),
+    },
+  });
+
+  assert.equal(result?.project.status, "published");
 });

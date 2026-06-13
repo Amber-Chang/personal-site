@@ -18,6 +18,9 @@
 
 ## 最近完成
 
+- 已完成 `admin content ordering / deletion` round：`projects` 與 `notes` 補上 `sort_order`、後台排序控制、`未上架` 才可刪除，以及後台狀態顯示改為 `已上架 / 未上架`
+- 已完成一輪 `/admin` security hardening：新增 Supabase-backed login rate limit、trusted origin 檢查、24 小時 session policy、`/admin` noindex 與對應 migration / 測試 / 主文件同步
+- 已完成 production admin 外層防護上線：`admin_login_attempts` migration 已透過 Supabase SQL Editor 套用，Vercel `Admin login rate limit` 與 `Admin area challenge` 規則已 publish，且實測 `/admin/login` 第 6 次請求會被擋下
 - 已完成公開頁面視覺與 RWD 收斂：首頁改成更明確的 editorial / portfolio 節奏，外框放寬為 `max-w-5xl`，blog / projects / about 與文章、案例內頁已補一輪 mobile-first 閱讀與導覽調整
 - 已收斂首頁品牌文案方向：第一屏先建立 `AI-native Product Builder` 定位，同時保留工作與生活觀察並存的個人筆記感
 - 已調整公開頁面資訊分工：首頁 `How I Work` 收成短引言，完整做事方式改放到 `/about`
@@ -32,7 +35,7 @@
 - admin 登入 MVP 已從 Supabase magic link 改成單一密碼 + httpOnly session cookie，避免被內建 email rate limit 卡住
 - admin 後台補上欄位說明文字、前台登入後可見的 `後台` 入口，以及較穩定的 publish intent 傳遞與較清楚的 Supabase 錯誤訊息
 - 已建立 deployment security readiness 主文件，並補上單人 admin 部署前的 env、session 與手動發佈驗證基線
-- deployment security readiness round 已完成：login rate limit、7 天 session policy、文件同步、manual admin flow 驗證，以及 lint/test/build gate
+- deployment security readiness round 已完成，且後續已再補一輪 hardening：login rate limit 改為持久化、session policy 收斂為 24 小時、trusted origin 檢查與文件同步
 - 已新增 random server-side admin session change：cookie 不再直接使用 deterministic token，改為後端 session record 驗證
 - 已將 `supabase/migrations/202606070002_add_admin_sessions.sql` 套用到實際 Supabase 環境，並完成 admin 登入 / draft / 發佈 / 取消發佈 / 重新發佈手動驗證
 - 已補上後台登出功能：可清除 `admin_session` cookie，並刪除目前 server-side session record
@@ -50,6 +53,7 @@
 
 ## 目前最重要的事
 
+- 補一輪實機驗證後台內容排序、刪除與狀態顯示 flow，確認 `/admin/posts`、`/admin/projects` 與前台列表順序一致
 - 持續微調網站視覺與品牌感，特別是公開頁面的 typography、footer 與首頁敘事細節
 - 視需要補 `title -> slug` 自動建議與更完整的後台錯誤訊息
 - 把已手動完成的 production admin 登入後流程驗證記錄補回文件，避免實際狀態與文件脫節
@@ -60,11 +64,10 @@
 
 ## 下一步建議
 
-1. 把已完成的 production admin 手動驗證整理成單一記錄，包含 `/admin/projects` 建立 / 編輯、`Related project` 選擇、登入、登出、draft / publish / unpublish
-2. 以 `admin-flow-check-20260607-0215` 為目前 smoke sample，補齊其用途與驗證路徑說明
+1. 補實機驗證：確認 `/admin/posts`、`/admin/projects` 的排序調整後，`/blog`、`/projects`、首頁相關區塊順序同步更新
+2. 把已完成的 production admin 手動驗證整理成單一記錄，包含 `/admin/projects` 建立 / 編輯、`Related project` 選擇、登入、登出、draft / publish / unpublish、delete / reorder
 3. 視需要補 `title -> slug` 自動建議與更完整的後台錯誤訊息
-4. 視公開頁面實際使用感再微調 footer、文章內頁 typography 與首頁 section 節奏
-5. 持續把 `NOW.md` / `FOUNDATION.md` 中過時描述收斂掉
+4. 持續把 `NOW.md` / `FOUNDATION.md` 中過時描述收斂掉
 
 ## 備註
 
@@ -79,6 +82,7 @@
 - `blog post <-> project` 雙向連結的下一階段主 spec 已建立於 [docs/blog-project-linking-spec.md](./docs/blog-project-linking-spec.md)
 - `project identity admin` 主 spec 已建立於 [docs/admin-project-identity-management-spec.md](./docs/admin-project-identity-management-spec.md)
 - `projects Supabase-first` 主 spec 已建立於 [docs/projects-supabase-first-spec.md](./docs/projects-supabase-first-spec.md)
+- `admin content ordering / deletion` 主 spec 已建立於 [docs/admin-content-ordering-and-deletion-spec.md](./docs/admin-content-ordering-and-deletion-spec.md)
 - 開發流程規則已集中在 [docs/development-workflow.md](./docs/development-workflow.md)
 - admin 內容讀寫第一版採 trusted Next.js server + Supabase service-role path，public published reads 則維持 RLS published-read policy
 - blog admin spec 的目前完成度與剩餘範圍已記在 [docs/blog-admin-implementation-spec.md](./docs/blog-admin-implementation-spec.md) 的「目前進度」

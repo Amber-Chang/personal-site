@@ -1,4 +1,8 @@
-import { BlogPostNotFoundError } from "../../../lib/content/service.ts";
+import {
+  BlogPostNotFoundError,
+  InvalidContentOrderError,
+  PublishedContentDeletionError,
+} from "../../../lib/content/service.ts";
 import { AdminAuthorizationError } from "../../../lib/auth/guards.ts";
 import type { CreateBlogPostInput, UpdateBlogPostInput } from "../../../lib/content/types.ts";
 import type { AdminPostFormState } from "./action-state.ts";
@@ -8,8 +12,22 @@ export type { AdminPostFormState } from "./action-state.ts";
 
 type AdminPostMutationService = {
   createPost: (input: CreateBlogPostInput) => Promise<{ id: string }>;
+  deletePost: (id: string) => Promise<void>;
+  reorderPosts: (idsInOrder: string[]) => Promise<void>;
   updatePost: (id: string, input: UpdateBlogPostInput) => Promise<{ id: string }>;
 };
+
+function rethrowIfNextRedirect(error: unknown): void {
+  if (
+    typeof error === "object" &&
+    error !== null &&
+    "digest" in error &&
+    typeof error.digest === "string" &&
+    error.digest.startsWith("NEXT_REDIRECT")
+  ) {
+    throw error;
+  }
+}
 
 function getStringValue(formData: FormData, key: string): string | null {
   const value = formData.get(key);
@@ -77,6 +95,12 @@ function toErrorState(error: unknown): AdminPostFormState {
     };
   }
 
+  if (error instanceof PublishedContentDeletionError || error instanceof InvalidContentOrderError) {
+    return {
+      error: error.message,
+    };
+  }
+
   if (error instanceof Error) {
     return {
       error: error.message,
@@ -90,7 +114,7 @@ function toErrorState(error: unknown): AdminPostFormState {
 
 export function createAdminPostMutationActions(input: {
   redirectTo: (path: string) => never;
-  revalidatePath: (path: string) => void;
+  revalidatePath: (path: string, type?: "layout" | "page") => void;
   service: AdminPostMutationService;
 }) {
   return {
@@ -106,6 +130,34 @@ export function createAdminPostMutationActions(input: {
       input.revalidatePath("/admin/posts");
       input.revalidatePath(`/admin/posts/${post.id}`);
       input.redirectTo(`/admin/posts/${post.id}`);
+    },
+    async deletePost(id: string): Promise<AdminPostFormState> {
+      try {
+        await input.service.deletePost(id);
+      } catch (error) {
+        return toErrorState(error);
+      }
+
+      input.revalidatePath("/admin/posts");
+      input.revalidatePath("/blog");
+      input.revalidatePath("/");
+      input.redirectTo("/admin/posts");
+    },
+    async reorderPosts(idsInOrder: string[]): Promise<AdminPostFormState> {
+      try {
+        await input.service.reorderPosts(idsInOrder);
+      } catch (error) {
+        return toErrorState(error);
+      }
+
+      input.revalidatePath("/admin/posts");
+      input.revalidatePath("/blog");
+      input.revalidatePath("/");
+      input.revalidatePath("/projects/[slug]", "page");
+
+      return {
+        error: null,
+      };
     },
     async updatePost(_state: AdminPostFormState, formData: FormData): Promise<AdminPostFormState> {
       let post: { id: string };
@@ -141,6 +193,8 @@ async function createDefaultMutationActions() {
 export function createAdminPostServerActions(input: {
   getActions: () => Promise<{
     createPost: (state: AdminPostFormState, formData: FormData) => Promise<AdminPostFormState>;
+    deletePost: (id: string) => Promise<AdminPostFormState>;
+    reorderPosts: (idsInOrder: string[]) => Promise<AdminPostFormState>;
     updatePost: (state: AdminPostFormState, formData: FormData) => Promise<AdminPostFormState>;
   }>;
 }) {
@@ -151,6 +205,27 @@ export function createAdminPostServerActions(input: {
 
         return actions.createPost(state, formData);
       } catch (error) {
+        rethrowIfNextRedirect(error);
+        return toErrorState(error);
+      }
+    },
+    async deletePost(id: string) {
+      try {
+        const actions = await input.getActions();
+
+        return await actions.deletePost(id);
+      } catch (error) {
+        rethrowIfNextRedirect(error);
+        return toErrorState(error);
+      }
+    },
+    async reorderPosts(idsInOrder: string[]) {
+      try {
+        const actions = await input.getActions();
+
+        return await actions.reorderPosts(idsInOrder);
+      } catch (error) {
+        rethrowIfNextRedirect(error);
         return toErrorState(error);
       }
     },
@@ -160,6 +235,7 @@ export function createAdminPostServerActions(input: {
 
         return actions.updatePost(state, formData);
       } catch (error) {
+        rethrowIfNextRedirect(error);
         return toErrorState(error);
       }
     },

@@ -12,6 +12,7 @@ type BlogPostRecord = {
   id: string;
   publishedAt: string | null;
   relatedProjectId: string | null;
+  sortOrder: number;
   slug: string;
   status: "draft" | "published";
   title: string;
@@ -38,6 +39,7 @@ function createPost(overrides?: Partial<BlogPostRecord>): BlogPostRecord {
     id: "post-1",
     publishedAt: null,
     relatedProjectId: null,
+    sortOrder: 1,
     slug: "draft-post",
     status: "draft",
     title: "Draft post",
@@ -68,7 +70,7 @@ test("createAdminPostAction creates a draft and redirects to the edit page", asy
   const actionsModule = await loadModule<{
     createAdminPostMutationActions: (input: {
       redirectTo: (path: string) => never;
-      revalidatePath: (path: string) => void;
+      revalidatePath: (path: string, type?: "layout" | "page") => void;
       service: {
         createPost: (input: CreateBlogPostInput) => Promise<BlogPostRecord>;
         updatePost: (id: string, input: UpdateBlogPostInput) => Promise<BlogPostRecord>;
@@ -135,7 +137,7 @@ test("updateAdminPostAction updates an existing post and redirects back to the e
   const actionsModule = await loadModule<{
     createAdminPostMutationActions: (input: {
       redirectTo: (path: string) => never;
-      revalidatePath: (path: string) => void;
+      revalidatePath: (path: string, type?: "layout" | "page") => void;
       service: {
         createPost: (input: CreateBlogPostInput) => Promise<BlogPostRecord>;
         updatePost: (id: string, input: UpdateBlogPostInput) => Promise<BlogPostRecord>;
@@ -206,7 +208,7 @@ test("updateAdminPostAction can publish an existing draft from the submit intent
   const actionsModule = await loadModule<{
     createAdminPostMutationActions: (input: {
       redirectTo: (path: string) => never;
-      revalidatePath: (path: string) => void;
+      revalidatePath: (path: string, type?: "layout" | "page") => void;
       service: {
         createPost: (input: CreateBlogPostInput) => Promise<BlogPostRecord>;
         updatePost: (id: string, input: UpdateBlogPostInput) => Promise<BlogPostRecord>;
@@ -269,7 +271,7 @@ test("updateAdminPostAction can unpublish an existing post from the submit inten
   const actionsModule = await loadModule<{
     createAdminPostMutationActions: (input: {
       redirectTo: (path: string) => never;
-      revalidatePath: (path: string) => void;
+      revalidatePath: (path: string, type?: "layout" | "page") => void;
       service: {
         createPost: (input: CreateBlogPostInput) => Promise<BlogPostRecord>;
         updatePost: (id: string, input: UpdateBlogPostInput) => Promise<BlogPostRecord>;
@@ -332,7 +334,7 @@ test("updateAdminPostAction returns a controlled error when the post is missing"
   const actionsModule = await loadModule<{
     createAdminPostMutationActions: (input: {
       redirectTo: (path: string) => never;
-      revalidatePath: (path: string) => void;
+      revalidatePath: (path: string, type?: "layout" | "page") => void;
       service: {
         createPost: (input: CreateBlogPostInput) => Promise<BlogPostRecord>;
         updatePost: (id: string, input: UpdateBlogPostInput) => Promise<BlogPostRecord>;
@@ -374,6 +376,156 @@ test("updateAdminPostAction returns a controlled error when the post is missing"
 
   assert.deepEqual(result, {
     error: "找不到指定文章。",
+  });
+});
+
+test("reorderAdminPostsAction sends ids to the service and revalidates admin and public paths", async () => {
+  const actionsModule = await loadModule<{
+    createAdminPostMutationActions: (input: {
+      redirectTo: (path: string) => never;
+      revalidatePath: (path: string, type?: "layout" | "page") => void;
+      service: {
+        createPost: (input: CreateBlogPostInput) => Promise<BlogPostRecord>;
+        updatePost: (id: string, input: UpdateBlogPostInput) => Promise<BlogPostRecord>;
+        reorderPosts: (idsInOrder: string[]) => Promise<void>;
+        deletePost: (id: string) => Promise<void>;
+      };
+    }) => {
+      reorderPosts: (idsInOrder: string[]) => Promise<{ error: string | null }>;
+    };
+  }>("./action-core.ts", "admin posts actions");
+
+  const reorderCalls: string[][] = [];
+  const revalidatedPaths: Array<{ path: string; type?: "layout" | "page" }> = [];
+
+  const actions = actionsModule.createAdminPostMutationActions({
+    redirectTo: (path) => {
+      throw new Error(`unexpected redirect:${path}`);
+    },
+    revalidatePath: (path, type) => {
+      revalidatedPaths.push({ path, type });
+    },
+    service: {
+      createPost: async () => {
+        throw new Error("createPost should not be called during reorder");
+      },
+      updatePost: async () => {
+        throw new Error("updatePost should not be called during reorder");
+      },
+      reorderPosts: async (idsInOrder) => {
+        reorderCalls.push(idsInOrder);
+      },
+      deletePost: async () => {
+        throw new Error("deletePost should not be called during reorder");
+      },
+    },
+  });
+
+  const result = await actions.reorderPosts(["post-3", "post-1", "post-2"]);
+
+  assert.deepEqual(result, { error: null });
+  assert.deepEqual(reorderCalls, [["post-3", "post-1", "post-2"]]);
+  assert.deepEqual(revalidatedPaths, [
+    { path: "/admin/posts", type: undefined },
+    { path: "/blog", type: undefined },
+    { path: "/", type: undefined },
+    { path: "/projects/[slug]", type: "page" },
+  ]);
+});
+
+test("deleteAdminPostAction revalidates admin and public paths then redirects back to the list", async () => {
+  const actionsModule = await loadModule<{
+    createAdminPostMutationActions: (input: {
+      redirectTo: (path: string) => never;
+      revalidatePath: (path: string, type?: "layout" | "page") => void;
+      service: {
+        createPost: (input: CreateBlogPostInput) => Promise<BlogPostRecord>;
+        updatePost: (id: string, input: UpdateBlogPostInput) => Promise<BlogPostRecord>;
+        reorderPosts: (idsInOrder: string[]) => Promise<void>;
+        deletePost: (id: string) => Promise<void>;
+      };
+    }) => {
+      deletePost: (id: string) => Promise<{ error: string | null }>;
+    };
+  }>("./action-core.ts", "admin posts actions");
+
+  const deleteCalls: string[] = [];
+  const revalidatedPaths: string[] = [];
+  const redirects: string[] = [];
+
+  const actions = actionsModule.createAdminPostMutationActions({
+    redirectTo: (path) => {
+      redirects.push(path);
+      throw new Error(`redirect:${path}`);
+    },
+    revalidatePath: (path) => {
+      revalidatedPaths.push(path);
+    },
+    service: {
+      createPost: async () => {
+        throw new Error("createPost should not be called during delete");
+      },
+      updatePost: async () => {
+        throw new Error("updatePost should not be called during delete");
+      },
+      reorderPosts: async () => {
+        throw new Error("reorderPosts should not be called during delete");
+      },
+      deletePost: async (id) => {
+        deleteCalls.push(id);
+      },
+    },
+  });
+
+  await assert.rejects(() => actions.deletePost("post-2"), /redirect:\/admin\/posts/);
+
+  assert.deepEqual(deleteCalls, ["post-2"]);
+  assert.deepEqual(revalidatedPaths, ["/admin/posts", "/blog", "/"]);
+  assert.deepEqual(redirects, ["/admin/posts"]);
+});
+
+test("deleteAdminPostAction returns a controlled error when deleting a published post", async () => {
+  const actionsModule = await loadModule<{
+    createAdminPostMutationActions: (input: {
+      redirectTo: (path: string) => never;
+      revalidatePath: (path: string, type?: "layout" | "page") => void;
+      service: {
+        createPost: (input: CreateBlogPostInput) => Promise<BlogPostRecord>;
+        updatePost: (id: string, input: UpdateBlogPostInput) => Promise<BlogPostRecord>;
+        reorderPosts: (idsInOrder: string[]) => Promise<void>;
+        deletePost: (id: string) => Promise<void>;
+      };
+    }) => {
+      deletePost: (id: string) => Promise<{ error: string | null }>;
+    };
+  }>("./action-core.ts", "admin posts actions");
+
+  const actions = actionsModule.createAdminPostMutationActions({
+    redirectTo: (path) => {
+      throw new Error(`unexpected redirect:${path}`);
+    },
+    revalidatePath: () => {},
+    service: {
+      createPost: async () => {
+        throw new Error("createPost should not be called during delete");
+      },
+      updatePost: async () => {
+        throw new Error("updatePost should not be called during delete");
+      },
+      reorderPosts: async () => {
+        throw new Error("reorderPosts should not be called during delete");
+      },
+      deletePost: async () => {
+        const serviceModule = await import("../../../lib/content/service.ts");
+        throw new serviceModule.PublishedContentDeletionError("文章", "post-5");
+      },
+    },
+  });
+
+  const result = await actions.deletePost("post-5");
+
+  assert.deepEqual(result, {
+    error: "已上架文章不能直接刪除，請先下架再刪除。",
   });
 });
 
@@ -451,5 +603,109 @@ test("updateAdminPostAction returns a controlled error when the admin allowlist 
 
   assert.deepEqual(result, {
     error: "登入狀態已失效，請重新登入。",
+  });
+});
+
+test("deleteAdminPostAction server wrapper returns a controlled error for async rejection", async () => {
+  const actionsModule = await loadModule<{
+    createAdminPostServerActions: (input: {
+      getActions: () => Promise<{
+        createPost: (state: AdminPostFormState, formData: FormData) => Promise<AdminPostFormState>;
+        deletePost: (id: string) => Promise<AdminPostFormState>;
+        reorderPosts: (idsInOrder: string[]) => Promise<AdminPostFormState>;
+        updatePost: (state: AdminPostFormState, formData: FormData) => Promise<AdminPostFormState>;
+      }>;
+    }) => {
+      createPost: (state: AdminPostFormState, formData: FormData) => Promise<AdminPostFormState>;
+      deletePost: (id: string) => Promise<AdminPostFormState>;
+      reorderPosts: (idsInOrder: string[]) => Promise<AdminPostFormState>;
+      updatePost: (state: AdminPostFormState, formData: FormData) => Promise<AdminPostFormState>;
+    };
+  }>("./action-core.ts", "admin posts actions");
+
+  const guardsModule = await import("../../../lib/auth/guards.ts");
+  const actions = actionsModule.createAdminPostServerActions({
+    getActions: async () => ({
+      createPost: async () => ({ error: null }),
+      deletePost: async () => {
+        throw new guardsModule.AdminAuthorizationError("unauthenticated");
+      },
+      reorderPosts: async () => ({ error: null }),
+      updatePost: async () => ({ error: null }),
+    }),
+  });
+
+  const result = await actions.deletePost("post-1");
+
+  assert.deepEqual(result, {
+    error: "登入狀態已失效，請重新登入。",
+  });
+});
+
+test("deleteAdminPostAction server wrapper rethrows Next redirect errors", async () => {
+  const actionsModule = await loadModule<{
+    createAdminPostServerActions: (input: {
+      getActions: () => Promise<{
+        createPost: (state: AdminPostFormState, formData: FormData) => Promise<AdminPostFormState>;
+        deletePost: (id: string) => Promise<AdminPostFormState>;
+        reorderPosts: (idsInOrder: string[]) => Promise<AdminPostFormState>;
+        updatePost: (state: AdminPostFormState, formData: FormData) => Promise<AdminPostFormState>;
+      }>;
+    }) => {
+      createPost: (state: AdminPostFormState, formData: FormData) => Promise<AdminPostFormState>;
+      deletePost: (id: string) => Promise<AdminPostFormState>;
+      reorderPosts: (idsInOrder: string[]) => Promise<AdminPostFormState>;
+      updatePost: (state: AdminPostFormState, formData: FormData) => Promise<AdminPostFormState>;
+    };
+  }>("./action-core.ts", "admin posts actions");
+
+  const redirectError = { digest: "NEXT_REDIRECT;replace;/admin/posts;303" };
+  const actions = actionsModule.createAdminPostServerActions({
+    getActions: async () => ({
+      createPost: async () => ({ error: null }),
+      deletePost: async () => {
+        throw redirectError;
+      },
+      reorderPosts: async () => ({ error: null }),
+      updatePost: async () => ({ error: null }),
+    }),
+  });
+
+  await assert.rejects(() => actions.deletePost("post-1"), (error) => error === redirectError);
+});
+
+test("reorderAdminPostsAction server wrapper returns a controlled error for async rejection", async () => {
+  const actionsModule = await loadModule<{
+    createAdminPostServerActions: (input: {
+      getActions: () => Promise<{
+        createPost: (state: AdminPostFormState, formData: FormData) => Promise<AdminPostFormState>;
+        deletePost: (id: string) => Promise<AdminPostFormState>;
+        reorderPosts: (idsInOrder: string[]) => Promise<AdminPostFormState>;
+        updatePost: (state: AdminPostFormState, formData: FormData) => Promise<AdminPostFormState>;
+      }>;
+    }) => {
+      createPost: (state: AdminPostFormState, formData: FormData) => Promise<AdminPostFormState>;
+      deletePost: (id: string) => Promise<AdminPostFormState>;
+      reorderPosts: (idsInOrder: string[]) => Promise<AdminPostFormState>;
+      updatePost: (state: AdminPostFormState, formData: FormData) => Promise<AdminPostFormState>;
+    };
+  }>("./action-core.ts", "admin posts actions");
+
+  const serviceModule = await import("../../../lib/content/service.ts");
+  const actions = actionsModule.createAdminPostServerActions({
+    getActions: async () => ({
+      createPost: async () => ({ error: null }),
+      deletePost: async () => ({ error: null }),
+      reorderPosts: async () => {
+        throw new serviceModule.InvalidContentOrderError("文章", "不可包含重複 id。");
+      },
+      updatePost: async () => ({ error: null }),
+    }),
+  });
+
+  const result = await actions.reorderPosts(["post-1", "post-1"]);
+
+  assert.deepEqual(result, {
+    error: "文章排序資料不可包含重複 id。",
   });
 });

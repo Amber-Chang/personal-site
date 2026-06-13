@@ -7,6 +7,14 @@ export async function createAdminPostAction(state: AdminPostFormState, formData:
   return defaultServerActions.createPost(state, formData);
 }
 
+export async function deleteAdminPostAction(id: string) {
+  return defaultServerActions.deletePost(id);
+}
+
+export async function reorderAdminPostsAction(idsInOrder: string[]) {
+  return defaultServerActions.reorderPosts(idsInOrder);
+}
+
 export async function updateAdminPostAction(state: AdminPostFormState, formData: FormData) {
   return defaultServerActions.updatePost(state, formData);
 }
