@@ -1,4 +1,8 @@
-import { ProjectNotFoundError } from "../../../lib/content/service.ts";
+import {
+  InvalidContentOrderError,
+  ProjectNotFoundError,
+  PublishedContentDeletionError,
+} from "../../../lib/content/service.ts";
 import { AdminAuthorizationError } from "../../../lib/auth/guards.ts";
 import type { CreateProjectInput, UpdateProjectInput } from "../../../lib/content/types.ts";
 import type { AdminProjectFormState } from "./action-state.ts";
@@ -8,8 +12,22 @@ export type { AdminProjectFormState } from "./action-state.ts";
 
 type AdminProjectMutationService = {
   createProject: (input: CreateProjectInput) => Promise<{ id: string }>;
+  deleteProject: (id: string) => Promise<void>;
+  reorderProjects: (idsInOrder: string[]) => Promise<void>;
   updateProject: (id: string, input: UpdateProjectInput) => Promise<{ id: string }>;
 };
+
+function rethrowIfNextRedirect(error: unknown): void {
+  if (
+    typeof error === "object" &&
+    error !== null &&
+    "digest" in error &&
+    typeof error.digest === "string" &&
+    error.digest.startsWith("NEXT_REDIRECT")
+  ) {
+    throw error;
+  }
+}
 
 function getStringValue(formData: FormData, key: string): string | null {
   const value = formData.get(key);
@@ -93,6 +111,12 @@ function toErrorState(error: unknown): AdminProjectFormState {
     };
   }
 
+  if (error instanceof PublishedContentDeletionError || error instanceof InvalidContentOrderError) {
+    return {
+      error: error.message,
+    };
+  }
+
   if (error instanceof Error) {
     return {
       error: error.message,
@@ -106,7 +130,7 @@ function toErrorState(error: unknown): AdminProjectFormState {
 
 export function createAdminProjectMutationActions(input: {
   redirectTo: (path: string) => never;
-  revalidatePath: (path: string) => void;
+  revalidatePath: (path: string, type?: "layout" | "page") => void;
   service: AdminProjectMutationService;
 }) {
   return {
@@ -122,6 +146,33 @@ export function createAdminProjectMutationActions(input: {
       input.revalidatePath("/admin/projects");
       input.revalidatePath(`/admin/projects/${project.id}`);
       input.redirectTo(`/admin/projects/${project.id}`);
+    },
+    async deleteProject(id: string): Promise<AdminProjectFormState> {
+      try {
+        await input.service.deleteProject(id);
+      } catch (error) {
+        return toErrorState(error);
+      }
+
+      input.revalidatePath("/admin/projects");
+      input.revalidatePath("/projects");
+      input.revalidatePath("/");
+      input.redirectTo("/admin/projects");
+    },
+    async reorderProjects(idsInOrder: string[]): Promise<AdminProjectFormState> {
+      try {
+        await input.service.reorderProjects(idsInOrder);
+      } catch (error) {
+        return toErrorState(error);
+      }
+
+      input.revalidatePath("/admin/projects");
+      input.revalidatePath("/projects");
+      input.revalidatePath("/");
+
+      return {
+        error: null,
+      };
     },
     async updateProject(_state: AdminProjectFormState, formData: FormData): Promise<AdminProjectFormState> {
       let project: { id: string };
@@ -157,6 +208,8 @@ async function createDefaultMutationActions() {
 export function createAdminProjectServerActions(input: {
   getActions: () => Promise<{
     createProject: (state: AdminProjectFormState, formData: FormData) => Promise<AdminProjectFormState>;
+    deleteProject: (id: string) => Promise<AdminProjectFormState>;
+    reorderProjects: (idsInOrder: string[]) => Promise<AdminProjectFormState>;
     updateProject: (state: AdminProjectFormState, formData: FormData) => Promise<AdminProjectFormState>;
   }>;
 }) {
@@ -167,6 +220,27 @@ export function createAdminProjectServerActions(input: {
 
         return actions.createProject(state, formData);
       } catch (error) {
+        rethrowIfNextRedirect(error);
+        return toErrorState(error);
+      }
+    },
+    async deleteProject(id: string) {
+      try {
+        const actions = await input.getActions();
+
+        return await actions.deleteProject(id);
+      } catch (error) {
+        rethrowIfNextRedirect(error);
+        return toErrorState(error);
+      }
+    },
+    async reorderProjects(idsInOrder: string[]) {
+      try {
+        const actions = await input.getActions();
+
+        return await actions.reorderProjects(idsInOrder);
+      } catch (error) {
+        rethrowIfNextRedirect(error);
         return toErrorState(error);
       }
     },
@@ -176,6 +250,7 @@ export function createAdminProjectServerActions(input: {
 
         return actions.updateProject(state, formData);
       } catch (error) {
+        rethrowIfNextRedirect(error);
         return toErrorState(error);
       }
     },

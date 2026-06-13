@@ -14,6 +14,7 @@ type ProjectRecord = {
   period: string | null;
   publishedAt: string | null;
   role: string | null;
+  sortOrder: number;
   slug: string;
   status: "draft" | "published";
   summary: string | null;
@@ -47,6 +48,7 @@ function createProject(overrides?: Partial<ProjectRecord>): ProjectRecord {
     period: null,
     publishedAt: null,
     role: null,
+    sortOrder: 1,
     slug: "sample-project",
     status: "draft",
     summary: "Project summary",
@@ -79,7 +81,7 @@ test("createAdminProjectAction creates a project with public content fields and 
   const actionsModule = await loadModule<{
     createAdminProjectMutationActions: (input: {
       redirectTo: (path: string) => never;
-      revalidatePath: (path: string) => void;
+      revalidatePath: (path: string, type?: "layout" | "page") => void;
       service: {
         createProject: (input: CreateProjectInput) => Promise<ProjectRecord>;
         updateProject: (id: string, input: UpdateProjectInput) => Promise<ProjectRecord>;
@@ -154,7 +156,7 @@ test("updateAdminProjectAction updates an existing project with public content f
   const actionsModule = await loadModule<{
     createAdminProjectMutationActions: (input: {
       redirectTo: (path: string) => never;
-      revalidatePath: (path: string) => void;
+      revalidatePath: (path: string, type?: "layout" | "page") => void;
       service: {
         createProject: (input: CreateProjectInput) => Promise<ProjectRecord>;
         updateProject: (id: string, input: UpdateProjectInput) => Promise<ProjectRecord>;
@@ -231,7 +233,7 @@ test("createAdminProjectAction returns a controlled error when the slug already 
   const actionsModule = await loadModule<{
     createAdminProjectMutationActions: (input: {
       redirectTo: (path: string) => never;
-      revalidatePath: (path: string) => void;
+      revalidatePath: (path: string, type?: "layout" | "page") => void;
       service: {
         createProject: (input: CreateProjectInput) => Promise<ProjectRecord>;
         updateProject: (id: string, input: UpdateProjectInput) => Promise<ProjectRecord>;
@@ -276,7 +278,7 @@ test("updateAdminProjectAction returns a controlled error when the project is mi
   const actionsModule = await loadModule<{
     createAdminProjectMutationActions: (input: {
       redirectTo: (path: string) => never;
-      revalidatePath: (path: string) => void;
+      revalidatePath: (path: string, type?: "layout" | "page") => void;
       service: {
         createProject: (input: CreateProjectInput) => Promise<ProjectRecord>;
         updateProject: (id: string, input: UpdateProjectInput) => Promise<ProjectRecord>;
@@ -319,6 +321,151 @@ test("updateAdminProjectAction returns a controlled error when the project is mi
   });
 });
 
+test("reorderAdminProjectsAction sends ids to the service and revalidates admin and public paths", async () => {
+  const actionsModule = await loadModule<{
+    createAdminProjectMutationActions: (input: {
+      redirectTo: (path: string) => never;
+      revalidatePath: (path: string, type?: "layout" | "page") => void;
+      service: {
+        createProject: (input: CreateProjectInput) => Promise<ProjectRecord>;
+        updateProject: (id: string, input: UpdateProjectInput) => Promise<ProjectRecord>;
+        reorderProjects: (idsInOrder: string[]) => Promise<void>;
+        deleteProject: (id: string) => Promise<void>;
+      };
+    }) => {
+      reorderProjects: (idsInOrder: string[]) => Promise<{ error: string | null }>;
+    };
+  }>("./action-core.ts", "admin projects actions");
+
+  const reorderCalls: string[][] = [];
+  const revalidatedPaths: string[] = [];
+
+  const actions = actionsModule.createAdminProjectMutationActions({
+    redirectTo: (path) => {
+      throw new Error(`unexpected redirect:${path}`);
+    },
+    revalidatePath: (path) => {
+      revalidatedPaths.push(path);
+    },
+    service: {
+      createProject: async () => {
+        throw new Error("createProject should not be called during reorder");
+      },
+      updateProject: async () => {
+        throw new Error("updateProject should not be called during reorder");
+      },
+      reorderProjects: async (idsInOrder) => {
+        reorderCalls.push(idsInOrder);
+      },
+      deleteProject: async () => {
+        throw new Error("deleteProject should not be called during reorder");
+      },
+    },
+  });
+
+  const result = await actions.reorderProjects(["project-3", "project-1", "project-2"]);
+
+  assert.deepEqual(result, { error: null });
+  assert.deepEqual(reorderCalls, [["project-3", "project-1", "project-2"]]);
+  assert.deepEqual(revalidatedPaths, ["/admin/projects", "/projects", "/"]);
+});
+
+test("deleteAdminProjectAction revalidates admin and public paths then redirects back to the list", async () => {
+  const actionsModule = await loadModule<{
+    createAdminProjectMutationActions: (input: {
+      redirectTo: (path: string) => never;
+      revalidatePath: (path: string, type?: "layout" | "page") => void;
+      service: {
+        createProject: (input: CreateProjectInput) => Promise<ProjectRecord>;
+        updateProject: (id: string, input: UpdateProjectInput) => Promise<ProjectRecord>;
+        reorderProjects: (idsInOrder: string[]) => Promise<void>;
+        deleteProject: (id: string) => Promise<void>;
+      };
+    }) => {
+      deleteProject: (id: string) => Promise<{ error: string | null }>;
+    };
+  }>("./action-core.ts", "admin projects actions");
+
+  const deleteCalls: string[] = [];
+  const revalidatedPaths: string[] = [];
+  const redirects: string[] = [];
+
+  const actions = actionsModule.createAdminProjectMutationActions({
+    redirectTo: (path) => {
+      redirects.push(path);
+      throw new Error(`redirect:${path}`);
+    },
+    revalidatePath: (path) => {
+      revalidatedPaths.push(path);
+    },
+    service: {
+      createProject: async () => {
+        throw new Error("createProject should not be called during delete");
+      },
+      updateProject: async () => {
+        throw new Error("updateProject should not be called during delete");
+      },
+      reorderProjects: async () => {
+        throw new Error("reorderProjects should not be called during delete");
+      },
+      deleteProject: async (id) => {
+        deleteCalls.push(id);
+      },
+    },
+  });
+
+  await assert.rejects(() => actions.deleteProject("project-2"), /redirect:\/admin\/projects/);
+
+  assert.deepEqual(deleteCalls, ["project-2"]);
+  assert.deepEqual(revalidatedPaths, ["/admin/projects", "/projects", "/"]);
+  assert.deepEqual(redirects, ["/admin/projects"]);
+});
+
+test("deleteAdminProjectAction returns a controlled error when deleting a published project", async () => {
+  const actionsModule = await loadModule<{
+    createAdminProjectMutationActions: (input: {
+      redirectTo: (path: string) => never;
+      revalidatePath: (path: string, type?: "layout" | "page") => void;
+      service: {
+        createProject: (input: CreateProjectInput) => Promise<ProjectRecord>;
+        updateProject: (id: string, input: UpdateProjectInput) => Promise<ProjectRecord>;
+        reorderProjects: (idsInOrder: string[]) => Promise<void>;
+        deleteProject: (id: string) => Promise<void>;
+      };
+    }) => {
+      deleteProject: (id: string) => Promise<{ error: string | null }>;
+    };
+  }>("./action-core.ts", "admin projects actions");
+
+  const actions = actionsModule.createAdminProjectMutationActions({
+    redirectTo: (path) => {
+      throw new Error(`unexpected redirect:${path}`);
+    },
+    revalidatePath: () => {},
+    service: {
+      createProject: async () => {
+        throw new Error("createProject should not be called during delete");
+      },
+      updateProject: async () => {
+        throw new Error("updateProject should not be called during delete");
+      },
+      reorderProjects: async () => {
+        throw new Error("reorderProjects should not be called during delete");
+      },
+      deleteProject: async () => {
+        const serviceModule = await import("../../../lib/content/service.ts");
+        throw new serviceModule.PublishedContentDeletionError("專案", "project-5");
+      },
+    },
+  });
+
+  const result = await actions.deleteProject("project-5");
+
+  assert.deepEqual(result, {
+    error: "已上架專案不能直接刪除，請先下架再刪除。",
+  });
+});
+
 test("createAdminProjectAction returns a controlled error when the admin session is no longer allowed", async () => {
   const actionsModule = await loadModule<{
     createAdminProjectServerActions: (input: {
@@ -352,5 +499,109 @@ test("createAdminProjectAction returns a controlled error when the admin session
 
   assert.deepEqual(result, {
     error: "登入狀態已失效，請重新登入。",
+  });
+});
+
+test("deleteAdminProjectAction server wrapper returns a controlled error for async rejection", async () => {
+  const actionsModule = await loadModule<{
+    createAdminProjectServerActions: (input: {
+      getActions: () => Promise<{
+        createProject: (state: AdminProjectFormState, formData: FormData) => Promise<AdminProjectFormState>;
+        deleteProject: (id: string) => Promise<AdminProjectFormState>;
+        reorderProjects: (idsInOrder: string[]) => Promise<AdminProjectFormState>;
+        updateProject: (state: AdminProjectFormState, formData: FormData) => Promise<AdminProjectFormState>;
+      }>;
+    }) => {
+      createProject: (state: AdminProjectFormState, formData: FormData) => Promise<AdminProjectFormState>;
+      deleteProject: (id: string) => Promise<AdminProjectFormState>;
+      reorderProjects: (idsInOrder: string[]) => Promise<AdminProjectFormState>;
+      updateProject: (state: AdminProjectFormState, formData: FormData) => Promise<AdminProjectFormState>;
+    };
+  }>("./action-core.ts", "admin projects actions");
+
+  const guardsModule = await import("../../../lib/auth/guards.ts");
+  const actions = actionsModule.createAdminProjectServerActions({
+    getActions: async () => ({
+      createProject: async () => ({ error: null }),
+      deleteProject: async () => {
+        throw new guardsModule.AdminAuthorizationError("unauthenticated");
+      },
+      reorderProjects: async () => ({ error: null }),
+      updateProject: async () => ({ error: null }),
+    }),
+  });
+
+  const result = await actions.deleteProject("project-1");
+
+  assert.deepEqual(result, {
+    error: "登入狀態已失效，請重新登入。",
+  });
+});
+
+test("deleteAdminProjectAction server wrapper rethrows Next redirect errors", async () => {
+  const actionsModule = await loadModule<{
+    createAdminProjectServerActions: (input: {
+      getActions: () => Promise<{
+        createProject: (state: AdminProjectFormState, formData: FormData) => Promise<AdminProjectFormState>;
+        deleteProject: (id: string) => Promise<AdminProjectFormState>;
+        reorderProjects: (idsInOrder: string[]) => Promise<AdminProjectFormState>;
+        updateProject: (state: AdminProjectFormState, formData: FormData) => Promise<AdminProjectFormState>;
+      }>;
+    }) => {
+      createProject: (state: AdminProjectFormState, formData: FormData) => Promise<AdminProjectFormState>;
+      deleteProject: (id: string) => Promise<AdminProjectFormState>;
+      reorderProjects: (idsInOrder: string[]) => Promise<AdminProjectFormState>;
+      updateProject: (state: AdminProjectFormState, formData: FormData) => Promise<AdminProjectFormState>;
+    };
+  }>("./action-core.ts", "admin projects actions");
+
+  const redirectError = { digest: "NEXT_REDIRECT;replace;/admin/projects;303" };
+  const actions = actionsModule.createAdminProjectServerActions({
+    getActions: async () => ({
+      createProject: async () => ({ error: null }),
+      deleteProject: async () => {
+        throw redirectError;
+      },
+      reorderProjects: async () => ({ error: null }),
+      updateProject: async () => ({ error: null }),
+    }),
+  });
+
+  await assert.rejects(() => actions.deleteProject("project-1"), (error) => error === redirectError);
+});
+
+test("reorderAdminProjectsAction server wrapper returns a controlled error for async rejection", async () => {
+  const actionsModule = await loadModule<{
+    createAdminProjectServerActions: (input: {
+      getActions: () => Promise<{
+        createProject: (state: AdminProjectFormState, formData: FormData) => Promise<AdminProjectFormState>;
+        deleteProject: (id: string) => Promise<AdminProjectFormState>;
+        reorderProjects: (idsInOrder: string[]) => Promise<AdminProjectFormState>;
+        updateProject: (state: AdminProjectFormState, formData: FormData) => Promise<AdminProjectFormState>;
+      }>;
+    }) => {
+      createProject: (state: AdminProjectFormState, formData: FormData) => Promise<AdminProjectFormState>;
+      deleteProject: (id: string) => Promise<AdminProjectFormState>;
+      reorderProjects: (idsInOrder: string[]) => Promise<AdminProjectFormState>;
+      updateProject: (state: AdminProjectFormState, formData: FormData) => Promise<AdminProjectFormState>;
+    };
+  }>("./action-core.ts", "admin projects actions");
+
+  const serviceModule = await import("../../../lib/content/service.ts");
+  const actions = actionsModule.createAdminProjectServerActions({
+    getActions: async () => ({
+      createProject: async () => ({ error: null }),
+      deleteProject: async () => ({ error: null }),
+      reorderProjects: async () => {
+        throw new serviceModule.InvalidContentOrderError("專案", "不可為空。");
+      },
+      updateProject: async () => ({ error: null }),
+    }),
+  });
+
+  const result = await actions.reorderProjects([]);
+
+  assert.deepEqual(result, {
+    error: "專案排序資料不可為空。",
   });
 });

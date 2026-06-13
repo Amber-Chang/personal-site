@@ -8,6 +8,7 @@ type BlogPostRecord = {
   id: string;
   publishedAt: string | null;
   relatedProjectId: string | null;
+  sortOrder: number;
   slug: string;
   status: "draft" | "published";
   title: string;
@@ -28,6 +29,7 @@ function createPost(overrides?: Partial<BlogPostRecord>): BlogPostRecord {
     id: "post-1",
     publishedAt: null,
     relatedProjectId: null,
+    sortOrder: 1,
     slug: "draft-post",
     status: "draft",
     title: "Draft post",
@@ -67,6 +69,26 @@ test("loadAdminPostsPageData lists posts through the admin content path", async 
 
   assert.deepEqual(calls, ["listAdminPosts"]);
   assert.deepEqual(result, { posts });
+});
+
+test("loadAdminPostsPageData preserves sortOrder for admin ordering UI", async () => {
+  const dataModule = await loadModule<{
+    loadAdminPostsPageData: (input: {
+      service: {
+        listAdminPosts: () => Promise<BlogPostRecord[]>;
+      };
+    }) => Promise<{ posts: BlogPostRecord[] }>;
+  }>("./data.ts", "admin posts data");
+
+  const posts = [createPost({ id: "post-2", sortOrder: 7 })];
+
+  const result = await dataModule.loadAdminPostsPageData({
+    service: {
+      listAdminPosts: async () => posts,
+    },
+  });
+
+  assert.equal(result.posts[0]?.sortOrder, 7);
 });
 
 test("loadAdminPostEditPageData returns null when the post does not exist", async () => {
@@ -170,4 +192,39 @@ test("loadAdminPostEditPageData preserves the existing related project when it i
     { method: "listProjectOptions" },
     { method: "getProjectById", value: "project-unpublished" },
   ]);
+});
+
+test("loadAdminPostEditPageData preserves post status for delete UI decisions", async () => {
+  const dataModule = await loadModule<{
+    loadAdminPostEditPageData: (input: {
+      id: string;
+      service: {
+        getAdminPostById: (id: string) => Promise<BlogPostRecord | null>;
+        getProjectById: (id: string) => Promise<ProjectOption | null>;
+        listProjectOptions: () => Promise<ProjectOption[]>;
+      };
+    }) => Promise<
+      | {
+          post: BlogPostRecord;
+          projectOptions: ProjectOption[];
+        }
+      | null
+    >;
+  }>("./data.ts", "admin posts data");
+
+  const result = await dataModule.loadAdminPostEditPageData({
+    id: "published-post",
+    service: {
+      getAdminPostById: async (id) =>
+        createPost({
+          id,
+          publishedAt: "2026-06-02T10:00:00.000Z",
+          status: "published",
+        }),
+      getProjectById: async () => null,
+      listProjectOptions: async () => [],
+    },
+  });
+
+  assert.equal(result?.post.status, "published");
 });

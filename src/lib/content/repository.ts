@@ -13,18 +13,21 @@ import type {
 
 export interface BlogPostsRepository {
   createPost(input: CreateBlogPostInput): Promise<BlogPostRecord>;
+  deletePost(id: string): Promise<void>;
   getAdminPostById(id: string): Promise<BlogPostRecord | null>;
   getPublishedPostBySlug(slug: string): Promise<BlogPostRecord | null>;
   listAdminPosts(): Promise<BlogPostRecord[]>;
   listPublishedPosts(): Promise<BlogPostRecord[]>;
   listPublishedPostsByProjectId(projectId: string): Promise<BlogPostRecord[]>;
   publishPost(id: string, publishedAt: string): Promise<BlogPostRecord>;
+  reorderPosts(idsInOrder: string[]): Promise<void>;
   unpublishPost(id: string): Promise<BlogPostRecord>;
   updatePost(id: string, input: UpdateBlogPostInput): Promise<BlogPostRecord>;
 }
 
 export interface ProjectsRepository {
   createProject(input: CreateProjectInput): Promise<ProjectRecord>;
+  deleteProject(id: string): Promise<void>;
   getAdminProjectById(id: string): Promise<ProjectRecord | null>;
   getProjectById(id: string): Promise<ProjectOption | null>;
   getPublicProjectById(id: string): Promise<ProjectSummary | null>;
@@ -33,6 +36,7 @@ export interface ProjectsRepository {
   listFeaturedProjects(): Promise<ProjectSummary[]>;
   listPublishedProjects(): Promise<ProjectSummary[]>;
   listProjectOptions(): Promise<ProjectOption[]>;
+  reorderProjects(idsInOrder: string[]): Promise<void>;
   updateProject(id: string, input: UpdateProjectInput): Promise<ProjectRecord>;
   upsertProject(input: SyncProjectInput): Promise<ProjectRecord>;
 }

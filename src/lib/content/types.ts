@@ -7,6 +7,7 @@ export type BlogPostRecord = {
   id: string;
   publishedAt: string | null;
   relatedProjectId: string | null;
+  sortOrder: number;
   slug: string;
   status: ContentStatus;
   title: string;
@@ -18,6 +19,7 @@ export type CreateBlogPostInput = {
   excerpt?: string | null;
   publishedAt?: string | null;
   relatedProjectId?: string | null;
+  sortOrder?: number;
   slug: string;
   status?: ContentStatus;
   title: string;
@@ -31,6 +33,7 @@ export type CreateProjectInput = {
   outcomes?: string[];
   period?: string | null;
   role?: string | null;
+  sortOrder?: number;
   slug: string;
   status?: ContentStatus;
   summary?: string | null;
@@ -55,6 +58,7 @@ export type ProjectRecord = {
   period: string | null;
   publishedAt: string | null;
   role: string | null;
+  sortOrder: number;
   slug: string;
   status: ContentStatus;
   summary: string | null;
@@ -70,6 +74,7 @@ export type SyncProjectInput = {
   period?: string | null;
   publishedAt?: string | null;
   role?: string | null;
+  sortOrder?: number;
   slug: string;
   status: ContentStatus;
   summary?: string | null;

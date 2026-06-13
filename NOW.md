@@ -18,6 +18,7 @@
 
 ## 最近完成
 
+- 已完成 `admin content ordering / deletion` round：`projects` 與 `notes` 補上 `sort_order`、後台排序控制、`未上架` 才可刪除，以及後台狀態顯示改為 `已上架 / 未上架`
 - 已完成一輪 `/admin` security hardening：新增 Supabase-backed login rate limit、trusted origin 檢查、24 小時 session policy、`/admin` noindex 與對應 migration / 測試 / 主文件同步
 - 已完成 production admin 外層防護上線：`admin_login_attempts` migration 已透過 Supabase SQL Editor 套用，Vercel `Admin login rate limit` 與 `Admin area challenge` 規則已 publish，且實測 `/admin/login` 第 6 次請求會被擋下
 - 已完成公開頁面視覺與 RWD 收斂：首頁改成更明確的 editorial / portfolio 節奏，外框放寬為 `max-w-5xl`，blog / projects / about 與文章、案例內頁已補一輪 mobile-first 閱讀與導覽調整
@@ -52,6 +53,7 @@
 
 ## 目前最重要的事
 
+- 補一輪實機驗證後台內容排序、刪除與狀態顯示 flow，確認 `/admin/posts`、`/admin/projects` 與前台列表順序一致
 - 持續微調網站視覺與品牌感，特別是公開頁面的 typography、footer 與首頁敘事細節
 - 視需要補 `title -> slug` 自動建議與更完整的後台錯誤訊息
 - 把已手動完成的 production admin 登入後流程驗證記錄補回文件，避免實際狀態與文件脫節
@@ -62,11 +64,10 @@
 
 ## 下一步建議
 
-1. 把已完成的 production admin 手動驗證整理成單一記錄，包含 `/admin/projects` 建立 / 編輯、`Related project` 選擇、登入、登出、draft / publish / unpublish
-2. 以 `admin-flow-check-20260607-0215` 為目前 smoke sample，補齊其用途與驗證路徑說明
+1. 補實機驗證：確認 `/admin/posts`、`/admin/projects` 的排序調整後，`/blog`、`/projects`、首頁相關區塊順序同步更新
+2. 把已完成的 production admin 手動驗證整理成單一記錄，包含 `/admin/projects` 建立 / 編輯、`Related project` 選擇、登入、登出、draft / publish / unpublish、delete / reorder
 3. 視需要補 `title -> slug` 自動建議與更完整的後台錯誤訊息
-4. 視公開頁面實際使用感再微調 footer、文章內頁 typography 與首頁 section 節奏
-5. 持續把 `NOW.md` / `FOUNDATION.md` 中過時描述收斂掉
+4. 持續把 `NOW.md` / `FOUNDATION.md` 中過時描述收斂掉
 
 ## 備註
 
@@ -81,6 +82,7 @@
 - `blog post <-> project` 雙向連結的下一階段主 spec 已建立於 [docs/blog-project-linking-spec.md](./docs/blog-project-linking-spec.md)
 - `project identity admin` 主 spec 已建立於 [docs/admin-project-identity-management-spec.md](./docs/admin-project-identity-management-spec.md)
 - `projects Supabase-first` 主 spec 已建立於 [docs/projects-supabase-first-spec.md](./docs/projects-supabase-first-spec.md)
+- `admin content ordering / deletion` 主 spec 已建立於 [docs/admin-content-ordering-and-deletion-spec.md](./docs/admin-content-ordering-and-deletion-spec.md)
 - 開發流程規則已集中在 [docs/development-workflow.md](./docs/development-workflow.md)
 - admin 內容讀寫第一版採 trusted Next.js server + Supabase service-role path，public published reads 則維持 RLS published-read policy
 - blog admin spec 的目前完成度與剩餘範圍已記在 [docs/blog-admin-implementation-spec.md](./docs/blog-admin-implementation-spec.md) 的「目前進度」

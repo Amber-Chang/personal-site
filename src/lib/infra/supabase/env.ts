@@ -29,6 +29,33 @@ function getRequiredValue(source: Record<string, string | undefined>, envName: s
   return value;
 }
 
+function normalizeSiteUrl(value: string | undefined): string | null {
+  const trimmedValue = value?.trim();
+
+  if (!trimmedValue) {
+    return null;
+  }
+
+  if (trimmedValue.startsWith("http://") || trimmedValue.startsWith("https://")) {
+    return trimmedValue;
+  }
+
+  return `https://${trimmedValue}`;
+}
+
+function resolveSiteUrl(source: Record<string, string | undefined>): string {
+  const resolvedSiteUrl =
+    normalizeSiteUrl(source.NEXT_PUBLIC_SITE_URL) ??
+    normalizeSiteUrl(source.VERCEL_PROJECT_PRODUCTION_URL) ??
+    normalizeSiteUrl(source.VERCEL_URL);
+
+  if (!resolvedSiteUrl) {
+    throw new MissingEnvironmentVariableError("NEXT_PUBLIC_SITE_URL");
+  }
+
+  return resolvedSiteUrl;
+}
+
 function parseAllowedEmails(rawValue: string): string[] {
   return rawValue
     .split(",")
@@ -40,7 +67,7 @@ export function readSupabaseEnv(source: Record<string, string | undefined> = pro
   const url = getRequiredValue(source, "NEXT_PUBLIC_SUPABASE_URL");
   const anonKey = getRequiredValue(source, "NEXT_PUBLIC_SUPABASE_ANON_KEY");
   const serviceRoleKey = getRequiredValue(source, "SUPABASE_SERVICE_ROLE_KEY");
-  const siteUrl = getRequiredValue(source, "NEXT_PUBLIC_SITE_URL");
+  const siteUrl = resolveSiteUrl(source);
   const adminAllowedEmails = parseAllowedEmails(getRequiredValue(source, "SUPABASE_ADMIN_EMAILS"));
   const adminPassword = getRequiredValue(source, "ADMIN_LOGIN_PASSWORD");
 

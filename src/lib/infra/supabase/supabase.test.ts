@@ -42,6 +42,45 @@ test("readSupabaseEnv normalizes required keys and admin allowlist", async () =>
   });
 });
 
+test("readSupabaseEnv falls back to Vercel preview hostname when NEXT_PUBLIC_SITE_URL is missing", async () => {
+  const envModule = await loadModule<{
+    readSupabaseEnv: (input?: Record<string, string | undefined>) => {
+      siteUrl: string;
+    };
+  }>("./env.ts", "Supabase env");
+
+  const env = envModule.readSupabaseEnv({
+    NEXT_PUBLIC_SUPABASE_ANON_KEY: "anon-key",
+    NEXT_PUBLIC_SUPABASE_URL: "https://project.supabase.co",
+    SUPABASE_ADMIN_EMAILS: "owner@example.com",
+    ADMIN_LOGIN_PASSWORD: "super-secret",
+    SUPABASE_SERVICE_ROLE_KEY: "service-role-key",
+    VERCEL_URL: "personal-site-git-branch-user.vercel.app",
+  });
+
+  assert.equal(env.siteUrl, "https://personal-site-git-branch-user.vercel.app");
+});
+
+test("readSupabaseEnv prefers explicit NEXT_PUBLIC_SITE_URL over Vercel host fallbacks", async () => {
+  const envModule = await loadModule<{
+    readSupabaseEnv: (input?: Record<string, string | undefined>) => {
+      siteUrl: string;
+    };
+  }>("./env.ts", "Supabase env");
+
+  const env = envModule.readSupabaseEnv({
+    NEXT_PUBLIC_SITE_URL: "https://amber.test",
+    NEXT_PUBLIC_SUPABASE_ANON_KEY: "anon-key",
+    NEXT_PUBLIC_SUPABASE_URL: "https://project.supabase.co",
+    SUPABASE_ADMIN_EMAILS: "owner@example.com",
+    ADMIN_LOGIN_PASSWORD: "super-secret",
+    SUPABASE_SERVICE_ROLE_KEY: "service-role-key",
+    VERCEL_URL: "personal-site-git-branch-user.vercel.app",
+  });
+
+  assert.equal(env.siteUrl, "https://amber.test");
+});
+
 test("readSupabaseEnv throws when required variables are missing", async () => {
   const envModule = await loadModule<{
     MissingEnvironmentVariableError: new (name: string) => Error & { envName: string };
@@ -301,4 +340,26 @@ test("admin login attempts hardening migration defines server-side rate limit st
   assert.match(content, /first_failed_at timestamptz not null/i);
   assert.match(content, /grant all on public\.admin_login_attempts to service_role/i);
   assert.match(content, /set_admin_login_attempts_updated_at/i);
+});
+
+test("content sort order migration defines ordering columns and backfill rules", () => {
+  const migrationPath = path.join(
+    process.cwd(),
+    "supabase/migrations/202606140001_add_content_sort_order.sql",
+  );
+
+  assert.equal(fs.existsSync(migrationPath), true);
+
+  const content = fs.readFileSync(migrationPath, "utf8");
+
+  assert.match(content, /alter table public\.blog_posts\s+add column if not exists sort_order integer/i);
+  assert.match(content, /alter table public\.projects\s+add column if not exists sort_order integer/i);
+  assert.match(content, /alter table public\.blog_posts\s+alter column sort_order set default/i);
+  assert.match(content, /alter table public\.projects\s+alter column sort_order set default/i);
+  assert.match(content, /order by published_at desc nulls last, updated_at desc/i);
+  assert.match(content, /order by title asc, updated_at desc/i);
+  assert.match(content, /alter table public\.blog_posts\s+alter column sort_order set not null/i);
+  assert.match(content, /alter table public\.projects\s+alter column sort_order set not null/i);
+  assert.match(content, /create or replace function public\.reorder_blog_posts/i);
+  assert.match(content, /create or replace function public\.reorder_projects/i);
 });

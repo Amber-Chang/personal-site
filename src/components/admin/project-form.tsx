@@ -6,6 +6,7 @@ import { useActionState } from "react";
 import type { AdminProjectFormState } from "../../app/admin/projects/action-state.ts";
 import { initialAdminProjectFormState } from "../../app/admin/projects/action-state.ts";
 import type { ContentStatus } from "../../lib/content/types.ts";
+import { ContentStatusBadge, getContentStatusLabel } from "./content-status-badge.tsx";
 
 type AdminProjectFormAction = (state: AdminProjectFormState, formData: FormData) => Promise<AdminProjectFormState>;
 
@@ -26,12 +27,21 @@ type AdminProjectFormValues = {
 export function AdminProjectForm(input: {
   action: AdminProjectFormAction;
   cancelHref?: string;
+  deleteAction?: (id: string) => Promise<AdminProjectFormState>;
   description: string;
   submitLabel: string;
   title: string;
   values: AdminProjectFormValues;
 }) {
   const [state, formAction, pending] = useActionState(input.action, initialAdminProjectFormState);
+  const [deleteState, deleteFormAction, deletePending] = useActionState(async () => {
+    if (!input.values.id || !input.deleteAction) {
+      return initialAdminProjectFormState;
+    }
+
+    return input.deleteAction(input.values.id);
+  }, initialAdminProjectFormState);
+  const isPublished = input.values.status === "published";
 
   return (
     <div className="space-y-4 rounded-3xl border border-black/10 bg-white/80 p-8 shadow-sm">
@@ -154,16 +164,24 @@ export function AdminProjectForm(input: {
           <label className="text-sm font-medium text-black" htmlFor="status">
             Status
           </label>
-          <p className="text-xs leading-5 text-black/55">published project 會出現在文章關聯選單，也會成為公開案例來源；draft project 只保留在後台。</p>
+          <p className="text-xs leading-5 text-black/55">已上架專案會出現在文章關聯選單，也會成為公開案例來源；未上架專案只保留在後台。</p>
           <select
             className="w-full rounded-2xl border border-black/10 bg-white px-4 py-3 text-base outline-none transition focus:border-black/30"
             defaultValue={input.values.status}
             id="status"
             name="status"
           >
-            <option value="draft">draft</option>
-            <option value="published">published</option>
+            <option value="draft">{getContentStatusLabel("draft")}</option>
+            <option value="published">{getContentStatusLabel("published")}</option>
           </select>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-black/10 bg-black/[0.02] px-4 py-3">
+          <span className="text-sm font-medium text-black">目前狀態</span>
+          <ContentStatusBadge status={input.values.status} />
+          <p className="text-sm text-black/55">
+            {isPublished ? "公開專案會同步出現在前台案例列表與首頁代表案例。" : "未上架專案只會保留在後台，不會出現在前台。"}
+          </p>
         </div>
 
         <label className="flex items-start gap-3 rounded-2xl border border-black/10 bg-black/[0.02] px-4 py-3 text-sm leading-6 text-black/70">
@@ -194,6 +212,34 @@ export function AdminProjectForm(input: {
           </Link>
         </div>
       </form>
+
+      {input.values.id ? (
+        <section className="space-y-3 rounded-3xl border border-red-200 bg-red-50/70 p-5">
+          <div className="space-y-1">
+            <h2 className="text-base font-semibold text-red-800">刪除專案</h2>
+            <p className="text-sm leading-6 text-red-700/80">
+              {isPublished ? "這個專案目前已上架，需先下架才能刪除。" : "這個專案目前未上架，可以直接刪除。"}
+            </p>
+          </div>
+
+          {isPublished ? (
+            <p className="text-sm text-red-700/80">請先把狀態改成未上架並儲存，再執行刪除。</p>
+          ) : (
+            <form action={deleteFormAction} className="flex flex-col gap-3 md:flex-row md:items-center">
+              <button
+                className="inline-flex w-fit rounded-full border border-red-300 px-5 py-3 text-sm font-medium text-red-700 transition hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-50"
+                disabled={deletePending}
+                type="submit"
+              >
+                {deletePending ? "刪除中..." : "刪除專案"}
+              </button>
+              <p className="text-sm text-red-700/80">刪除後會直接回到專案列表，且此動作無法復原。</p>
+            </form>
+          )}
+
+          {deleteState.error ? <p className="text-sm text-red-600">{deleteState.error}</p> : null}
+        </section>
+      ) : null}
     </div>
   );
 }

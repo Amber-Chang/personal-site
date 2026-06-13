@@ -7,6 +7,7 @@ import { useState } from "react";
 import type { AdminPostFormState } from "../../app/admin/posts/action-state.ts";
 import { initialAdminPostFormState } from "../../app/admin/posts/action-state.ts";
 import type { ContentStatus, ProjectOption } from "../../lib/content/types.ts";
+import { ContentStatusBadge } from "./content-status-badge.tsx";
 
 type AdminPostFormAction = (state: AdminPostFormState, formData: FormData) => Promise<AdminPostFormState>;
 
@@ -23,6 +24,7 @@ type AdminPostFormValues = {
 export function AdminPostForm(input: {
   action: AdminPostFormAction;
   cancelHref?: string;
+  deleteAction?: (id: string) => Promise<AdminPostFormState>;
   description: string;
   projectOptions: ProjectOption[];
   submitLabel: string;
@@ -31,6 +33,13 @@ export function AdminPostForm(input: {
 }) {
   const [state, formAction, pending] = useActionState(input.action, initialAdminPostFormState);
   const [submitIntent, setSubmitIntent] = useState<"draft" | "publish" | "save">("save");
+  const [deleteState, deleteFormAction, deletePending] = useActionState(async () => {
+    if (!input.values.id || !input.deleteAction) {
+      return initialAdminPostFormState;
+    }
+
+    return input.deleteAction(input.values.id);
+  }, initialAdminPostFormState);
   const isPublished = input.values.status === "published";
 
   return (
@@ -77,9 +86,7 @@ export function AdminPostForm(input: {
 
         <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-black/10 bg-black/[0.02] px-4 py-3">
           <span className="text-sm font-medium text-black">目前狀態</span>
-          <span className="rounded-full bg-black px-3 py-1 text-xs font-medium uppercase tracking-[0.16em] text-white">
-            {input.values.status}
-          </span>
+          <ContentStatusBadge status={input.values.status} />
           <p className="text-sm text-black/55">
             {isPublished ? "公開文章會出現在前台 blog。" : "草稿不會出現在前台 blog。"}
           </p>
@@ -171,6 +178,34 @@ export function AdminPostForm(input: {
           </Link>
         </div>
       </form>
+
+      {input.values.id ? (
+        <section className="space-y-3 rounded-3xl border border-red-200 bg-red-50/70 p-5">
+          <div className="space-y-1">
+            <h2 className="text-base font-semibold text-red-800">刪除文章</h2>
+            <p className="text-sm leading-6 text-red-700/80">
+              {isPublished ? "這篇文章目前已上架，需先下架才能刪除。" : "這篇文章目前未上架，可以直接刪除。"}
+            </p>
+          </div>
+
+          {isPublished ? (
+            <p className="text-sm text-red-700/80">請先按上方「取消發佈」，確認變成未上架後再刪除。</p>
+          ) : (
+            <form action={deleteFormAction} className="flex flex-col gap-3 md:flex-row md:items-center">
+              <button
+                className="inline-flex w-fit rounded-full border border-red-300 px-5 py-3 text-sm font-medium text-red-700 transition hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-50"
+                disabled={deletePending}
+                type="submit"
+              >
+                {deletePending ? "刪除中..." : "刪除文章"}
+              </button>
+              <p className="text-sm text-red-700/80">刪除後會直接回到文章列表，且此動作無法復原。</p>
+            </form>
+          )}
+
+          {deleteState.error ? <p className="text-sm text-red-600">{deleteState.error}</p> : null}
+        </section>
+      ) : null}
     </div>
   );
 }

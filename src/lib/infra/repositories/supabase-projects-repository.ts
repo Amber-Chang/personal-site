@@ -18,6 +18,7 @@ type ProjectRow = {
   period: string | null;
   published_at: string | null;
   role: string | null;
+  sort_order: number;
   slug: string;
   status: "draft" | "published";
   summary: string | null;
@@ -63,8 +64,17 @@ type UpdateQuery<T> = {
   };
 };
 
+type DeleteQueryResult = Promise<{
+  error: QueryError;
+}>;
+
+type DeleteQuery = {
+  eq: (column: string, value: unknown) => DeleteQueryResult;
+};
+
 type QueryClient = {
   from: (table: string) => {
+    delete: () => DeleteQuery;
     insert: (input: Record<string, unknown>) => {
       select: (columns: string) => MutationSelectQuery<ProjectRow>;
     };
@@ -74,7 +84,10 @@ type QueryClient = {
       select: (columns: string) => UpsertQuery<ProjectRow>;
     };
   };
+  rpc: (fn: string, args: Record<string, unknown>) => Promise<{ error: QueryError }>;
 };
+
+const DEFAULT_SORT_ORDER = 2_147_483_647;
 
 function mapProjectRow(row: ProjectRow): ProjectOption {
   return {
@@ -94,6 +107,7 @@ function mapProjectRecord(row: ProjectRow): ProjectRecord {
     period: row.period,
     publishedAt: row.published_at,
     role: row.role,
+    sortOrder: row.sort_order,
     slug: row.slug,
     status: row.status,
     summary: row.summary,
@@ -172,6 +186,18 @@ function ensureOne<T>(data: T | null, error: QueryError | undefined): T {
   return data;
 }
 
+function ensureNoError(error: QueryError | undefined): void {
+  if (error) {
+    throw new Error(formatQueryError(error));
+  }
+}
+
+function orderBySortOrderWithUpdatedAtFallback<T>(query: { order: (column: string, options: { ascending: boolean }) => unknown }) {
+  return (query.order("sort_order", { ascending: true }) as {
+    order: (column: string, options: { ascending: boolean }) => QueryArrayResult<T>;
+  }).order("updated_at", { ascending: false });
+}
+
 function mapCreateInput(input: CreateProjectInput) {
   return {
     content_markdown: input.contentMarkdown ?? null,
@@ -179,6 +205,7 @@ function mapCreateInput(input: CreateProjectInput) {
     outcomes: input.outcomes ?? [],
     period: input.period ?? null,
     role: input.role ?? null,
+    sort_order: input.sortOrder ?? DEFAULT_SORT_ORDER,
     slug: input.slug,
     status: input.status ?? "draft",
     summary: input.summary ?? null,
@@ -194,6 +221,7 @@ function mapUpdateInput(input: UpdateProjectInput) {
     ...(input.outcomes !== undefined ? { outcomes: input.outcomes } : {}),
     ...(input.period !== undefined ? { period: input.period } : {}),
     ...(input.role !== undefined ? { role: input.role } : {}),
+    ...(input.sortOrder !== undefined ? { sort_order: input.sortOrder } : {}),
     ...(input.slug !== undefined ? { slug: input.slug } : {}),
     ...(input.status !== undefined ? { status: input.status } : {}),
     ...(input.summary !== undefined ? { summary: input.summary } : {}),
@@ -226,17 +254,20 @@ export class SupabaseProjectsRepository implements ProjectsRepository {
   }
 
   async listAdminProjects(): Promise<ProjectRecord[]> {
-    const { data, error } = await this.client.from("projects").select("*").order("title", { ascending: true });
+    const { data, error } = await orderBySortOrderWithUpdatedAtFallback<ProjectRow>(
+      this.client.from("projects").select("*"),
+    );
 
     return ensureArray(data, error).map(mapProjectRecord);
   }
 
   async listPublishedProjects(): Promise<ProjectSummary[]> {
-    const { data, error } = await this.client
-      .from("projects")
-      .select("id, slug, title, summary, role, period, tags, outcomes, featured, published_at, status")
-      .eq("status", "published")
-      .order("title", { ascending: true });
+    const { data, error } = await orderBySortOrderWithUpdatedAtFallback<ProjectRow>(
+      this.client
+        .from("projects")
+        .select("id, slug, title, summary, role, period, tags, outcomes, featured, published_at, status")
+        .eq("status", "published"),
+    );
 
     return ensureArray(data, error).map(mapPublicProjectSummary);
   }
@@ -301,6 +332,7 @@ export class SupabaseProjectsRepository implements ProjectsRepository {
           period: input.period ?? null,
           published_at: input.publishedAt ?? null,
           role: input.role ?? null,
+          ...(input.sortOrder !== undefined ? { sort_order: input.sortOrder } : {}),
           slug: input.slug,
           status: input.status,
           summary: input.summary ?? null,
@@ -321,9 +353,23 @@ export class SupabaseProjectsRepository implements ProjectsRepository {
     return mapProjectRecord(row);
   }
 
+  async deleteProject(id: string): Promise<void> {
+    const { error } = await this.client.from("projects").delete().eq("id", id);
+
+    ensureNoError(error);
+  }
+
   async updateProject(id: string, input: UpdateProjectInput): Promise<ProjectRecord> {
     const { data, error } = await this.client.from("projects").update(mapUpdateInput(input)).eq("id", id).select("*").single();
 
     return mapProjectRecord(ensureOne(data, error));
+  }
+
+  async reorderProjects(idsInOrder: string[]): Promise<void> {
+    const { error } = await this.client.rpc("reorder_projects", {
+      ids_in_order: idsInOrder,
+    });
+
+    ensureNoError(error);
   }
 }

@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 
 import { AdminProjectForm } from "../../../../components/admin/project-form.tsx";
-import { updateAdminProjectAction } from "../actions.ts";
+import { deleteAdminProjectAction, updateAdminProjectAction } from "../actions.ts";
 import { getAdminPageContentService } from "../../posts/admin-context.ts";
 import { loadAdminProjectEditPageData } from "../data.ts";
 
@@ -26,6 +26,7 @@ export default async function EditAdminProjectPage(input: {
       <AdminProjectForm
         action={updateAdminProjectAction}
         description="調整公開 project 內容，儲存後會直接影響前台 `/projects`、案例頁與首頁代表案例區塊。"
+        deleteAction={deleteAdminProjectAction}
         submitLabel="儲存變更"
         title="編輯專案"
         values={{

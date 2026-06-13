@@ -179,3 +179,41 @@ test("clearActiveAdminSession deletes the current server-side session when a coo
 
   assert.deepEqual(deletedTokenHashes, [sessionModule.hashAdminSessionToken("server-session-token")]);
 });
+
+test("hasActiveAdminSession returns false when admin password env is missing", async () => {
+  const sessionServerModule = await loadModule<{
+    hasActiveAdminSession: (input: {
+      cookieStore: {
+        get: (name: string) => { value: string } | undefined;
+      };
+    }) => Promise<boolean>;
+  }>("./session-server.ts", "server-side admin sessions");
+
+  const originalAdminPassword = process.env.ADMIN_LOGIN_PASSWORD;
+  const originalSiteUrl = process.env.NEXT_PUBLIC_SITE_URL;
+
+  delete process.env.ADMIN_LOGIN_PASSWORD;
+  delete process.env.NEXT_PUBLIC_SITE_URL;
+
+  try {
+    const result = await sessionServerModule.hasActiveAdminSession({
+      cookieStore: {
+        get: () => ({ value: "server-session-token" }),
+      },
+    });
+
+    assert.equal(result, false);
+  } finally {
+    if (originalAdminPassword === undefined) {
+      delete process.env.ADMIN_LOGIN_PASSWORD;
+    } else {
+      process.env.ADMIN_LOGIN_PASSWORD = originalAdminPassword;
+    }
+
+    if (originalSiteUrl === undefined) {
+      delete process.env.NEXT_PUBLIC_SITE_URL;
+    } else {
+      process.env.NEXT_PUBLIC_SITE_URL = originalSiteUrl;
+    }
+  }
+});
