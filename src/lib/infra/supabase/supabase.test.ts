@@ -42,6 +42,45 @@ test("readSupabaseEnv normalizes required keys and admin allowlist", async () =>
   });
 });
 
+test("readSupabaseEnv falls back to Vercel preview hostname when NEXT_PUBLIC_SITE_URL is missing", async () => {
+  const envModule = await loadModule<{
+    readSupabaseEnv: (input?: Record<string, string | undefined>) => {
+      siteUrl: string;
+    };
+  }>("./env.ts", "Supabase env");
+
+  const env = envModule.readSupabaseEnv({
+    NEXT_PUBLIC_SUPABASE_ANON_KEY: "anon-key",
+    NEXT_PUBLIC_SUPABASE_URL: "https://project.supabase.co",
+    SUPABASE_ADMIN_EMAILS: "owner@example.com",
+    ADMIN_LOGIN_PASSWORD: "super-secret",
+    SUPABASE_SERVICE_ROLE_KEY: "service-role-key",
+    VERCEL_URL: "personal-site-git-branch-user.vercel.app",
+  });
+
+  assert.equal(env.siteUrl, "https://personal-site-git-branch-user.vercel.app");
+});
+
+test("readSupabaseEnv prefers explicit NEXT_PUBLIC_SITE_URL over Vercel host fallbacks", async () => {
+  const envModule = await loadModule<{
+    readSupabaseEnv: (input?: Record<string, string | undefined>) => {
+      siteUrl: string;
+    };
+  }>("./env.ts", "Supabase env");
+
+  const env = envModule.readSupabaseEnv({
+    NEXT_PUBLIC_SITE_URL: "https://amber.test",
+    NEXT_PUBLIC_SUPABASE_ANON_KEY: "anon-key",
+    NEXT_PUBLIC_SUPABASE_URL: "https://project.supabase.co",
+    SUPABASE_ADMIN_EMAILS: "owner@example.com",
+    ADMIN_LOGIN_PASSWORD: "super-secret",
+    SUPABASE_SERVICE_ROLE_KEY: "service-role-key",
+    VERCEL_URL: "personal-site-git-branch-user.vercel.app",
+  });
+
+  assert.equal(env.siteUrl, "https://amber.test");
+});
+
 test("readSupabaseEnv throws when required variables are missing", async () => {
   const envModule = await loadModule<{
     MissingEnvironmentVariableError: new (name: string) => Error & { envName: string };
