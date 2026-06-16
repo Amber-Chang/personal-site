@@ -13,6 +13,7 @@ test("getAdminGuardResult redirects unauthenticated requests to admin login", as
   const guardsModule = await loadModule<{
     getAdminGuardResult: (input: {
       hasAdminSession: () => Promise<boolean>;
+      getAdminAuthState?: () => Promise<unknown>;
     }) => Promise<unknown>;
   }>("./guards.ts", "auth guards");
 
@@ -27,11 +28,119 @@ test("getAdminGuardResult redirects unauthenticated requests to admin login", as
   });
 });
 
+test("getAdminAuthState marks an allowlisted authenticated user as admin", async () => {
+  const guardsModule = await loadModule<{
+    getAdminAuthState: (input: {
+      allowedEmails: string[];
+      getSessionUser: () => Promise<{ email: string | null } | null>;
+    }) => Promise<unknown>;
+  }>("./guards.ts", "auth guards");
+
+  const result = await guardsModule.getAdminAuthState({
+    allowedEmails: ["owner@example.com"],
+    getSessionUser: async () => ({
+      email: " OWNER@EXAMPLE.COM ",
+    }),
+  });
+
+  assert.deepEqual(result, {
+    isAdmin: true,
+    isAuthenticated: true,
+    normalizedEmail: "owner@example.com",
+  });
+});
+
+test("getAdminGuardResult rejects authenticated users outside the admin allowlist", async () => {
+  const guardsModule = await loadModule<{
+    getAdminGuardResult: (input: {
+      getAdminAuthState: () => Promise<{
+        isAdmin: boolean;
+        isAuthenticated: boolean;
+        normalizedEmail: string | null;
+      }>;
+      hasAdminSession?: () => Promise<boolean>;
+    }) => Promise<unknown>;
+  }>("./guards.ts", "auth guards");
+
+  const result = await guardsModule.getAdminGuardResult({
+    getAdminAuthState: async () => ({
+      isAdmin: false,
+      isAuthenticated: true,
+      normalizedEmail: "guest@example.com",
+    }),
+  });
+
+  assert.deepEqual(result, {
+    ok: false,
+    reason: "forbidden",
+    redirectTo: "/admin/login",
+  });
+});
+
+test("getAdminGuardResult allows admin auth state without consulting legacy session fallback", async () => {
+  const guardsModule = await loadModule<{
+    getAdminGuardResult: (input: {
+      getAdminAuthState: () => Promise<{
+        isAdmin: boolean;
+        isAuthenticated: boolean;
+        normalizedEmail: string | null;
+      }>;
+      hasAdminSession?: () => Promise<boolean>;
+    }) => Promise<unknown>;
+  }>("./guards.ts", "auth guards");
+
+  let legacySessionChecked = false;
+
+  const result = await guardsModule.getAdminGuardResult({
+    getAdminAuthState: async () => ({
+      isAdmin: true,
+      isAuthenticated: true,
+      normalizedEmail: "owner@example.com",
+    }),
+    hasAdminSession: async () => {
+      legacySessionChecked = true;
+      return false;
+    },
+  });
+
+  assert.deepEqual(result, {
+    ok: true,
+  });
+  assert.equal(legacySessionChecked, false);
+});
+
+test("getAdminGuardResult falls back to legacy admin session when auth state is unauthenticated", async () => {
+  const guardsModule = await loadModule<{
+    getAdminGuardResult: (input: {
+      getAdminAuthState: () => Promise<{
+        isAdmin: boolean;
+        isAuthenticated: boolean;
+        normalizedEmail: string | null;
+      }>;
+      hasAdminSession: () => Promise<boolean>;
+    }) => Promise<unknown>;
+  }>("./guards.ts", "auth guards");
+
+  const result = await guardsModule.getAdminGuardResult({
+    getAdminAuthState: async () => ({
+      isAdmin: false,
+      isAuthenticated: false,
+      normalizedEmail: null,
+    }),
+    hasAdminSession: async () => true,
+  });
+
+  assert.deepEqual(result, {
+    ok: true,
+  });
+});
+
 test("requireAdminMutationSession rejects missing admin session", async () => {
   const guardsModule = await loadModule<{
     AdminAuthorizationError: new (code: string) => Error & { code: string };
     requireAdminMutationSession: (input: {
       hasAdminSession: () => Promise<boolean>;
+      getAdminAuthState?: () => Promise<unknown>;
     }) => Promise<void>;
   }>("./guards.ts", "auth guards");
 
@@ -43,6 +152,34 @@ test("requireAdminMutationSession rejects missing admin session", async () => {
     (error: unknown) =>
       error instanceof guardsModule.AdminAuthorizationError &&
       error.code === "unauthenticated",
+  );
+});
+
+test("requireAdminMutationSession rejects authenticated non-admin users", async () => {
+  const guardsModule = await loadModule<{
+    AdminAuthorizationError: new (code: string) => Error & { code: string };
+    requireAdminMutationSession: (input: {
+      getAdminAuthState: () => Promise<{
+        isAdmin: boolean;
+        isAuthenticated: boolean;
+        normalizedEmail: string | null;
+      }>;
+      hasAdminSession?: () => Promise<boolean>;
+    }) => Promise<void>;
+  }>("./guards.ts", "auth guards");
+
+  await assert.rejects(
+    () =>
+      guardsModule.requireAdminMutationSession({
+        getAdminAuthState: async () => ({
+          isAdmin: false,
+          isAuthenticated: true,
+          normalizedEmail: "guest@example.com",
+        }),
+      }),
+    (error: unknown) =>
+      error instanceof guardsModule.AdminAuthorizationError &&
+      error.code === "forbidden",
   );
 });
 
@@ -145,6 +282,54 @@ test("completeAdminAuthCallback redirects allowed users into admin posts", async
   assert.deepEqual(result, { redirectTo: "/admin/posts" });
 });
 
+test("completeAdminAuthCallback redirects to a controlled login error when the callback code is missing", async () => {
+  const magicLinkModule = await loadModule<{
+    completeAdminAuthCallback: (input: {
+      allowedEmails: string[];
+      code: string | null;
+      exchangeCodeForSession: (code: string) => Promise<{ error: Error | null }>;
+      getUser: () => Promise<{ email: string | null } | null>;
+      signOut: () => Promise<void>;
+    }) => Promise<{ redirectTo: string }>;
+  }>("./magic-link.ts", "magic link auth");
+
+  const result = await magicLinkModule.completeAdminAuthCallback({
+    allowedEmails: ["owner@example.com"],
+    code: null,
+    exchangeCodeForSession: async () => ({ error: null }),
+    getUser: async () => ({ email: "owner@example.com" }),
+    signOut: async () => undefined,
+  });
+
+  assert.deepEqual(result, {
+    redirectTo: "/admin/login?error=invalid_auth_callback",
+  });
+});
+
+test("completeAdminAuthCallback redirects to a controlled login error when session exchange fails", async () => {
+  const magicLinkModule = await loadModule<{
+    completeAdminAuthCallback: (input: {
+      allowedEmails: string[];
+      code: string | null;
+      exchangeCodeForSession: (code: string) => Promise<{ error: Error | null }>;
+      getUser: () => Promise<{ email: string | null } | null>;
+      signOut: () => Promise<void>;
+    }) => Promise<{ redirectTo: string }>;
+  }>("./magic-link.ts", "magic link auth");
+
+  const result = await magicLinkModule.completeAdminAuthCallback({
+    allowedEmails: ["owner@example.com"],
+    code: "bad-code",
+    exchangeCodeForSession: async () => ({ error: new Error("exchange failed") }),
+    getUser: async () => ({ email: "owner@example.com" }),
+    signOut: async () => undefined,
+  });
+
+  assert.deepEqual(result, {
+    redirectTo: "/admin/login?error=invalid_auth_callback",
+  });
+});
+
 test("completeAdminAuthCallback signs out disallowed users and redirects to login", async () => {
   const magicLinkModule = await loadModule<{
     completeAdminAuthCallback: (input: {
@@ -169,6 +354,32 @@ test("completeAdminAuthCallback signs out disallowed users and redirects to logi
   });
 
   assert.equal(signedOut, true);
+  assert.deepEqual(result, {
+    redirectTo: "/admin/login?error=admin_not_allowed",
+  });
+});
+
+test("completeAdminAuthCallback still returns a controlled redirect when unauthorized signOut fails", async () => {
+  const magicLinkModule = await loadModule<{
+    completeAdminAuthCallback: (input: {
+      allowedEmails: string[];
+      code: string | null;
+      exchangeCodeForSession: (code: string) => Promise<{ error: Error | null }>;
+      getUser: () => Promise<{ email: string | null } | null>;
+      signOut: () => Promise<void>;
+    }) => Promise<{ redirectTo: string }>;
+  }>("./magic-link.ts", "magic link auth");
+
+  const result = await magicLinkModule.completeAdminAuthCallback({
+    allowedEmails: ["owner@example.com"],
+    code: "valid-code",
+    exchangeCodeForSession: async () => ({ error: null }),
+    getUser: async () => ({ email: "guest@example.com" }),
+    signOut: async () => {
+      throw new Error("sign out failed");
+    },
+  });
+
   assert.deepEqual(result, {
     redirectTo: "/admin/login?error=admin_not_allowed",
   });

@@ -20,6 +20,7 @@
 
 - 已完成 `admin content ordering / deletion` round：`projects` 與 `notes` 補上 `sort_order`、後台排序控制、`未上架` 才可刪除，以及後台狀態顯示改為 `已上架 / 未上架`
 - 已完成一輪 `/admin` security hardening：新增 Supabase-backed login rate limit、trusted origin 檢查、24 小時 session policy、`/admin` noindex 與對應 migration / 測試 / 主文件同步
+- 已完成 `Google OAuth admin upgrade` 的主要實作與文件同步：`/admin/login` 已改為 Google OAuth 主入口，admin guard / callback / logout 已收斂到 allowlisted authenticated user 模型
 - 已完成 production admin 外層防護上線：`admin_login_attempts` migration 已透過 Supabase SQL Editor 套用，Vercel `Admin login rate limit` 與 `Admin area challenge` 規則已 publish，且實測 `/admin/login` 第 6 次請求會被擋下
 - 已完成公開頁面視覺與 RWD 收斂：首頁改成更明確的 editorial / portfolio 節奏，外框放寬為 `max-w-5xl`，blog / projects / about 與文章、案例內頁已補一輪 mobile-first 閱讀與導覽調整
 - 已收斂首頁品牌文案方向：第一屏先建立 `AI-native Product Builder` 定位，同時保留工作與生活觀察並存的個人筆記感
@@ -32,7 +33,7 @@
 - 完成網站最小治理集合與核心方向整理，確立 `AGENTS.md`、`FOUNDATION.md`、`NOW.md`、`docs/` 的責任分工
 - 完成 blog admin MVP 的主 spec、系統架構原則與標準開發流程規則
 - 完成 blog admin 前四個主要 round：foundation 底座、admin posts skeleton、前台 blog 切 repository、Markdown import tooling
-- admin 登入 MVP 已從 Supabase magic link 改成單一密碼 + httpOnly session cookie，避免被內建 email rate limit 卡住
+- admin 登入主流程已從單一密碼門升級為 `Supabase Auth + Google OAuth + allowlisted email`
 - admin 後台補上欄位說明文字、前台登入後可見的 `後台` 入口，以及較穩定的 publish intent 傳遞與較清楚的 Supabase 錯誤訊息
 - 已建立 deployment security readiness 主文件，並補上單人 admin 部署前的 env、session 與手動發佈驗證基線
 - deployment security readiness round 已完成，且後續已再補一輪 hardening：login rate limit 改為持久化、session policy 收斂為 24 小時、trusted origin 檢查與文件同步
@@ -55,9 +56,10 @@
 
 - 補一輪實機驗證後台內容排序、刪除與狀態顯示 flow，確認 `/admin/posts`、`/admin/projects` 與前台列表順序一致
 - 持續微調網站視覺與品牌感，特別是公開頁面的 typography、footer 與首頁敘事細節
+- 補 production 或可互動環境的 Google OAuth admin 實機驗證紀錄，特別是非 allowlisted 帳號 rejection、登入、登出與 publish flow
 - 視需要補 `title -> slug` 自動建議與更完整的後台錯誤訊息
 - 把已手動完成的 production admin 登入後流程驗證記錄補回文件，避免實際狀態與文件脫節
-- 若後續需要多人或遠端登入，重新評估 auth 升級路線
+- 若後續需要多人或更正式的權限分級，重新評估目前 allowlist-only auth 邊界
 - 讓後續開發工作可依標準流程規則化執行
 - 收斂 production `/admin/projects`、`Related project` 與 publish flow 的手動驗證紀錄表述
 - 收斂 repo 文件，避免治理文件與目前實作狀態脫節
@@ -83,6 +85,7 @@
 - `project identity admin` 主 spec 已建立於 [docs/admin-project-identity-management-spec.md](./docs/admin-project-identity-management-spec.md)
 - `projects Supabase-first` 主 spec 已建立於 [docs/projects-supabase-first-spec.md](./docs/projects-supabase-first-spec.md)
 - `admin content ordering / deletion` 主 spec 已建立於 [docs/admin-content-ordering-and-deletion-spec.md](./docs/admin-content-ordering-and-deletion-spec.md)
+- `Google OAuth admin upgrade` 主 spec 已建立於 [docs/google-oauth-admin-upgrade-spec.md](./docs/google-oauth-admin-upgrade-spec.md)
 - 開發流程規則已集中在 [docs/development-workflow.md](./docs/development-workflow.md)
 - admin 內容讀寫第一版採 trusted Next.js server + Supabase service-role path，public published reads 則維持 RLS published-read policy
 - blog admin spec 的目前完成度與剩餘範圍已記在 [docs/blog-admin-implementation-spec.md](./docs/blog-admin-implementation-spec.md) 的「目前進度」
@@ -91,4 +94,4 @@
 - `npm run content:import-posts` 已成功匯入 `ai-membership-system`
 - `npm run content:sync-projects` 會把 Markdown project 同步成 Supabase `projects` content，供 blog relation、public projects 與 admin form 使用
 - admin post form 已改成 publish UX 按鈕，不再以 status dropdown 作為主要操作
-- 目前 admin 後台登入改採密碼門 MVP，不再依賴 Supabase magic link
+- 目前 admin 後台登入主流程改採 Google OAuth allowlist，舊密碼門不再是正式入口

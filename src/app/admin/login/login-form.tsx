@@ -10,19 +10,9 @@ export function AdminLoginForm() {
 
   return (
     <form action={formAction} className="space-y-4">
-      <div className="space-y-2">
-        <label className="text-sm font-medium text-black" htmlFor="password">
-          密碼
-        </label>
-        <input
-          className="w-full rounded-2xl border border-black/10 px-4 py-3 text-base outline-none transition focus:border-black/30"
-          id="password"
-          name="password"
-          placeholder="請輸入 admin 密碼"
-          required
-          type="password"
-        />
-      </div>
+      <p className="text-sm leading-6 text-black/65">
+        只接受 allowlisted 的 Google 帳號登入。完成授權後，系統會自動帶你回到後台。
+      </p>
 
       {state.error ? <p className="text-sm text-red-600">{state.error}</p> : null}
 
@@ -31,7 +21,7 @@ export function AdminLoginForm() {
         disabled={pending}
         type="submit"
       >
-        {pending ? "登入中..." : "登入後台"}
+        {pending ? "前往 Google 中..." : "使用 Google 登入"}
       </button>
     </form>
   );

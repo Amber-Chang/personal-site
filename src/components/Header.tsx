@@ -6,14 +6,13 @@ import Image from "next/image";
 import Link from "next/link";
 
 import { requestAdminLogout } from "@/app/admin/logout/actions";
-import { hasActiveAdminSession } from "@/lib/auth/session-server";
+import { readServerAdminAuthState } from "@/lib/auth/server-admin-auth";
 import { Button } from "@/components/ui/button";
 
 export async function Header() {
-  const cookieStore = await cookies();
-  const hasAdminSession = await hasActiveAdminSession({
-    cookieStore,
-  });
+  await cookies();
+  const adminAuthState = await readServerAdminAuthState();
+  const showAdminAffordance = adminAuthState.isAdmin;
 
   return (
     <header className="sticky top-0 z-30 border-b border-border/70 bg-background/78 backdrop-blur-md">
@@ -51,7 +50,7 @@ export async function Header() {
                 <Link href="/blog" className="rounded-full px-2 py-1 hover:text-foreground">
                   Writing &amp; Notes
                 </Link>
-                {hasAdminSession ? (
+                {showAdminAffordance ? (
                   <>
                     <Link href="/admin/posts" className="rounded-full px-2 py-1 font-medium text-foreground hover:text-foreground/80">
                       後台
@@ -77,7 +76,7 @@ export async function Header() {
             <Link href="/blog" className="hover:text-foreground">
               Writing &amp; Notes
             </Link>
-            {hasAdminSession ? (
+            {showAdminAffordance ? (
               <>
                 <Link href="/admin/posts" className="font-medium text-foreground hover:text-foreground/80">
                   後台

@@ -1,5 +1,15 @@
 type AdminGuardFailureReason = "forbidden" | "unauthenticated";
 
+export type AdminSessionUser = {
+  email: string | null;
+};
+
+export type AdminAuthState = {
+  isAdmin: boolean;
+  isAuthenticated: boolean;
+  normalizedEmail: string | null;
+};
+
 export type AdminGuardResult =
   | {
       ok: true;
@@ -34,10 +44,65 @@ export function isAllowedAdminEmail(email: string | null, allowedEmails: string[
   return allowedEmails.map(normalizeEmail).includes(normalizedEmail);
 }
 
+export async function getAdminAuthState(input: {
+  allowedEmails: string[];
+  getSessionUser: () => Promise<AdminSessionUser | null>;
+}): Promise<AdminAuthState> {
+  const user = await input.getSessionUser();
+  const normalizedEmail = user?.email ? normalizeEmail(user.email) : null;
+
+  if (!user) {
+    return {
+      isAdmin: false,
+      isAuthenticated: false,
+      normalizedEmail: null,
+    };
+  }
+
+  return {
+    isAdmin: isAllowedAdminEmail(normalizedEmail, input.allowedEmails),
+    isAuthenticated: true,
+    normalizedEmail,
+  };
+}
+
 export async function getAdminGuardResult(input: {
-  hasAdminSession: () => Promise<boolean>;
+  getAdminAuthState?: () => Promise<AdminAuthState>;
+  hasAdminSession?: () => Promise<boolean>;
 }): Promise<AdminGuardResult> {
-  const hasAdminSession = await input.hasAdminSession();
+  if (input.getAdminAuthState) {
+    const authState = await input.getAdminAuthState();
+
+    if (authState.isAdmin) {
+      return {
+        ok: true,
+      };
+    }
+
+    if (authState.isAuthenticated) {
+      return {
+        ok: false,
+        reason: "forbidden",
+        redirectTo: "/admin/login",
+      };
+    }
+
+    const hasAdminSession = await input.hasAdminSession?.();
+
+    if (hasAdminSession) {
+      return {
+        ok: true,
+      };
+    }
+
+    return {
+      ok: false,
+      reason: "unauthenticated",
+      redirectTo: "/admin/login",
+    };
+  }
+
+  const hasAdminSession = await input.hasAdminSession?.();
 
   if (hasAdminSession) {
     return {
@@ -53,7 +118,8 @@ export async function getAdminGuardResult(input: {
 }
 
 export async function requireAdminMutationSession(input: {
-  hasAdminSession: () => Promise<boolean>;
+  getAdminAuthState?: () => Promise<AdminAuthState>;
+  hasAdminSession?: () => Promise<boolean>;
 }): Promise<void> {
   const result = await getAdminGuardResult(input);
 

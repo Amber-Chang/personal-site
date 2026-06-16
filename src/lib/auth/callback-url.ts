@@ -41,5 +41,5 @@ export function resolveAuthCallbackUrl(input: {
     getOriginFromHeaders(input.headers) ??
     new URL(input.fallbackSiteUrl).origin;
 
-  return new URL("/auth/client-callback", baseUrl).toString();
+  return new URL("/auth/callback", baseUrl).toString();
 }

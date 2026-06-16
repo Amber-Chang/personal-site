@@ -1,6 +1,6 @@
 export type SupabaseEnv = {
   adminAllowedEmails: string[];
-  adminPassword: string;
+  adminPassword: string | null;
   anonKey: string;
   serviceRoleKey: string;
   siteUrl: string;
@@ -63,13 +63,33 @@ function parseAllowedEmails(rawValue: string): string[] {
     .filter(Boolean);
 }
 
+function getOptionalValue(source: Record<string, string | undefined>, envName: string): string | null {
+  const value = source[envName]?.trim();
+
+  if (!value) {
+    return null;
+  }
+
+  return value;
+}
+
+function resolveAdminAllowedEmails(source: Record<string, string | undefined>): string[] {
+  const rawValue = getOptionalValue(source, "ADMIN_ALLOWED_EMAILS") ?? getOptionalValue(source, "SUPABASE_ADMIN_EMAILS");
+
+  if (!rawValue) {
+    throw new MissingEnvironmentVariableError("ADMIN_ALLOWED_EMAILS");
+  }
+
+  return parseAllowedEmails(rawValue);
+}
+
 export function readSupabaseEnv(source: Record<string, string | undefined> = process.env): SupabaseEnv {
   const url = getRequiredValue(source, "NEXT_PUBLIC_SUPABASE_URL");
   const anonKey = getRequiredValue(source, "NEXT_PUBLIC_SUPABASE_ANON_KEY");
   const serviceRoleKey = getRequiredValue(source, "SUPABASE_SERVICE_ROLE_KEY");
   const siteUrl = resolveSiteUrl(source);
-  const adminAllowedEmails = parseAllowedEmails(getRequiredValue(source, "SUPABASE_ADMIN_EMAILS"));
-  const adminPassword = getRequiredValue(source, "ADMIN_LOGIN_PASSWORD");
+  const adminAllowedEmails = resolveAdminAllowedEmails(source);
+  const adminPassword = getOptionalValue(source, "ADMIN_LOGIN_PASSWORD");
 
   return {
     adminAllowedEmails,

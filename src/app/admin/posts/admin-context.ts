@@ -1,41 +1,54 @@
-import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
+import { redirect } from "next/navigation.js";
 
 import { getAdminGuardResult, requireAdminMutationSession } from "../../../lib/auth/guards.ts";
-import { hasActiveAdminSession } from "../../../lib/auth/session-server.ts";
+import { readServerAdminAuthState } from "../../../lib/auth/server-admin-auth.ts";
 import { requireTrustedAdminOrigin } from "../../../lib/auth/trusted-origin.ts";
 import { createBlogContentService } from "../../../lib/content/service.ts";
 import { createAdminContentRepositories } from "../../../lib/infra/repositories/factory.ts";
-
-async function hasAdminSession() {
-  const cookieStore = await cookies();
-
-  return hasActiveAdminSession({
-    cookieStore,
-  });
-}
 
 function createAdminContentService() {
   return createBlogContentService(createAdminContentRepositories());
 }
 
-export async function getAdminPageContentService() {
-  const guard = await getAdminGuardResult({
-    hasAdminSession,
-  });
+export function createAdminContentAccess<TService>(input: {
+  createAdminContentService: () => TService;
+  getAdminGuardResult: () => Promise<{ ok: true } | { ok: false; redirectTo: "/admin/login" }>;
+  redirectTo: (path: "/admin/login") => never;
+  requireAdminMutationSession: () => Promise<void>;
+  requireTrustedAdminOrigin: () => Promise<void>;
+}) {
+  return {
+    async getAdminPageContentService() {
+      const guard = await input.getAdminGuardResult();
 
-  if (!guard.ok) {
-    redirect(guard.redirectTo);
-  }
+      if (!guard.ok) {
+        input.redirectTo(guard.redirectTo);
+      }
 
-  return createAdminContentService();
+      return input.createAdminContentService();
+    },
+    async requireAdminContentService() {
+      await input.requireTrustedAdminOrigin();
+      await input.requireAdminMutationSession();
+
+      return input.createAdminContentService();
+    },
+  };
 }
 
-export async function requireAdminContentService() {
-  await requireTrustedAdminOrigin();
-  await requireAdminMutationSession({
-    hasAdminSession,
-  });
+const defaultAdminContentAccess = createAdminContentAccess({
+  createAdminContentService,
+  getAdminGuardResult: () =>
+    getAdminGuardResult({
+      getAdminAuthState: readServerAdminAuthState,
+    }),
+  redirectTo: redirect,
+  requireAdminMutationSession: () =>
+    requireAdminMutationSession({
+      getAdminAuthState: readServerAdminAuthState,
+    }),
+  requireTrustedAdminOrigin,
+});
 
-  return createAdminContentService();
-}
+export const getAdminPageContentService = defaultAdminContentAccess.getAdminPageContentService;
+export const requireAdminContentService = defaultAdminContentAccess.requireAdminContentService;

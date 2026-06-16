@@ -1,4 +1,4 @@
-import { AdminAuthorizationError, isAllowedAdminEmail } from "./guards.ts";
+import { AdminAuthorizationError, getAdminAuthState, isAllowedAdminEmail } from "./guards.ts";
 
 export { AdminAuthorizationError } from "./guards.ts";
 
@@ -67,16 +67,23 @@ export async function completeAdminAuthCallback(input: {
     };
   }
 
-  const user = await input.getUser();
+  const authState = await getAdminAuthState({
+    allowedEmails: input.allowedEmails,
+    getSessionUser: input.getUser,
+  });
 
-  if (!user?.email) {
+  if (!authState.isAuthenticated || !authState.normalizedEmail) {
     return {
       redirectTo: INVALID_CALLBACK_REDIRECT,
     };
   }
 
-  if (!isAllowedAdminEmail(user.email, input.allowedEmails)) {
-    await input.signOut();
+  if (!authState.isAdmin) {
+    try {
+      await input.signOut();
+    } catch (error) {
+      console.error("admin auth callback sign out failed", error);
+    }
 
     return {
       redirectTo: NOT_ALLOWED_REDIRECT,

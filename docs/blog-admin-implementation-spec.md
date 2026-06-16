@@ -12,7 +12,7 @@
 
 第一版目標：
 
-- 站主可透過單一 admin 密碼登入後台
+- 站主可透過 allowlisted Google 帳號登入後台
 - 可建立、編輯、存草稿、發佈 blog post
 - 前台 `/blog` 與 `/blog/[slug]` 可穩定讀取已發佈文章
 - 架構上不把內容邏輯綁死在 page 或 Supabase SDK 上
@@ -49,7 +49,7 @@
   - 舊 `src/lib/posts.ts` 已移除，blog 前台不再依賴 Markdown reader
   - 已實際匯入 `ai-membership-system`
   - admin post form 已改成 `儲存變更 / 發佈文章 / 取消發佈` 的 publish UX
-  - admin login 已改為單一密碼 + httpOnly session cookie，不再依賴 Supabase 內建 email provider
+  - 當時先以單一密碼 + httpOnly session cookie 收斂 admin login MVP，避免被內建 email provider 限制卡住
   - 前台導覽列在 admin 已登入時會顯示 `後台` 入口，方便往返內容編輯流程
   - post form 已補上欄位說明文字，降低第一次使用後台的理解成本
   - publish intent 改為 hidden input 顯式傳遞，避免 button submit value 在 server action 流程中掉失
@@ -65,6 +65,12 @@
   - 可在後台建立與編輯 project identity 的最小欄位：`title / slug / summary / status`
   - published project 會出現在文章關聯選單；draft project 不會出現在公開 relation options
   - 這一輪仍不包含完整 project body editor，public project page 內容主來源維持 Markdown
+- `Phase 7：Google OAuth admin upgrade`
+  - `/admin/login` 已改為 Google OAuth 主入口
+  - admin 權限改由 allowlisted authenticated user 判斷
+  - `/admin/posts`、`/admin/projects` 與相關 mutation 已改接同一套 auth guard
+  - admin logout 已改為清理 Supabase-backed session
+  - 舊單一密碼流程已不再是正式主登入模型
 
 ### 已完成但後續仍可補強
 
@@ -72,21 +78,22 @@
 - admin post form 已可新增 / 編輯，但還不是 rich editor 體驗
 - admin content path 已可用，但還沒接上 preview
 - `content/posts/*.md` 仍保留作為 migration source，實際匯入完成後再決定是否移除
-- magic link callback 與 Supabase auth 底座仍保留在 repo 中，但目前不作為第一版主登入路徑
+- 真實 Google 帳號的 production / 可互動環境 smoke check 紀錄仍需再補一輪
 
 ### 尚未完成
 
-- `Phase 4：後台登入後外部流程驗證`
-  - 用 admin 密碼登入 `/admin/posts`
+- `Phase 7：Google OAuth 實機驗證補記錄`
+  - 用 allowlisted Google 帳號登入 `/admin/posts`
   - 驗證登入、草稿、編輯、發佈、公開顯示整條流程
+  - 驗證登出後 admin 保護仍成立
+  - 驗證非 allowlisted 帳號會被拒絕
 - 後續體驗補強
-  - 若未來需要遠端 email login，再評估自訂 SMTP 或完整 auth 方案
   - preview
   - Markdown editor 強化
 
 ### 建議下一個 round
 
-- 在 production 重跑完整 admin smoke check，補 deploy 後登入 / 發佈 / 取消發佈驗證紀錄
+- 在 production 或可互動 staging 環境重跑完整 Google OAuth admin smoke check，補 deploy 後登入 / 登出 / 發佈 / 取消發佈 / unauthorized rejection 驗證紀錄
 - 視需要補 preview、`title -> slug` 自動建議與更完整的後台錯誤訊息
 
 ## 2. 決策摘要
@@ -229,20 +236,21 @@ src/
 
 ### 7.1 登入方式
 
-- 第一版使用單一 admin 密碼
-- 密碼透過 server action 驗證
-- 驗證通過後寫入 httpOnly session cookie
-- 第一版只有站主登入，不做多人帳號管理
+- 第一版正式模型使用 `Supabase Auth + Google OAuth`
+- admin 身分以 allowlisted email 判斷
+- 第一版仍只有站主登入，不做多人帳號管理 UI
+- 若部署環境尚未完成 env 命名遷移，可暫時接受 `SUPABASE_ADMIN_EMAILS` fallback，但正式設定以 `ADMIN_ALLOWED_EMAILS` 為準
 
 ### 7.2 Session 流程
 
-- `/admin/login` 提交 password
-- server action 驗證成功後寫入 admin session cookie
-- 完成後直接導向 `/admin/posts`
+- `/admin/login` 由 server action 啟動 Google OAuth
+- callback route 完成 session 交換與 allowlist 驗證
+- 驗證通過後直接導向 `/admin/posts`
 
 ### 7.3 Admin 存取規則
 
 - 未登入不可進入任何 `/admin/*` 內容頁
+- 已登入但 email 不在 allowlist 的使用者也不可進入任何 `/admin/*` 內容頁
 - 未登入存取 admin server actions 時應直接拒絕
 - `guards.ts` 負責集中處理登入檢查，不在每頁重複散寫
 
@@ -250,7 +258,7 @@ src/
 
 - 公開前台只可讀 `published` 的 `blog_posts`
 - admin 可讀寫所有 `blog_posts`
-- 第一版因為只有一位使用者，可採最小可行密碼門規則
+- 第一版因為只有一位使用者，可採 allowlisted Google 帳號的最小可行授權規則
 - 但 DB / app 邊界要保留未來多人使用的延伸空間
 
 ## 8. RLS 與資料存取策略
@@ -344,7 +352,7 @@ src/
   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
   - `SUPABASE_SERVICE_ROLE_KEY`
   - `NEXT_PUBLIC_SITE_URL`
-  - `ADMIN_LOGIN_PASSWORD`
+  - `ADMIN_ALLOWED_EMAILS`
 
 ## 12. UI 與互動規格
 
@@ -426,8 +434,9 @@ src/
 
 ## 14. 驗證清單
 
-- 可以用 admin 密碼完成登入並進入 `/admin/posts`
+- 可以用 allowlisted Google 帳號完成登入並進入 `/admin/posts`
 - 未登入時不可使用 admin 功能
+- 已登入但非 allowlisted 帳號不可使用 admin 功能
 - 可以建立草稿文章
 - 可以編輯既有文章
 - 可以發佈文章並在前台看到
