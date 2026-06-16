@@ -79,6 +79,8 @@ export function createRequestAdminLoginAction(dependencies: RequestAdminLoginAct
       headers: requestHeaders,
     });
 
+    let oauthUrl: string | null = null;
+
     try {
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: "google",
@@ -95,12 +97,14 @@ export function createRequestAdminLoginAction(dependencies: RequestAdminLoginAct
         };
       }
 
-      dependencies.redirect(data.url);
+      oauthUrl = data.url;
     } catch {
       return {
         ok: false,
         error: "目前無法啟動 Google 登入，請稍後再試一次。",
       };
     }
+
+    dependencies.redirect(oauthUrl);
   };
 }

@@ -62,3 +62,58 @@ test("requestAdminLogin returns a controlled error when signInWithOAuth throws",
     error: "目前無法啟動 Google 登入，請稍後再試一次。",
   });
 });
+
+test("requestAdminLogin redirects to the provider URL when OAuth starts successfully", async () => {
+  const actionsModule = await loadModule<{
+    createRequestAdminLoginAction: (input: {
+      cookies: () => Promise<{ getAll: () => Array<{ name: string; value: string }>; set: (...args: unknown[]) => void }>;
+      headers: () => Promise<Headers>;
+      createServerSupabaseClient: () => {
+        auth: {
+          signInWithOAuth: (input: {
+            provider: "google";
+            options: {
+              redirectTo: string;
+              skipBrowserRedirect: true;
+            };
+          }) => Promise<{ data: { url: string | null }; error: Error | null }>;
+        };
+      };
+      readSupabaseEnv: () => {
+        siteUrl: string;
+      };
+      requireTrustedAdminOrigin: (input: { headers: Headers; siteUrl: string }) => Promise<void>;
+      redirect: (url: string) => never;
+    }) => (_state: { ok: boolean; error: string | null }, formData: FormData) => Promise<{ ok: boolean; error: string | null }>;
+  }>("../../../lib/auth/admin-login-oauth-action.ts", "admin login actions");
+
+  const redirectSignal = new Error("NEXT_REDIRECT");
+
+  const action = actionsModule.createRequestAdminLoginAction({
+    cookies: async () => ({
+      getAll: () => [],
+      set: () => undefined,
+    }),
+    headers: async () => new Headers({ host: "amberchang.com" }),
+    createServerSupabaseClient: () => ({
+      auth: {
+        signInWithOAuth: async () => ({
+          data: {
+            url: "https://okigjvoemyryhfmqrdoc.supabase.co/auth/v1/authorize?provider=google",
+          },
+          error: null,
+        }),
+      },
+    }),
+    readSupabaseEnv: () => ({
+      siteUrl: "https://amberchang.com",
+    }),
+    requireTrustedAdminOrigin: async () => undefined,
+    redirect: (url) => {
+      assert.equal(url, "https://okigjvoemyryhfmqrdoc.supabase.co/auth/v1/authorize?provider=google");
+      throw redirectSignal;
+    },
+  });
+
+  await assert.rejects(() => action({ ok: false, error: null }, new FormData()), (error: unknown) => error === redirectSignal);
+});
