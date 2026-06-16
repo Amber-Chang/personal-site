@@ -2,6 +2,16 @@ type HeaderGetter = {
   get: (name: string) => string | null;
 };
 
+function isLocalOrigin(value: string): boolean {
+  try {
+    const url = new URL(value);
+
+    return url.hostname === "localhost" || url.hostname === "127.0.0.1";
+  } catch {
+    return false;
+  }
+}
+
 function getOriginFromHeaders(headers: HeaderGetter | undefined): string | null {
   if (!headers) {
     return null;
@@ -36,10 +46,15 @@ export function resolveAuthCallbackUrl(input: {
   headers?: HeaderGetter;
   requestUrl?: string;
 }): string {
+  const fallbackOrigin = new URL(input.fallbackSiteUrl).origin;
+  const requestOrigin = input.requestUrl ? new URL(input.requestUrl).origin : null;
+  const headerOrigin = getOriginFromHeaders(input.headers);
+
   const baseUrl =
-    (input.requestUrl ? new URL(input.requestUrl).origin : null) ??
-    getOriginFromHeaders(input.headers) ??
-    new URL(input.fallbackSiteUrl).origin;
+    (requestOrigin && isLocalOrigin(requestOrigin) ? requestOrigin : null) ??
+    (requestOrigin === fallbackOrigin ? requestOrigin : null) ??
+    (headerOrigin && isLocalOrigin(headerOrigin) ? headerOrigin : null) ??
+    fallbackOrigin;
 
   return new URL("/auth/callback", baseUrl).toString();
 }
