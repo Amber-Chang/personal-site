@@ -3,7 +3,9 @@
 
 import Link from "next/link";
 import type { Metadata } from "next";
+import { PostHogPageView } from "@/components/PostHogPageView";
 import { ProjectCard } from "@/components/ProjectCard";
+import { createPageViewProperties } from "@/lib/analytics/pageview";
 import { getPublicBlogContentService } from "../blog/blog-context";
 import { loadProjectsPageData } from "./data";
 
@@ -25,6 +27,12 @@ export default async function ProjectsPage() {
 
   return (
     <div className="space-y-8 md:space-y-10">
+      <PostHogPageView
+        properties={createPageViewProperties({
+          contentType: "projects_index",
+          sourceTemplate: "projects_index",
+        })}
+      />
       <header className="space-y-2">
         <Link href="/" className="inline-block text-sm text-muted-foreground hover:underline">
           ← 返回首頁

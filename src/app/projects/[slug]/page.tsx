@@ -5,8 +5,10 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import ReactMarkdown from "react-markdown";
+import { PostHogPageView } from "@/components/PostHogPageView";
 import { RelatedPostsSection } from "@/components/RelatedPostsSection";
 import { Badge } from "@/components/ui/badge";
+import { createPageViewProperties } from "@/lib/analytics/pageview";
 import { getPublicBlogContentService } from "../../blog/blog-context";
 import { loadProjectPageData } from "./data";
 
@@ -57,6 +59,15 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
 
   return (
     <article className="space-y-8 md:space-y-10">
+      <PostHogPageView
+        properties={createPageViewProperties({
+          contentSlug: project.slug,
+          contentTitle: project.title,
+          contentType: "project",
+          sourceTemplate: "project_detail",
+          tags: project.tags,
+        })}
+      />
       <Link href="/projects" className="inline-block text-sm text-muted-foreground hover:underline">
         ← 返回專案列表
       </Link>

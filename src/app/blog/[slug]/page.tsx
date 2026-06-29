@@ -5,7 +5,9 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import ReactMarkdown from "react-markdown";
+import { PostHogPageView } from "@/components/PostHogPageView";
 import { RelatedProjectSection } from "@/components/RelatedProjectSection";
+import { createPageViewProperties } from "@/lib/analytics/pageview";
 import { formatDate } from "@/lib/format";
 import { getPublicBlogContentService } from "../blog-context";
 import { loadBlogPostPageData } from "../data";
@@ -52,6 +54,16 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
 
   return (
     <article className="space-y-8 md:space-y-10">
+      <PostHogPageView
+        properties={createPageViewProperties({
+          contentSlug: post.slug,
+          contentTitle: post.title,
+          contentType: "post",
+          publishedAt: post.date,
+          sourceTemplate: "blog_detail",
+          tags: post.tags,
+        })}
+      />
       <Link href="/blog" className="inline-block text-sm text-muted-foreground hover:underline">
         ← 返回文章列表
       </Link>

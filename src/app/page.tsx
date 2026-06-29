@@ -3,8 +3,10 @@
 
 import Link from "next/link";
 import type { Metadata } from "next";
+import { PostHogPageView } from "@/components/PostHogPageView";
 import { PostCard } from "@/components/PostCard";
 import { ProjectCard } from "@/components/ProjectCard";
+import { createPageViewProperties } from "@/lib/analytics/pageview";
 import { getPublicBlogContentService } from "./blog/blog-context";
 import { loadHomeFeaturedProjectsData, loadHomeWritingData } from "./home-data";
 
@@ -31,6 +33,12 @@ export default async function HomePage() {
   ]);
   return (
     <div className="space-y-20 pb-6 md:space-y-32 md:pb-10">
+      <PostHogPageView
+        properties={createPageViewProperties({
+          contentType: "home",
+          sourceTemplate: "home",
+        })}
+      />
       <section className="space-y-10 border-b border-border/70 pb-14 pt-6 md:space-y-14 md:pb-20 md:pt-10">
         <div className="space-y-5 md:space-y-6">
           <div className="space-y-1.5">

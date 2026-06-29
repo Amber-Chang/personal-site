@@ -3,6 +3,8 @@
 
 import Link from "next/link";
 import type { Metadata } from "next";
+import { PostHogPageView } from "@/components/PostHogPageView";
+import { createPageViewProperties } from "@/lib/analytics/pageview";
 
 export const metadata: Metadata = {
   title: "About / 關於我 — Amber Chang",
@@ -16,6 +18,12 @@ export const metadata: Metadata = {
 export default function AboutPage() {
   return (
     <div className="space-y-8 md:space-y-10">
+      <PostHogPageView
+        properties={createPageViewProperties({
+          contentType: "about",
+          sourceTemplate: "about",
+        })}
+      />
       <header className="space-y-2">
         <Link href="/" className="inline-block text-sm text-muted-foreground hover:underline">
           ← 返回首頁
