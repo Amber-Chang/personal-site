@@ -1,42 +1,35 @@
-type PostHogCaptureEvent = {
-  event: string;
-  properties?: {
-    $current_url?: string;
-    $pathname?: string;
-    [key: string]: unknown;
-  };
-  [key: string]: unknown;
-};
+import type { BeforeSendFn, CaptureResult, PostHogConfig } from "posthog-js";
 
 export function normalizePostHogHost(host: string): string {
   return host.trim().replace(/\/+$/, "");
 }
 
-export function createPostHogInitOptions(host: string): {
-  api_host: string;
-  autocapture: false;
-  capture_pageleave: false;
-  capture_pageview: false;
-  before_send: (event: PostHogCaptureEvent) => PostHogCaptureEvent | null;
-  defaults: "2026-01-30";
-} {
+export function createPostHogInitOptions(
+  host: string,
+): Pick<PostHogConfig, "api_host" | "autocapture" | "capture_pageleave" | "capture_pageview" | "before_send" | "defaults"> {
+  const beforeSend: BeforeSendFn = (event) => {
+    if (shouldDropPostHogEvent(event)) {
+      return null;
+    }
+
+    return event;
+  };
+
   return {
     api_host: normalizePostHogHost(host),
     autocapture: false,
     capture_pageleave: false,
     capture_pageview: false,
-    before_send: (event) => {
-      if (shouldDropPostHogEvent(event)) {
-        return null;
-      }
-
-      return event;
-    },
+    before_send: beforeSend,
     defaults: "2026-01-30",
   };
 }
 
-export function shouldDropPostHogEvent(event: PostHogCaptureEvent): boolean {
+export function shouldDropPostHogEvent(event: CaptureResult | null): boolean {
+  if (!event) {
+    return false;
+  }
+
   if (event.event !== "$pageview") {
     return false;
   }
