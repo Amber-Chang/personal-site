@@ -5,6 +5,7 @@ import {
   shouldDropPostHogEvent,
   createPostHogInitOptions,
   normalizePostHogHost,
+  readPostHogPublicEnvFromSource,
   readPostHogPublicEnv,
 } from "./posthog.ts";
 
@@ -13,15 +14,18 @@ test("normalizePostHogHost removes trailing slashes", () => {
 });
 
 test("readPostHogPublicEnv returns nulls when config is incomplete", () => {
-  assert.deepEqual(readPostHogPublicEnv({ NEXT_PUBLIC_POSTHOG_HOST: "https://us.i.posthog.com" }), {
-    host: null,
-    projectToken: null,
-  });
+  assert.deepEqual(
+    readPostHogPublicEnvFromSource({ NEXT_PUBLIC_POSTHOG_HOST: "https://us.i.posthog.com" }),
+    {
+      host: null,
+      projectToken: null,
+    },
+  );
 });
 
 test("readPostHogPublicEnv returns normalized public config when complete", () => {
   assert.deepEqual(
-    readPostHogPublicEnv({
+    readPostHogPublicEnvFromSource({
       NEXT_PUBLIC_POSTHOG_HOST: "https://us.i.posthog.com/",
       NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN: "phc_test_token",
     }),
@@ -30,6 +34,33 @@ test("readPostHogPublicEnv returns normalized public config when complete", () =
       projectToken: "phc_test_token",
     },
   );
+});
+
+test("readPostHogPublicEnv reads from process env", () => {
+  const originalHost = process.env.NEXT_PUBLIC_POSTHOG_HOST;
+  const originalToken = process.env.NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN;
+
+  process.env.NEXT_PUBLIC_POSTHOG_HOST = "https://us.i.posthog.com/";
+  process.env.NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN = "phc_test_token";
+
+  try {
+    assert.deepEqual(readPostHogPublicEnv(), {
+      host: "https://us.i.posthog.com",
+      projectToken: "phc_test_token",
+    });
+  } finally {
+    if (originalHost === undefined) {
+      delete process.env.NEXT_PUBLIC_POSTHOG_HOST;
+    } else {
+      process.env.NEXT_PUBLIC_POSTHOG_HOST = originalHost;
+    }
+
+    if (originalToken === undefined) {
+      delete process.env.NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN;
+    } else {
+      process.env.NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN = originalToken;
+    }
+  }
 });
 
 test("createPostHogInitOptions returns official Next.js init config", () => {

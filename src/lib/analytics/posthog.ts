@@ -47,7 +47,7 @@ export function shouldDropPostHogEvent(event: CaptureResult | null): boolean {
   return isAdminPathname(pathname);
 }
 
-export function readPostHogPublicEnv(source: Record<string, string | undefined> = process.env): {
+export function readPostHogPublicEnvFromSource(source: Record<string, string | undefined>): {
   host: string | null;
   projectToken: string | null;
 } {
@@ -65,4 +65,14 @@ export function readPostHogPublicEnv(source: Record<string, string | undefined> 
     host: normalizePostHogHost(rawHost),
     projectToken: rawProjectToken,
   };
+}
+
+export function readPostHogPublicEnv(): {
+  host: string | null;
+  projectToken: string | null;
+} {
+  return readPostHogPublicEnvFromSource({
+    NEXT_PUBLIC_POSTHOG_HOST: process.env.NEXT_PUBLIC_POSTHOG_HOST,
+    NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN: process.env.NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN,
+  });
 }
