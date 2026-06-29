@@ -2,6 +2,7 @@
 // 功能：全站根版面，統一注入 Header、Footer 與基礎 metadata。
 
 import type { Metadata } from "next";
+import { AnalyticsConsentBanner } from "@/components/AnalyticsConsentBanner";
 import { Footer } from "@/components/Footer";
 import { Header } from "@/components/Header";
 import "./globals.css";
@@ -27,6 +28,7 @@ export default function RootLayout({
         <Header />
         <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-10 md:px-6 md:py-14">{children}</main>
         <Footer />
+        <AnalyticsConsentBanner />
       </body>
     </html>
   );
