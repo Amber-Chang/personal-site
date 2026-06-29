@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import posthog from "posthog-js";
 
 import type { PageViewProperties } from "@/lib/analytics/pageview";
-import { readPostHogPublicEnv, shouldDropPostHogEvent } from "@/lib/analytics/posthog";
+import { isAdminPathname, readPostHogPublicEnv } from "@/lib/analytics/posthog";
 
 const postHogEnv = readPostHogPublicEnv();
 
@@ -22,20 +22,15 @@ export function PostHogPageView({ properties }: { properties: PageViewProperties
       return;
     }
 
-    const event = {
-      event: "$pageview",
-      properties: {
-        ...properties,
-        $current_url: window.location.href,
-        $pathname: pathname,
-      },
-    };
-
-    if (shouldDropPostHogEvent(event)) {
+    if (isAdminPathname(pathname)) {
       return;
     }
 
-    posthog.capture(event.event, event.properties);
+    posthog.capture("$pageview", {
+      ...properties,
+      $current_url: window.location.href,
+      $pathname: pathname,
+    });
     lastTrackedPathnameRef.current = pathname;
   }, [pathname, properties]);
 

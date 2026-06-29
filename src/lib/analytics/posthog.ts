@@ -4,6 +4,10 @@ export function normalizePostHogHost(host: string): string {
   return host.trim().replace(/\/+$/, "");
 }
 
+export function isAdminPathname(pathname: string): boolean {
+  return pathname === "/admin" || pathname.startsWith("/admin/");
+}
+
 export function createPostHogInitOptions(
   host: string,
 ): Pick<PostHogConfig, "api_host" | "autocapture" | "capture_pageleave" | "capture_pageview" | "before_send" | "defaults"> {
@@ -40,7 +44,7 @@ export function shouldDropPostHogEvent(event: CaptureResult | null): boolean {
     return false;
   }
 
-  return pathname === "/admin" || pathname.startsWith("/admin/");
+  return isAdminPathname(pathname);
 }
 
 export function readPostHogPublicEnv(source: Record<string, string | undefined> = process.env): {
