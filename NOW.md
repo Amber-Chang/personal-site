@@ -15,9 +15,12 @@
 - 內容來源目前是：
   - blog：Supabase repository
   - projects：Supabase repository
+- repo 內的 `content/posts/*.md`、`content/projects/*.md` 目前主要作為 migration / import source，不是公開前台的即時內容來源
 
 ## 最近完成
 
+- 已完成 PostHog analytics 上線：透過 `posthog-js + instrumentation-client.ts` 啟用公開頁面 pageview 追蹤、排除 `/admin`，並確認 production 請求已成功送到 PostHog
+- 已完成 analytics consent banner 第一版：只有在訪客同意後才初始化 PostHog，未同意前不啟用追蹤
 - 已完成 `admin content ordering / deletion` round：`projects` 與 `notes` 補上 `sort_order`、後台排序控制、`未上架` 才可刪除，以及後台狀態顯示改為 `已上架 / 未上架`
 - 已完成一輪 `/admin` security hardening：新增 Supabase-backed login rate limit、trusted origin 檢查、24 小時 session policy、`/admin` noindex 與對應 migration / 測試 / 主文件同步
 - 已完成 `Google OAuth admin upgrade` 的主要實作與文件同步：`/admin/login` 已改為 Google OAuth 主入口，admin guard / callback / logout 已收斂到 allowlisted authenticated user 模型
@@ -54,6 +57,7 @@
 
 ## 目前最重要的事
 
+- 補一輪 analytics consent 的實機驗證紀錄，確認首次進站、拒絕、同意後 pageview、重新整理後不重複彈出等行為都符合預期
 - 補一輪實機驗證後台內容排序、刪除與狀態顯示 flow，確認 `/admin/posts`、`/admin/projects` 與前台列表順序一致
 - 持續微調網站視覺與品牌感，特別是公開頁面的 typography、footer 與首頁敘事細節
 - 補 production 或可互動環境的 Google OAuth admin 實機驗證紀錄，特別是非 allowlisted 帳號 rejection、登入、登出與 publish flow
@@ -66,10 +70,11 @@
 
 ## 下一步建議
 
-1. 補實機驗證：確認 `/admin/posts`、`/admin/projects` 的排序調整後，`/blog`、`/projects`、首頁相關區塊順序同步更新
-2. 把已完成的 production admin 手動驗證整理成單一記錄，包含 `/admin/projects` 建立 / 編輯、`Related project` 選擇、登入、登出、draft / publish / unpublish、delete / reorder
-3. 視需要補 `title -> slug` 自動建議與更完整的後台錯誤訊息
-4. 持續把 `NOW.md` / `FOUNDATION.md` 中過時描述收斂掉
+1. 補實機驗證：確認 analytics consent 在 production 的首次進站、拒絕、同意與回訪行為一致，且 PostHog 只在同意後進站
+2. 補實機驗證：確認 `/admin/posts`、`/admin/projects` 的排序調整後，`/blog`、`/projects`、首頁相關區塊順序同步更新
+3. 把已完成的 production admin 手動驗證整理成單一記錄，包含 `/admin/projects` 建立 / 編輯、`Related project` 選擇、登入、登出、draft / publish / unpublish、delete / reorder
+4. 視需要補 `title -> slug` 自動建議與更完整的後台錯誤訊息
+5. 持續把 `NOW.md` / `FOUNDATION.md` 中過時描述收斂掉
 
 ## 備註
 
