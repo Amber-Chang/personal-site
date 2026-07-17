@@ -64,11 +64,13 @@ grant all on public.blog_posts to service_role;
 
 -- Admin reads and writes run through the trusted Next.js server with the service role key.
 -- This first slice keeps RLS focused on public published reads while admin mutations stay server-side.
+drop policy if exists "public can read published projects" on public.projects;
 create policy "public can read published projects"
 on public.projects
 for select
 using (status = 'published');
 
+drop policy if exists "public can read published blog posts" on public.blog_posts;
 create policy "public can read published blog posts"
 on public.blog_posts
 for select
