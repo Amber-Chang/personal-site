@@ -13,13 +13,14 @@
   - `/projects`
   - `/projects/[slug]`
 - 內容來源目前是：
-  - blog：Supabase repository
-  - projects：Supabase repository
-- repo 內的 `content/posts/*.md`、`content/projects/*.md` 目前主要作為 migration / import source，不是公開前台的即時內容來源
+  - blog：預設走 Supabase repository；若 preview / build 缺少 public Supabase env，公開讀取會退回 repo 內 Markdown fallback
+  - projects：預設走 Supabase repository；若 preview / build 缺少 public Supabase env，公開讀取會退回 repo 內 Markdown fallback
+- repo 內的 `content/posts/*.md`、`content/projects/*.md` 仍主要作為 migration / import source；但現在也作為缺少 public env 時的公開 fallback source
 
 ## 最近完成
 
-- 已修掉 3 個既有 failing tests：`src/app/blog/[slug]/page.test.ts` 與 `src/lib/infra/repositories/factory.test.ts` 已跟上目前實作，`npm test` 回到 `282 pass / 0 fail`
+- 已修掉 3 個既有 failing tests：`src/app/blog/[slug]/page.test.ts` 與 `src/lib/infra/repositories/factory.test.ts` 已跟上目前實作，`npm test` 目前為 `285 pass / 0 fail`
+- 已補 public content runtime 的 build resilience：當 Vercel preview / build 缺少 `NEXT_PUBLIC_SUPABASE_URL` 或 `NEXT_PUBLIC_SUPABASE_ANON_KEY` 時，`getPublicBlogContentService()` 會自動從 Supabase public repositories 退回 repo 內 Markdown repositories，避免公開頁面在 page-data 階段直接 build fail
 - 已完成第二輪 `.context` 收斂：補入 env / auth / governance 術語，並把 `content_format`、`cover_image_url`、`seo_title`、`seo_description`、`updated_by` 明確標成「規格保留欄位、尚未進 runtime」
 - 已修正 `context-growth` 對 `.context/modules/README.md` 的 false positive；README 不再被當成正式 module 造成 coverage gap
 - 已刷新 production HTTP 驗證紀錄：`/`、`/blog`、`/projects`、`/admin/login` 目前回 `200`，但舊 smoke sample `admin-flow-check-20260607-0215` 與 `sms-management-platform` 現在回 `404`，未登入 `/admin/posts` 目前先被 Vercel challenge 攔成 `429`
