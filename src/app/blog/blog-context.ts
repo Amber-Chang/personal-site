@@ -16,10 +16,12 @@ export function createPublicBlogContentService<
   createPublicContentRepositories?: () => TRepositories;
   isMissingPublicContentEnvError?: (error: unknown) => boolean;
 }) {
-  const createService = input?.createBlogContentService ?? (createBlogContentService as (repositories: TRepositories) => TService);
-  const createPrimaryRepositories = input?.createPublicContentRepositories ?? (createPublicContentRepositories as () => TRepositories);
+  const createService =
+    input?.createBlogContentService ?? (createBlogContentService as unknown as (repositories: TRepositories) => TService);
+  const createPrimaryRepositories =
+    input?.createPublicContentRepositories ?? (createPublicContentRepositories as unknown as () => TRepositories);
   const createFallbackRepositories =
-    input?.createFallbackPublicContentRepositories ?? (createMarkdownPublicContentRepositories as () => TRepositories);
+    input?.createFallbackPublicContentRepositories ?? (createMarkdownPublicContentRepositories as unknown as () => TRepositories);
   const isMissingEnvError = input?.isMissingPublicContentEnvError ?? isMissingPublicContentEnvError;
 
   try {
