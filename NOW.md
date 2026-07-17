@@ -4,7 +4,7 @@
 
 ## 現況
 
-- branch：`main`
+- branch：`codex/enable-builder-pm-governance`
 - 網站已具備：
   - 首頁改版版本
   - `/about`
@@ -19,6 +19,12 @@
 
 ## 最近完成
 
+- 已修掉 3 個既有 failing tests：`src/app/blog/[slug]/page.test.ts` 與 `src/lib/infra/repositories/factory.test.ts` 已跟上目前實作，`npm test` 回到 `282 pass / 0 fail`
+- 已完成第二輪 `.context` 收斂：補入 env / auth / governance 術語，並把 `content_format`、`cover_image_url`、`seo_title`、`seo_description`、`updated_by` 明確標成「規格保留欄位、尚未進 runtime」
+- 已修正 `context-growth` 對 `.context/modules/README.md` 的 false positive；README 不再被當成正式 module 造成 coverage gap
+- 已刷新 production HTTP 驗證紀錄：`/`、`/blog`、`/projects`、`/admin/login` 目前回 `200`，但舊 smoke sample `admin-flow-check-20260607-0215` 與 `sms-management-platform` 現在回 `404`，未登入 `/admin/posts` 目前先被 Vercel challenge 攔成 `429`
+- 已把 brownfield 掃描證據手動升格進正式 `.context/`：補齊 `SYSTEM`、`GLOSSARY`、`CONVENTIONS` 與主要模組知識，後續可在重大架構或內容流程變更後重跑 evidence 再更新
+- 已完成 `builder-pm` 治理骨架與既有專案治理的比對整合：保留 `AGENTS.md` / `FOUNDATION.md` / `NOW.md` / 既有 `docs/` 為專案事實來源，新增 runtime 憲章、角色路由、brownfield backfill、loops 與 gates；Codex PR review plugin 暫未啟用
 - 已完成 PostHog analytics 上線：透過 `posthog-js + instrumentation-client.ts` 啟用公開頁面 pageview 追蹤、排除 `/admin`，並確認 production 請求已成功送到 PostHog
 - 已完成 analytics consent banner 第一版：只有在訪客同意後才初始化 PostHog，未同意前不啟用追蹤
 - 已完成 `admin content ordering / deletion` round：`projects` 與 `notes` 補上 `sort_order`、後台排序控制、`未上架` 才可刪除，以及後台狀態顯示改為 `已上架 / 未上架`
@@ -57,28 +63,27 @@
 
 ## 目前最重要的事
 
-- 補一輪 analytics consent 的實機驗證紀錄，確認首次進站、拒絕、同意後 pageview、重新整理後不重複彈出等行為都符合預期
-- 補一輪實機驗證後台內容排序、刪除與狀態顯示 flow，確認 `/admin/posts`、`/admin/projects` 與前台列表順序一致
+- 重新建立可重複使用的 production smoke sample，因舊的 `admin-flow-check-20260607-0215` 與 `sms-management-platform` 驗證路徑已不再存在
+- 在可互動環境補真實 Google OAuth admin smoke check，特別是 allowlisted login、logout、draft / publish / unpublish、non-allowlisted rejection
+- 視需要補一輪 analytics consent 的 headed / 互動式驗證，確認首次進站、拒絕、同意後 pageview、重新整理後不重複彈出等行為都符合預期
 - 持續微調網站視覺與品牌感，特別是公開頁面的 typography、footer 與首頁敘事細節
-- 補 production 或可互動環境的 Google OAuth admin 實機驗證紀錄，特別是非 allowlisted 帳號 rejection、登入、登出與 publish flow
 - 視需要補 `title -> slug` 自動建議與更完整的後台錯誤訊息
-- 把已手動完成的 production admin 登入後流程驗證記錄補回文件，避免實際狀態與文件脫節
 - 若後續需要多人或更正式的權限分級，重新評估目前 allowlist-only auth 邊界
 - 讓後續開發工作可依標準流程規則化執行
-- 收斂 production `/admin/projects`、`Related project` 與 publish flow 的手動驗證紀錄表述
 - 收斂 repo 文件，避免治理文件與目前實作狀態脫節
 
 ## 下一步建議
 
-1. 補實機驗證：確認 analytics consent 在 production 的首次進站、拒絕、同意與回訪行為一致，且 PostHog 只在同意後進站
-2. 補實機驗證：確認 `/admin/posts`、`/admin/projects` 的排序調整後，`/blog`、`/projects`、首頁相關區塊順序同步更新
-3. 把已完成的 production admin 手動驗證整理成單一記錄，包含 `/admin/projects` 建立 / 編輯、`Related project` 選擇、登入、登出、draft / publish / unpublish、delete / reorder
+1. 先建立新的 production smoke sample（文章 + project），取代已失效的舊 sample 路徑
+2. 在可互動環境補真實 Google OAuth admin smoke check，並把最新結果回填到 `docs/deployment-security-readiness.md`
+3. 視需要做 headed 驗證，確認 analytics consent banner 的互動式行為與 PostHog 只在同意後初始化
 4. 視需要補 `title -> slug` 自動建議與更完整的後台錯誤訊息
 5. 持續把 `NOW.md` / `FOUNDATION.md` 中過時描述收斂掉
 
 ## 備註
 
 - `FOUNDATION.md` 是新的核心方向文件
+- `.context/.backfill/evidence.json` 是可重跑的掃描快照；正式知識已搬入 `.context/`，後續重大變更後再重新蒐證與同步
 - 目前不保留舊規劃文件，避免干擾新的判斷
 - 若未來調整 `docs/` 結構，需同步檢查 `AGENTS.md`、`NOW.md` 與直接相關文件
 - 目前傾向的內容模型是 `projects` 與 `blog posts` 分開，blog post 可選擇關聯 project

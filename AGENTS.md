@@ -3,6 +3,16 @@
 > 這是本專案唯一的治理母法。
 > 原則：夠用就好，不追求完整流程感。
 
+## builder-pm 接入
+
+本專案已接入 `builder-pm` 治理骨架。`CLAUDE.md` 提供跨 runtime 的輕量核心憲章；本檔仍是本專案的治理母法，專案現況、技術邊界與當前對話決策優先於模板預設。
+
+- Codex 角色入口：`.agents/skills/`
+- 共用角色契約：`.claude/agents/`
+- 工作流程入口：`WORKFLOW.md`
+- 迴圈與關卡：`loops/`、`gates/`
+- Brownfield 接入指南：`ONBOARDING.md`
+
 ## 1. 專案目標
 
 - 這是一個以潛在雇主為主要受眾的個人品牌網站
@@ -46,7 +56,9 @@
 1. `NOW.md`
 2. `AGENTS.md`
 3. `FOUNDATION.md`
-4. 與當前任務直接相關的檔案
+4. `CLAUDE.md`
+5. `WORKFLOW.md`（若要修改追蹤檔案）
+6. 與當前任務直接相關的檔案
 
 ## 5. Skills 原則
 

@@ -226,7 +226,6 @@
   - `npm run lint` 通過
 - 額外觀察：
   - `npm run build` 已通過 TypeScript 與編譯階段，但在 `/projects/[slug]` page data collection 因外部 `fetch` 失敗中止，判定較接近目前環境無法完成 build-time remote fetch，而不是本輪 Google OAuth 程式碼 regression
-  - 完整 `npm test` 仍有一個既有不相關失敗：`src/app/blog/[slug]/page.test.ts` 的 brittle source assertion
 - 尚未在此環境完成：
   - 真實 Google 帳號互動登入
   - 非 allowlisted 帳號 rejection 的實機紀錄
@@ -236,6 +235,28 @@
 
 - 這一輪的 auth 升級程式碼、targeted verification 與主文件同步已完成
 - 若要把這份 readiness 視為 Google OAuth round 的最終 deploy gate，仍需在可互動環境補一輪手動 smoke check
+
+### 6.5.5 2026-07-17 驗證刷新
+
+- 驗證日期：2026-07-17
+- 驗證環境：
+  - 本機 test runner
+  - live production HTTP route check（`curl -I -L`）
+- 已完成：
+  - `npm test` 全綠：`282 pass / 0 fail`
+  - 舊的 brittle 測試 `src/app/blog/[slug]/page.test.ts` 與 repository factory 測試已修正，已不再是已知失敗
+  - `https://personal-site-two-opal.vercel.app/` 回 `200`
+  - `https://personal-site-two-opal.vercel.app/blog` 回 `200`
+  - `https://personal-site-two-opal.vercel.app/projects` 回 `200`
+  - `https://personal-site-two-opal.vercel.app/admin/login` 回 `200`
+- 最新觀察到的 live drift：
+  - `https://personal-site-two-opal.vercel.app/blog/admin-flow-check-20260607-0215` 回 `404`
+  - `https://personal-site-two-opal.vercel.app/projects/sms-management-platform` 回 `404`
+  - 未登入請求 `https://personal-site-two-opal.vercel.app/admin/posts` 目前先被 Vercel challenge 攔下並回 `429`，而不是直接進入 app-level redirect
+- 判讀：
+  - 公開頂層路由目前可達，但舊 smoke sample 與舊 project detail 驗證紀錄已失效，不能再當成現況證據
+  - `admin/posts` 未登入保護仍成立，但 live 的第一層行為現在是 firewall challenge，不是過去文件記錄的直接導回 `/admin/login`
+  - 真實 Google OAuth 互動式登入 / 登出 / unauthorized rejection 仍需以站主帳號在可互動環境完成最後紀錄
 
 ### 6.6 可重複執行的 admin publish / unpublish checklist
 
@@ -365,11 +386,11 @@
   - 首頁、`/blog`、既有公開文章與 `/admin/login` 已確認可正常載入
   - 首頁、`/projects`、`/projects/ai-writing-review-product`、`/projects/sms-management-platform` 已確認可正常載入
   - deploy 後完整 Google OAuth admin smoke check 尚未重新記錄
-- 目前結論：**Google OAuth admin 升級的實作、targeted 驗證與主文件同步已完成；在把這一輪視為最終 deployment-ready 前，仍需補一輪真實 Google 帳號的 admin smoke check**
+- 目前結論：**Google OAuth admin 升級的實作、全量自動化測試與主文件同步已完成；production 頂層路由可達，但舊 smoke sample 已失效，且真實 Google 帳號的 admin smoke check 仍需最後補記錄**
 
 這代表：
 
-- 若目標是站主自己維運 blog admin，這一版已接近可上線的最低基線，但還差最後一段 OAuth 實機驗證紀錄
+- 若目標是站主自己維運 blog admin，這一版已接近可上線的最低基線；目前剩下的是更新 live content smoke sample 與補一段真實 Google OAuth 互動驗證紀錄
 - 若目標改成多人後台、角色分級、可撤銷 session 或更完整的操作追蹤，則不應把目前狀態視為足夠
 
 ## 12. 本輪 session hardening 狀態

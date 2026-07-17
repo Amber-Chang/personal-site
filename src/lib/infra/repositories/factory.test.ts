@@ -9,6 +9,33 @@ async function loadModule<TModule>(pathName: string, label: string): Promise<TMo
   return loadedModule as TModule;
 }
 
+function createOrderableSelectQuery(call: {
+  filters: Array<{ column: string; value: unknown }>;
+}) {
+  const result = Promise.resolve({
+    data: [],
+    error: null,
+  });
+
+  const orderedQuery = {
+    order: () => result,
+    then: result.then.bind(result),
+    catch: result.catch.bind(result),
+    finally: result.finally.bind(result),
+  };
+
+  const query = {
+    eq: (column: string, value: unknown) => {
+      call.filters.push({ column, value });
+
+      return query;
+    },
+    order: () => orderedQuery,
+  };
+
+  return query;
+}
+
 test("createAdminContentRepositories uses the service-role client for admin reads", async () => {
   const factoryModule = await loadModule<{
     createAdminContentRepositories: (input?: {
@@ -16,6 +43,7 @@ test("createAdminContentRepositories uses the service-role client for admin read
         from: (table: string) => {
           select: (columns: string) => {
             eq: (column: string, value: unknown) => {
+              eq: (column: string, value: unknown) => unknown;
               order: (column: string, options: { ascending: boolean }) => Promise<{
                 data: unknown[];
                 error: null;
@@ -60,22 +88,7 @@ test("createAdminContentRepositories uses the service-role client for admin read
 
             calls.push(call);
 
-            return {
-              eq: (column, value) => {
-                call.filters.push({ column, value });
-
-                return {
-                  order: async () => ({
-                    data: [],
-                    error: null,
-                  }),
-                };
-              },
-              order: async () => ({
-                data: [],
-                error: null,
-              }),
-            };
+            return createOrderableSelectQuery(call);
           },
         }),
       };
@@ -107,6 +120,7 @@ test("createPublicContentRepositories uses the anon client for published reads",
         from: (table: string) => {
           select: (columns: string) => {
             eq: (column: string, value: unknown) => {
+              eq: (column: string, value: unknown) => unknown;
               order: (column: string, options: { ascending: boolean }) => Promise<{
                 data: unknown[];
                 error: null;
@@ -144,18 +158,7 @@ test("createPublicContentRepositories uses the anon client for published reads",
 
             calls.push(call);
 
-            return {
-              eq: (column, value) => {
-                call.filters.push({ column, value });
-
-                return {
-                  order: async () => ({
-                    data: [],
-                    error: null,
-                  }),
-                };
-              },
-            };
+            return createOrderableSelectQuery(call);
           },
         }),
       };

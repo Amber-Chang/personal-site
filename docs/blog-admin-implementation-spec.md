@@ -78,7 +78,7 @@
 - admin post form 已可新增 / 編輯，但還不是 rich editor 體驗
 - admin content path 已可用，但還沒接上 preview
 - `content/posts/*.md` 仍保留作為 migration source，實際匯入完成後再決定是否移除
-- 真實 Google 帳號的 production / 可互動環境 smoke check 紀錄仍需再補一輪
+- 真實 Google 帳號的 production / 可互動環境 smoke check 紀錄仍需再補一輪；截至 2026-07-17，`npm test` 已全綠，但互動式 OAuth 驗證仍需站主帳號完成最後紀錄
 
 ### 尚未完成
 
