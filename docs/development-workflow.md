@@ -2,6 +2,13 @@
 
 > 用途：定義這個專案後續開發時的標準流程與快速流程。
 
+## builder-pm 整合邊界
+
+- `AGENTS.md` 仍是本專案治理母法；`CLAUDE.md` 提供跨 runtime 的輕量核心憲章。
+- `WORKFLOW.md` 是 builder-pm 工作流程入口，本文件仍是標準流程、快速流程與文件同步 gate 的詳細正本。
+- 新 PRD / SPEC 使用 `docs/01-prd/` 與 `docs/02-spec/`；既有根目錄主題文件不在本輪自動搬遷範圍內。
+- `.context/.backfill/` 只放 brownfield 掃描與草稿，必須經 PM 審核後才可搬入正式 `.context/`。
+
 ## 1. 原則
 
 - 流程要能提升品質，但不能比問題本身更重

@@ -68,3 +68,20 @@
 - 過重的多階段計畫 skill
 
 只有在你明確想回到那套流程，或任務已進入標準開發流程時再用。
+
+## builder-pm 角色路由
+
+| 角色 | 入口 | 何時用 |
+|---|---|---|
+| Coordinator | `.agents/skills/coordinator/` | 任務分流、阻塞排除、交接 |
+| Planner | `.agents/skills/planner/` | 需求不清、需要 PRD / SPEC |
+| Generator | `.agents/skills/generator/` | 已核准 spec 的正式實作 |
+| Evaluator | `.agents/skills/evaluator/` | 本機或 PR review，且不得與 Generator 相同 |
+| Planner | `.agents/skills/knowledge-curation/` | 從外部來源整理候選 evidence，需 PM 核准後才進正式文件 |
+
+`.claude/skills/` 保存共用 canonical skill；`.agents/skills/` 保存 Codex adapter。除非在 registry 中有明確採用紀錄，不把外部 skill 自動升格成專案正式能力。
+
+<!-- project-skill-registry:start -->
+| skill | role | trigger | priority | canonical | codex_adapter | adoption_record |
+|---|---|---|---:|---|---|---|
+<!-- project-skill-registry:end -->

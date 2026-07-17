@@ -259,6 +259,17 @@
 - `listFeaturedProjects()` 沿用 published list 再 filter
 - `listProjectOptions()` 可暫時維持 title asc，因其用途是選單，不是公開內容排序
 
+## 11. 目前驗證狀態
+
+- 2026-07-17 `npm test` 已全綠（`282 pass / 0 fail`），排序 / 刪除相關的 service、repository、admin list 與 form 測試都已納入同一輪回歸驗證。
+- `sort_order asc` + `updated_at desc` fallback 的 repository 契約，已由 `src/lib/infra/repositories/*` 測試覆蓋。
+- 目前文件上的 production smoke sample 已過時：
+  - public `/blog`、`/projects` 頂層路由仍可達
+  - 舊 sample detail pages `admin-flow-check-20260607-0215` 與 `sms-management-platform` 在 2026-07-17 live check 中皆為 `404`
+- 因此這一輪正式結論是：
+  - 排序 / 刪除邏輯的程式面驗證已完成
+  - 舊 production sample 不可再作為 detail-page smoke 依據，後續若要重做 authenticated reorder / delete / publish smoke check，需先建立新的可重用 sample
+
 ### 10.2 service 能力
 
 需要新增：

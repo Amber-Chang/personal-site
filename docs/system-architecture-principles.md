@@ -14,11 +14,11 @@
 - `Next.js` 負責前台頁面、admin 頁面、Server Actions、Route Handlers 與應用層邏輯
 - `Supabase` 負責資料庫、登入與基本授權基礎設施
 - `Postgres` 是內容資料的主要結構來源，適合未來擴張內容關聯
-- `Markdown` 仍是目前前台既有內容來源，但 blog admin 會逐步把 blog 內容主來源切向資料庫
+- public `blog posts` 與 `projects` 已以 Supabase-first 內容路徑為主；`Markdown` 保留作 migration / import source
 
 ## 2. 目前高機率會擴張的能力
 
-- 內容來源：從 Markdown 逐步走向資料庫內容
+- 內容來源：延續 Supabase-first 內容模型，視需要保留 Markdown 匯入工具
 - 後台能力：從 blog admin 擴展到更多內容管理
 - 身分驗證：從單人登入擴展到更完整的存取控制
 - 內容關聯：從 blog post 關聯 project，逐步形成較完整的內容圖譜

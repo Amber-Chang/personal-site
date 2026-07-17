@@ -30,14 +30,15 @@
 - 應用後端：Next.js Server Actions + Route Handlers
 - 後端基礎設施：Supabase
 - 目前內容來源：
-  - `content/posts/*.md`
-  - `content/projects/*.md`
+  - public blog：Supabase repository
+  - public projects：Supabase repository
+  - `content/posts/*.md`、`content/projects/*.md`：migration / import source
 
 ## 5. 目前正在思考的演進方向
 
 - 繼續打磨首頁視覺與品牌感
 - 持續收斂 blog admin 與內容工作流，讓網站內容可長期維護
-- 採用 Supabase 作為 blog admin 的內容儲存與登入基礎
+- 持續強化 Supabase-first 的內容儲存、登入與 admin workflow
 - 後續功能 spec 與系統設計以可擴展的內容架構為前提
 - 後端邏輯優先維持在 Next.js 應用層，並透過資料存取邊界隔離基礎設施
 

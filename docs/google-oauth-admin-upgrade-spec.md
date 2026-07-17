@@ -28,7 +28,8 @@
 - 自動化驗證現況：
   - auth / callback / logout / admin guard 相關 targeted tests 已通過
   - 受影響的 admin posts / projects flow 測試已通過
-  - `npm run lint` 已通過
+  - `npm run lint` 歷史上已通過
+  - `npm test` 已在 2026-07-17 回到全綠（`282 pass / 0 fail`）
 - 仍待補的最後一段驗證：
   - 需要在可實際完成 Google 帳號互動登入的環境，再補一次 login / logout / draft / publish / unpublish / unauthorized-account rejection 的實機 smoke check
   - 目前這份 spec 應視為「實作已完成、文件已同步、互動式 OAuth 驗證待補紀錄」
@@ -506,4 +507,4 @@ Supabase / Google provider 需額外設定：
 若以 2026-06-17 的實際進度來看：
 
 - `測試與文件同步` 已完成
-- `互動式手動驗證` 尚待在可登入 Google 的環境補完最後紀錄
+- `互動式手動驗證` 尚待在可登入 Google 的環境補完最後紀錄；2026-07-17 已補 production HTTP 可達性刷新，但那不等於完成真實帳號互動驗證
