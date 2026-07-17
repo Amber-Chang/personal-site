@@ -317,6 +317,8 @@ test("blog admin migration defines schema, RLS, and updated_at triggers", () => 
   assert.match(content, /create table if not exists public\.blog_posts/i);
   assert.match(content, /alter table public\.projects enable row level security/i);
   assert.match(content, /alter table public\.blog_posts enable row level security/i);
+  assert.match(content, /drop policy if exists "public can read published projects" on public\.projects/i);
+  assert.match(content, /drop policy if exists "public can read published blog posts" on public\.blog_posts/i);
   assert.match(content, /create policy "public can read published blog posts"/i);
   assert.match(content, /admin reads and writes run through the trusted next\.js server with the service role key/i);
   assert.match(content, /create or replace function public\.set_updated_at_timestamp/i);
