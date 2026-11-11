@@ -19,7 +19,7 @@
 
 ## 最近完成
 
-- 已完成全站健檢第 1 包（分支 `codex/site-health-fixes`，尚未 push / 合併）：社群分享圖與 `metadataBase`、自訂 404、`sitemap.xml` / `robots.txt`、文字對比、可點範圍、標題層級、首頁大標斷行、內文行長；本機 8 頁 × 2 寬度量測：對比不足、可點高度 < 24px、標題跳號、橫向捲動皆為 0。規劃與驗收條件見 [docs/plans/2026-11-11-site-health-and-design-tokens.md](./docs/plans/2026-11-11-site-health-and-design-tokens.md)
+- 已完成全站健檢第 1 包（分支 `codex/site-health-fixes`，尚未 push / 合併）：社群分享圖與 `metadataBase`、自訂 404、`sitemap.xml` / `robots.txt`、文字對比、可點範圍、標題層級、首頁大標斷行；本機 8 頁 × 2 寬度量測：對比不足、可點高度 < 24px、標題跳號、橫向捲動皆為 0。規劃與驗收條件見 [docs/plans/2026-11-11-site-health-and-design-tokens.md](./docs/plans/2026-11-11-site-health-and-design-tokens.md)
 - 已讓 `npm run lint` 恢復通過（0 errors）：`eslint.config.mjs` 把 `gates/`、`loops/`、`onboarding/` 的 `.cjs` 治理工具改用 Node CommonJS 規則檢查（保留 `no-undef`），analytics consent banner 改用 `useSyncExternalStore`，瀏覽器實測同意 / 拒絕 / 重新整理行為與改寫前一致；剩餘 16 個 warning 皆在治理工具腳本
 - 已新增 Supabase 防暫停排程：`vercel.json` 每天 3 次以 Vercel Cron 呼叫受 `CRON_SECRET` 保護的 `/api/cron/supabase-keep-alive`，直接查詢 published posts，避免 Free plan 因 7 天低活動被自動暫停
 - 已修掉 3 個既有 failing tests：`src/app/blog/[slug]/page.test.ts` 與 `src/lib/infra/repositories/factory.test.ts` 已跟上目前實作，`npm test` 目前為 `285 pass / 0 fail`
@@ -68,7 +68,7 @@
 
 ## 目前最重要的事
 
-- PM 驗收全站健檢第 1 包：首頁大標斷行（任務 1.7）與內文行長（任務 1.8）的改前改後觀感；上線後用 LinkedIn Post Inspector 確認分享圖，並確認 production 的 `NEXT_PUBLIC_SITE_URL` 是正式網址（分享圖、sitemap、robots 的絕對網址都依它產生）
+- PM 驗收全站健檢第 1 包：首頁大標斷行（任務 1.7）的改前改後觀感（任務 1.8 內文行長經 PM 檢視後決定不做，內文維持全寬）；上線後用 LinkedIn Post Inspector 確認分享圖，並確認 production 的 `NEXT_PUBLIC_SITE_URL` 是正式網址（分享圖、sitemap、robots 的絕對網址都依它產生）
 - 確認 Supabase 防暫停排程在 production 生效：Vercel 已設定 `CRON_SECRET`、Cron Jobs 頁面看得到 3 個排程，且上線 7 天後 Supabase 專案仍為 `ACTIVE_HEALTHY`
 - 重新建立可重複使用的 production smoke sample，因舊的 `admin-flow-check-20260607-0215` 與 `sms-management-platform` 驗證路徑已不再存在
 - 在可互動環境補真實 Google OAuth admin smoke check，特別是 allowlisted login、logout、draft / publish / unpublish、non-allowlisted rejection

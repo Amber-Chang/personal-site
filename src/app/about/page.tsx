@@ -35,8 +35,7 @@ export default function AboutPage() {
         </h1>
       </header>
 
-      {/* 內文最大寬度 38em：桌機每行約 38 個中文字；手機欄寬本來就比 38em 窄，不受影響。標題區維持原寬。欄寬變窄後，md 以上的段落標題改用平衡斷行，避免最後一行只剩一兩個字。 */}
-      <article className="prose prose-neutral max-w-[38em] md:prose-headings:text-balance text-[1.02rem] leading-8 prose-headings:font-[family-name:var(--font-display)] prose-headings:tracking-[-0.03em] prose-h2:mt-12 prose-h2:text-[1.8rem] prose-h2:font-semibold prose-p:text-foreground/88 prose-p:leading-8 prose-li:leading-8 md:text-[1.06rem] md:prose-h2:text-[2rem]">
+      <article className="prose prose-neutral max-w-none text-[1.02rem] leading-8 prose-headings:font-[family-name:var(--font-display)] prose-headings:tracking-[-0.03em] prose-h2:mt-12 prose-h2:text-[1.8rem] prose-h2:font-semibold prose-p:text-foreground/88 prose-p:leading-8 prose-li:leading-8 md:text-[1.06rem] md:prose-h2:text-[2rem]">
         <p>我是 Amber，一位 AI-native Product Builder。</p>
         <p>我擅長把模糊需求、系統脈絡與有限資源，整理成可以被討論、驗證與推進的產品方案。</p>
         <p>
