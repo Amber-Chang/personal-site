@@ -28,6 +28,8 @@ test("home page keeps card titles at the default h3 and marks Contact as an h2",
   const source = readSource("src/app/page.tsx");
 
   assert.doesNotMatch(source, /headingLevel=/);
-  assert.match(source, /<h2 className="[^"]*">Contact<\/h2>/);
+  // Contact 的標題改由 SectionHeading 輸出；SectionHeading 一律用 h2。
+  assert.match(source, /<SectionHeading title="Contact" \/>/);
+  assert.match(readSource("src/components/SectionHeading.tsx"), /<h2 className="[^"]*">\{title\}<\/h2>/);
   assert.doesNotMatch(source, /<p className="[^"]*">Contact<\/p>/);
 });
