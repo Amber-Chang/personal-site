@@ -12,8 +12,8 @@ export default function NotFound() {
   return (
     <div className="space-y-10 pt-4 md:space-y-12 md:pt-8">
       <header className="space-y-3">
-        <p className="text-sm tracking-[0.08em] text-muted-foreground">404</p>
-        <h1 className="font-[family-name:var(--font-display)] text-[2.25rem] font-semibold tracking-[-0.03em] md:text-[2.6rem]">
+        <p className="text-sm tracking-label text-muted-foreground">404</p>
+        <h1 className="font-display text-title font-semibold tracking-heading">
           找不到這個頁面
         </h1>
         <p className="max-w-xl text-base leading-8 text-muted-foreground">
@@ -24,7 +24,7 @@ export default function NotFound() {
       <nav aria-label="站內入口" className="flex flex-wrap gap-3">
         <Link
           href="/"
-          className="inline-flex min-h-12 items-center rounded-full bg-foreground px-6 py-3 text-base font-medium text-background transition-colors hover:bg-foreground/90"
+          className="inline-flex min-h-12 items-center rounded-full bg-foreground px-6 py-3 text-base font-medium text-background transition-colors hover:bg-foreground-soft"
         >
           回首頁
         </Link>
