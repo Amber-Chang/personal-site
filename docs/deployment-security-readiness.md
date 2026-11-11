@@ -65,8 +65,12 @@
 | `NEXT_PUBLIC_SITE_URL` | 站點 URL、redirect 與部署環境判定相關設定 | preview / production 都需對應正確網址 |
 | `ADMIN_ALLOWED_EMAILS` | allowlisted admin email 清單 | 必填，逗號分隔 |
 | `SUPABASE_ADMIN_EMAILS` | 舊 allowlist env 名稱 | 僅 migration fallback，非首選 |
+| `CRON_SECRET` | 保護 `/api/cron/supabase-keep-alive`，Vercel Cron 會以 `Authorization: Bearer <CRON_SECRET>` 呼叫 | 只能放 server-side runtime；未設定時該 route 一律回 `500`、不查資料庫 |
 
 補充說明：
+
+- Supabase Free plan 會暫停 7 天內 database activity 過少的專案；`vercel.json` 以 3 個 Vercel Cron Jobs（UTC `00:00`、`08:00`、`16:00`，Hobby 只保證在該小時內執行）呼叫 keep-alive route，直接用 public repository 讀一次 published posts 產生查詢
+- keep-alive route 刻意不走 Markdown fallback，查詢失敗會回 `500` 並寫入 Vercel function log；Vercel Cron Jobs 只在 production deployment 執行
 
 - `ADMIN_ALLOWED_EMAILS` 應以 normalize 後 email 寫入，避免大小寫或空白造成誤判
 - Google OAuth client id / secret 與 callback URL 主要配置在 Supabase Auth provider 設定中，不是由 app runtime env 直接承載

@@ -4,7 +4,7 @@
 
 ## 現況
 
-- branch：`codex/enable-builder-pm-governance`
+- branch：`main`
 - 網站已具備：
   - 首頁改版版本
   - `/about`
@@ -19,6 +19,7 @@
 
 ## 最近完成
 
+- 已新增 Supabase 防暫停排程：`vercel.json` 每天 3 次以 Vercel Cron 呼叫受 `CRON_SECRET` 保護的 `/api/cron/supabase-keep-alive`，直接查詢 published posts，避免 Free plan 因 7 天低活動被自動暫停
 - 已修掉 3 個既有 failing tests：`src/app/blog/[slug]/page.test.ts` 與 `src/lib/infra/repositories/factory.test.ts` 已跟上目前實作，`npm test` 目前為 `285 pass / 0 fail`
 - 已補 public content runtime 的 build resilience：當 Vercel preview / build 缺少 `NEXT_PUBLIC_SUPABASE_URL` 或 `NEXT_PUBLIC_SUPABASE_ANON_KEY` 時，`getPublicBlogContentService()` 會自動從 Supabase public repositories 退回 repo 內 Markdown repositories，避免公開頁面在 page-data 階段直接 build fail
 - 已補 Supabase foundation migration 的 idempotent policy handling：`202606020001_bootstrap_blog_admin_foundation.sql` 在建立公開 read policy 前會先 `drop policy if exists`，避免 merge 後的 Supabase Preview 因同名 policy 已存在而失敗
@@ -65,6 +66,7 @@
 
 ## 目前最重要的事
 
+- 確認 Supabase 防暫停排程在 production 生效：Vercel 已設定 `CRON_SECRET`、Cron Jobs 頁面看得到 3 個排程，且上線 7 天後 Supabase 專案仍為 `ACTIVE_HEALTHY`
 - 重新建立可重複使用的 production smoke sample，因舊的 `admin-flow-check-20260607-0215` 與 `sms-management-platform` 驗證路徑已不再存在
 - 在可互動環境補真實 Google OAuth admin smoke check，特別是 allowlisted login、logout、draft / publish / unpublish、non-allowlisted rejection
 - 視需要補一輪 analytics consent 的 headed / 互動式驗證，確認首次進站、拒絕、同意後 pageview、重新整理後不重複彈出等行為都符合預期

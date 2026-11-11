@@ -88,8 +88,11 @@ npm run content:sync-projects
 - `NEXT_PUBLIC_SITE_URL`
 - `NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN`
 - `NEXT_PUBLIC_POSTHOG_HOST`
+- `CRON_SECRET`
 
 補充：
+
+- `CRON_SECRET` 保護 Supabase 防暫停排程 `/api/cron/supabase-keep-alive`（排程設定在 `vercel.json`）
 
 - admin 目前採用 `Supabase Auth + Google OAuth + allowlisted email`
 - `SUPABASE_SERVICE_ROLE_KEY` 只可用在 trusted server runtime，不可進 client bundle
