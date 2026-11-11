@@ -8,11 +8,10 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans:
-    "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", "Helvetica Neue", Arial, sans-serif;
-  /* 標題字體：直接用 font-display utility（不要再寫 font-[family-name:var(--font-display)]） */
-  --font-display:
-    "Iowan Old Style", "Palatino Linotype", "Times New Roman", "Noto Serif TC", serif;
+  /* 內文字體：各平台的系統字體（Mac PingFang TC、Windows 微軟正黑體），不另外載入網路字體。 */
+  --font-sans: "PingFang TC", "Microsoft JhengHei", "Helvetica Neue", Arial, sans-serif;
+  /* 標題字體：Noto Serif TC 600，由 layout.tsx 的 next/font 載入。直接用 font-display utility。 */
+  --font-display: var(--font-noto-serif-tc), serif;
   --font-mono:
     "JetBrains Mono", "SF Mono", "Roboto Mono", Menlo, Monaco, Consolas, "Liberation Mono",
     "Courier New", monospace;
