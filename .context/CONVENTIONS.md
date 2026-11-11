@@ -7,6 +7,7 @@
 - `published` 的 post / project 不能直接刪除；若要刪除，先下架回 `draft`。
 - 手動排序以 `sort_order` 為唯一權威欄位；reorder 操作必須提交完整 id 清單，不接受局部交換。
 - PostHog 只能在使用者同意後啟用，且目前只追公開頁面，不追 `/admin`。
+- 公開頁面的新畫面不得寫死字級、圓角、字距與文字、邊框深淺：用 [docs/design-tokens.md](../docs/design-tokens.md) 列出的 token，不寫 `text-[…]`、`rounded-[…]`、`tracking-[…]`，也不新增「token/透明度」組合；缺少合適的 token 時先在 `src/app/globals.css` 補上並更新該文件。
 
 ## 架構禁區（不准碰 / 不准這樣做）
 
