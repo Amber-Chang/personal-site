@@ -6,6 +6,7 @@ import type { Metadata } from "next";
 import { PostHogPageView } from "@/components/PostHogPageView";
 import { ProjectCard } from "@/components/ProjectCard";
 import { createPageViewProperties } from "@/lib/analytics/pageview";
+import { sharedOpenGraph } from "../shared-metadata";
 import { getPublicBlogContentService } from "../blog/blog-context";
 import { loadProjectsPageData } from "./data";
 
@@ -13,6 +14,7 @@ export const metadata: Metadata = {
   title: "Projects — Amber Chang",
   description: "一些我如何理解問題、整理脈絡，並把它們推進成產品成果的紀錄。",
   openGraph: {
+    ...sharedOpenGraph,
     title: "Projects — Amber Chang",
     description: "一些我如何理解問題、整理脈絡，並把它們推進成產品成果的紀錄。",
   },
@@ -34,7 +36,7 @@ export default async function ProjectsPage() {
         })}
       />
       <header className="space-y-2">
-        <Link href="/" className="inline-block text-sm text-muted-foreground hover:underline">
+        <Link href="/" className="-mt-3 inline-flex min-h-8 items-end text-sm text-muted-foreground hover:underline">
           ← 返回首頁
         </Link>
         <h1 className="font-[family-name:var(--font-display)] text-[2.25rem] font-semibold tracking-[-0.03em] md:text-[2.6rem]">
@@ -47,7 +49,7 @@ export default async function ProjectsPage() {
 
       <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3 md:gap-6">
         {projects.length > 0 ? (
-          projects.map((project) => <ProjectCard key={project.slug} project={project} />)
+          projects.map((project) => <ProjectCard key={project.slug} project={project} headingLevel="h2" />)
         ) : (
           <p className="text-sm text-muted-foreground">目前還沒有公開案例。</p>
         )}

@@ -5,9 +5,14 @@ import type { Metadata } from "next";
 import { AnalyticsConsentBanner } from "@/components/AnalyticsConsentBanner";
 import { Footer } from "@/components/Footer";
 import { Header } from "@/components/Header";
+import { readSiteUrl } from "@/lib/infra/supabase/env";
 import "./globals.css";
 
+// 社群分享圖、sitemap 等絕對網址的基準。缺少站點網址時交給 Next.js 預設值，不讓 build 失敗。
+const siteUrl = readSiteUrl();
+
 export const metadata: Metadata = {
+  metadataBase: siteUrl && URL.canParse(siteUrl) ? new URL(siteUrl) : undefined,
   title: "Amber Chang | Personal Site",
   description: "一個正在學著用 AI 槓桿出更大效益、朝 builder 之路邁進的 PM。",
   icons: {

@@ -62,7 +62,7 @@
 | `NEXT_PUBLIC_SUPABASE_URL` | 前台與 server 端連線到 Supabase 專案 | 必填 |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | public read 與一般 Supabase client 初始化 | 必填 |
 | `SUPABASE_SERVICE_ROLE_KEY` | trusted server 端 admin content path 寫入 | 只能放 server-side runtime |
-| `NEXT_PUBLIC_SITE_URL` | 站點 URL、redirect 與部署環境判定相關設定 | preview / production 都需對應正確網址 |
+| `NEXT_PUBLIC_SITE_URL` | 站點 URL、redirect 與部署環境判定相關設定；也是社群分享圖（`og:image`，透過 `metadataBase`）、`sitemap.xml`、`robots.txt` 的絕對網址基準 | preview / production 都需對應正確網址；缺值時依序退回 `VERCEL_PROJECT_PRODUCTION_URL`、`VERCEL_URL` |
 | `ADMIN_ALLOWED_EMAILS` | allowlisted admin email 清單 | 必填，逗號分隔 |
 | `SUPABASE_ADMIN_EMAILS` | 舊 allowlist env 名稱 | 僅 migration fallback，非首選 |
 | `CRON_SECRET` | 保護 `/api/cron/supabase-keep-alive`，Vercel Cron 會以 `Authorization: Bearer <CRON_SECRET>` 呼叫 | 只能放 server-side runtime；未設定時該 route 一律回 `500`、不查資料庫 |

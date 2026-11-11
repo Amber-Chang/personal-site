@@ -43,11 +43,17 @@ function normalizeSiteUrl(value: string | undefined): string | null {
   return `https://${trimmedValue}`;
 }
 
-function resolveSiteUrl(source: Record<string, string | undefined>): string {
-  const resolvedSiteUrl =
+// 不丟錯的站點網址解析，給 metadataBase、sitemap、robots 這類「缺值時要能降級」的地方用。
+export function readSiteUrl(source: Record<string, string | undefined> = process.env): string | null {
+  return (
     normalizeSiteUrl(source.NEXT_PUBLIC_SITE_URL) ??
     normalizeSiteUrl(source.VERCEL_PROJECT_PRODUCTION_URL) ??
-    normalizeSiteUrl(source.VERCEL_URL);
+    normalizeSiteUrl(source.VERCEL_URL)
+  );
+}
+
+function resolveSiteUrl(source: Record<string, string | undefined>): string {
+  const resolvedSiteUrl = readSiteUrl(source);
 
   if (!resolvedSiteUrl) {
     throw new MissingEnvironmentVariableError("NEXT_PUBLIC_SITE_URL");

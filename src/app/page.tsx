@@ -47,7 +47,8 @@ export default async function HomePage() {
               AI-native product portfolio
             </p>
           </div>
-          <h1 className="max-w-4xl text-balance font-[family-name:var(--font-display)] text-3xl font-semibold leading-[1.22] tracking-[-0.03em] md:text-4xl xl:text-[3.25rem]">
+          {/* 最大寬度用 em：15em 約等於 15 個中文字（含 -0.03em 字距），不論字級多大，第一句剛好一行，第二句斷成 15 + 7 字，不會只剩「楚的問題。」 */}
+          <h1 className="max-w-[15em] text-balance font-[family-name:var(--font-display)] text-3xl font-semibold leading-[1.22] tracking-[-0.03em] md:text-4xl xl:text-[3.25rem]">
             我用產品思維、系統理解與寫作，
             <br />
             整理那些在工作現場與生活裡還說不清楚的問題。
@@ -92,7 +93,7 @@ export default async function HomePage() {
             <h2 className="font-[family-name:var(--font-display)] text-[2rem] font-semibold tracking-[-0.03em]">Projects</h2>
             <p className="text-sm text-muted-foreground">這些是我怎麼理解問題、整理脈絡，並把它們慢慢推進成成果的紀錄。</p>
           </div>
-          <Link href="/projects" className="shrink-0 text-sm underline underline-offset-4 hover:text-foreground">
+          <Link href="/projects" className="-mt-3 inline-flex min-h-8 shrink-0 items-end text-sm underline underline-offset-4 hover:text-foreground">
             All projects
           </Link>
         </div>
@@ -112,7 +113,7 @@ export default async function HomePage() {
             <h2 className="font-[family-name:var(--font-display)] text-[2rem] font-semibold tracking-[-0.03em]">Writing &amp; Notes</h2>
             <p className="text-sm text-muted-foreground">我記工作裡的判斷，也記生活裡那些還值得想一下的事。</p>
           </div>
-          <Link href="/blog" className="shrink-0 text-sm underline underline-offset-4 hover:text-foreground">
+          <Link href="/blog" className="-mt-3 inline-flex min-h-8 shrink-0 items-end text-sm underline underline-offset-4 hover:text-foreground">
             All posts
           </Link>
         </div>
@@ -127,7 +128,7 @@ export default async function HomePage() {
       </section>
 
       <section className="space-y-4 pt-2 md:pt-4">
-        <p className="font-[family-name:var(--font-display)] text-[2rem] font-semibold tracking-[-0.03em]">Contact</p>
+        <h2 className="font-[family-name:var(--font-display)] text-[2rem] font-semibold tracking-[-0.03em]">Contact</h2>
         <a
           href="mailto:taco5239@gmail.com"
           className="inline-block text-base text-muted-foreground underline decoration-muted-foreground/70 underline-offset-4 hover:text-foreground"

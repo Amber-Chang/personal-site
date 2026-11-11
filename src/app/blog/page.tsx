@@ -6,6 +6,7 @@ import type { Metadata } from "next";
 import { PostHogPageView } from "@/components/PostHogPageView";
 import { PostCard } from "@/components/PostCard";
 import { createPageViewProperties } from "@/lib/analytics/pageview";
+import { sharedOpenGraph } from "../shared-metadata";
 import { getPublicBlogContentService } from "./blog-context";
 import { loadBlogIndexPageData } from "./data";
 
@@ -13,6 +14,7 @@ export const metadata: Metadata = {
   title: "Writing & Notes — Amber Chang",
   description: "Amber 的文章列表：AI 協作、產品管理、學習紀錄。",
   openGraph: {
+    ...sharedOpenGraph,
     title: "Writing & Notes — Amber Chang",
     description: "Amber 的文章列表：AI 協作、產品管理、學習紀錄。",
   },
@@ -34,7 +36,7 @@ export default async function BlogPage() {
         })}
       />
       <header className="space-y-2">
-        <Link href="/" className="inline-block text-sm text-muted-foreground hover:underline">
+        <Link href="/" className="-mt-3 inline-flex min-h-8 items-end text-sm text-muted-foreground hover:underline">
           ← 返回首頁
         </Link>
         <h1 className="font-[family-name:var(--font-display)] text-[2.25rem] font-semibold tracking-[-0.03em] md:text-[2.6rem]">
@@ -44,7 +46,7 @@ export default async function BlogPage() {
       </header>
       <div className="space-y-4 md:space-y-5">
         {posts.length > 0 ? (
-          posts.map((post) => <PostCard key={post.slug} post={post} />)
+          posts.map((post) => <PostCard key={post.slug} post={post} headingLevel="h2" />)
         ) : (
           <p className="text-sm text-muted-foreground">目前還沒有文章。</p>
         )}

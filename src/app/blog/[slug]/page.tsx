@@ -9,6 +9,7 @@ import { PostHogPageView } from "@/components/PostHogPageView";
 import { RelatedProjectSection } from "@/components/RelatedProjectSection";
 import { createPageViewProperties } from "@/lib/analytics/pageview";
 import { formatDate } from "@/lib/format";
+import { sharedOpenGraph } from "../../shared-metadata";
 import { getPublicBlogContentService } from "../blog-context";
 import { loadBlogPostPageData } from "../data";
 
@@ -35,6 +36,7 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
     title: `${post.title} — Amber Chang`,
     description: post.description,
     openGraph: {
+      ...sharedOpenGraph,
       title: post.title,
       description: post.description,
     },
@@ -64,7 +66,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
           tags: post.tags,
         })}
       />
-      <Link href="/blog" className="inline-block text-sm text-muted-foreground hover:underline">
+      <Link href="/blog" className="-mt-3 inline-flex min-h-8 items-end text-sm text-muted-foreground hover:underline">
         ← 返回文章列表
       </Link>
       <header className="border-b border-border/70 pb-6 md:pb-8">

@@ -30,7 +30,7 @@ export default async function AdminLoginPage({ searchParams }: AdminLoginPagePro
     <main className="mx-auto flex min-h-[60vh] w-full max-w-xl flex-col justify-center px-6 py-16">
       <div className="space-y-4 rounded-3xl border border-black/10 bg-white/80 p-8 shadow-sm">
         <div className="space-y-2">
-          <p className="text-sm uppercase tracking-[0.24em] text-black/50">Blog Admin</p>
+          <p className="text-sm uppercase tracking-[0.24em] text-muted-foreground">Blog Admin</p>
           <h1 className="text-3xl font-semibold text-black">使用 Google 登入後台</h1>
           <p className="text-sm leading-6 text-black/65">
             後台已改為 Google OAuth。請使用允許的 Google 帳號登入，系統會在完成授權後直接帶你進入後台。

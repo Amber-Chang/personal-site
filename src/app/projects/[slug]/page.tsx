@@ -9,6 +9,7 @@ import { PostHogPageView } from "@/components/PostHogPageView";
 import { RelatedPostsSection } from "@/components/RelatedPostsSection";
 import { Badge } from "@/components/ui/badge";
 import { createPageViewProperties } from "@/lib/analytics/pageview";
+import { sharedOpenGraph } from "../../shared-metadata";
 import { getPublicBlogContentService } from "../../blog/blog-context";
 import { loadProjectPageData } from "./data";
 
@@ -40,6 +41,7 @@ export async function generateMetadata({ params }: ProjectPageProps): Promise<Me
     title: `${project.title} — Amber Chang`,
     description,
     openGraph: {
+      ...sharedOpenGraph,
       title: project.title,
       description,
     },
@@ -68,7 +70,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
           tags: project.tags,
         })}
       />
-      <Link href="/projects" className="inline-block text-sm text-muted-foreground hover:underline">
+      <Link href="/projects" className="-mt-3 inline-flex min-h-8 items-end text-sm text-muted-foreground hover:underline">
         ← 返回專案列表
       </Link>
 
@@ -82,11 +84,11 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
 
         <div className="grid gap-4 rounded-[1.5rem] border border-border/70 bg-muted/25 p-5 text-sm md:grid-cols-2 md:p-6">
           <div className="space-y-1">
-            <p className="text-muted-foreground/80">角色</p>
+            <p className="text-muted-foreground">角色</p>
             <p className="leading-7">{project.role || "未提供"}</p>
           </div>
           <div className="space-y-1">
-            <p className="text-muted-foreground/80">期間</p>
+            <p className="text-muted-foreground">期間</p>
             <p className="leading-7">{project.period || "未提供"}</p>
           </div>
         </div>
