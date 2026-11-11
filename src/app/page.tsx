@@ -47,7 +47,8 @@ export default async function HomePage() {
               AI-native product portfolio
             </p>
           </div>
-          <h1 className="max-w-4xl text-balance font-[family-name:var(--font-display)] text-3xl font-semibold leading-[1.22] tracking-[-0.03em] md:text-4xl xl:text-[3.25rem]">
+          {/* 最大寬度用 em：15em 約等於 15 個中文字（含 -0.03em 字距），不論字級多大，第一句剛好一行，第二句斷成 15 + 7 字，不會只剩「楚的問題。」 */}
+          <h1 className="max-w-[15em] text-balance font-[family-name:var(--font-display)] text-3xl font-semibold leading-[1.22] tracking-[-0.03em] md:text-4xl xl:text-[3.25rem]">
             我用產品思維、系統理解與寫作，
             <br />
             整理那些在工作現場與生活裡還說不清楚的問題。
