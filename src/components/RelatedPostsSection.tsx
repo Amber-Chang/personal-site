@@ -14,7 +14,7 @@ export function RelatedPostsSection({ relatedPosts }: { relatedPosts: RelatedPos
   }
 
   return (
-    <section className="border-t border-border/70 pt-8">
+    <section className="border-t border-border pt-8">
       <div className="mb-5 space-y-2">
         <h2 className="text-base font-medium">延伸閱讀</h2>
         <p className="text-sm text-muted-foreground">如果你想從文章角度看這個案例，這幾篇可以接著讀。</p>
@@ -25,7 +25,7 @@ export function RelatedPostsSection({ relatedPosts }: { relatedPosts: RelatedPos
           <Link
             key={post.slug}
             href={`/blog/${post.slug}`}
-            className="block rounded-xl border border-border/70 p-4 transition-colors hover:border-foreground/35"
+            className="block rounded-xl border border-border p-4 transition-colors hover:border-strong"
           >
             <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
               <h3 className="text-base font-medium leading-snug">{post.title}</h3>

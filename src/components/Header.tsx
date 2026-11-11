@@ -15,7 +15,7 @@ export async function Header() {
   const showAdminAffordance = adminAuthState.isAdmin;
 
   return (
-    <header className="sticky top-0 z-30 border-b border-border/70 bg-background/78 backdrop-blur-md">
+    <header className="sticky top-0 z-30 border-b border-border bg-background/78 backdrop-blur-md">
       <div className="mx-auto w-full max-w-5xl px-4 py-4 md:px-6 md:py-5">
         <div className="flex items-center justify-between gap-4">
           <Link
@@ -36,10 +36,10 @@ export async function Header() {
           </Link>
 
           <details className="group lg:hidden">
-            <summary className="flex min-h-11 cursor-pointer list-none items-center rounded-full border border-border/80 px-4 text-sm text-foreground/82 transition-colors hover:border-foreground/30">
+            <summary className="flex min-h-11 cursor-pointer list-none items-center rounded-full border border-border px-4 text-sm text-foreground/82 transition-colors hover:border-strong">
               Menu
             </summary>
-            <nav className="absolute inset-x-4 top-full mt-3 rounded-[1.5rem] border border-border/80 bg-background/96 p-4 shadow-sm backdrop-blur md:inset-x-6">
+            <nav className="absolute inset-x-4 top-full mt-3 rounded-[1.5rem] border border-border bg-background/96 p-4 shadow-sm backdrop-blur md:inset-x-6">
               <div className="flex flex-col text-sm text-muted-foreground">
                 <Link href="/about" className="flex min-h-11 items-center rounded-full px-2 hover:text-foreground">
                   About
@@ -56,7 +56,7 @@ export async function Header() {
                       後台
                     </Link>
                     <form action={requestAdminLogout}>
-                      <Button className="h-auto min-h-11 w-full rounded-full border-border/80 px-3 py-2" size="sm" type="submit" variant="outline">
+                      <Button className="h-auto min-h-11 w-full rounded-full border-border px-3 py-2" size="sm" type="submit" variant="outline">
                         登出
                       </Button>
                     </form>
@@ -82,7 +82,7 @@ export async function Header() {
                   後台
                 </Link>
                 <form action={requestAdminLogout}>
-                  <Button className="h-auto rounded-full border-border/80 px-3 py-1.5" size="sm" type="submit" variant="outline">
+                  <Button className="h-auto rounded-full border-border px-3 py-1.5" size="sm" type="submit" variant="outline">
                     登出
                   </Button>
                 </form>

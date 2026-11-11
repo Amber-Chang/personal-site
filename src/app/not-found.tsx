@@ -30,13 +30,13 @@ export default function NotFound() {
         </Link>
         <Link
           href="/projects"
-          className="inline-flex min-h-12 items-center rounded-full border border-border px-6 py-3 text-base font-medium text-foreground transition-colors hover:border-foreground/35"
+          className="inline-flex min-h-12 items-center rounded-full border border-border px-6 py-3 text-base font-medium text-foreground transition-colors hover:border-strong"
         >
           Projects
         </Link>
         <Link
           href="/blog"
-          className="inline-flex min-h-12 items-center rounded-full border border-border px-6 py-3 text-base font-medium text-foreground transition-colors hover:border-foreground/35"
+          className="inline-flex min-h-12 items-center rounded-full border border-border px-6 py-3 text-base font-medium text-foreground transition-colors hover:border-strong"
         >
           Writing &amp; Notes
         </Link>

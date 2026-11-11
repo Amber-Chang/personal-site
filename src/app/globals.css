@@ -31,7 +31,9 @@
   --color-chart-1: var(--chart-1);
   --color-ring: var(--ring);
   --color-input: var(--input);
-  --color-border: var(--border);
+  /* 邊框預設階：公開頁的線條＝基礎線條色 --border 的 70%。強調階見下方 border-strong。
+     沒指定顏色的 border（shadcn 元件內部、後台）仍用 100% 的 --border，見 @layer base。 */
+  --color-border: color-mix(in oklab, var(--border) 70%, transparent);
   --color-destructive: var(--destructive);
   --color-accent-foreground: var(--accent-foreground);
   --color-accent: var(--accent);
@@ -166,7 +168,8 @@
 
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    border-color: var(--border);
+    @apply outline-ring/50;
   }
   html {
     scroll-behavior: smooth;

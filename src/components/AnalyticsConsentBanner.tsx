@@ -25,7 +25,7 @@ export function AnalyticsConsentBanner() {
 
   return (
     <div className="fixed inset-x-0 bottom-0 z-50 px-4 pb-4 md:px-6 md:pb-6">
-      <div className="mx-auto w-full max-w-2xl rounded-[2rem] border border-border/70 bg-background/92 px-5 py-4 shadow-[0_20px_60px_-28px_rgba(15,23,42,0.35)] backdrop-blur-xl md:px-6 md:py-[1.125rem]">
+      <div className="mx-auto w-full max-w-2xl rounded-[2rem] border border-border bg-background/92 px-5 py-4 shadow-[0_20px_60px_-28px_rgba(15,23,42,0.35)] backdrop-blur-xl md:px-6 md:py-[1.125rem]">
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div className="space-y-2">
             <p className="text-[0.7rem] font-medium uppercase tracking-[0.18em] text-muted-foreground">Privacy preference</p>
@@ -39,7 +39,7 @@ export function AnalyticsConsentBanner() {
               type="button"
               variant="outline"
               size="sm"
-              className="h-10 rounded-full border-border/80 px-4 text-sm text-muted-foreground hover:border-foreground/20 hover:bg-background hover:text-foreground"
+              className="h-10 rounded-full border-border px-4 text-sm text-muted-foreground hover:border-strong hover:bg-background hover:text-foreground"
               onClick={() => {
                 writeAnalyticsConsent("rejected");
               }}

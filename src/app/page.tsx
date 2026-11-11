@@ -39,7 +39,7 @@ export default async function HomePage() {
           sourceTemplate: "home",
         })}
       />
-      <section className="space-y-10 border-b border-border/70 pb-14 pt-6 md:space-y-14 md:pb-20 md:pt-10">
+      <section className="space-y-10 border-b border-border pb-14 pt-6 md:space-y-14 md:pb-20 md:pt-10">
         <div className="space-y-5 md:space-y-6">
           <div className="space-y-1.5">
             <p className="text-lg font-medium tracking-[-0.02em] text-foreground/90 md:text-xl">Amber Chang</p>
@@ -69,14 +69,14 @@ export default async function HomePage() {
               </Link>
               <Link
                 href="/blog"
-                className="inline-flex min-h-12 items-center rounded-full border border-border px-6 py-3 text-base font-medium text-foreground transition-colors hover:border-foreground/35"
+                className="inline-flex min-h-12 items-center rounded-full border border-border px-6 py-3 text-base font-medium text-foreground transition-colors hover:border-strong"
               >
                 Writing &amp; Notes
               </Link>
             </div>
           </div>
 
-          <div className="space-y-4 border-t border-border/70 pt-6 md:border-t-0 md:border-l md:pt-0 md:pl-8">
+          <div className="space-y-4 border-t border-border pt-6 md:border-t-0 md:border-l md:pt-0 md:pl-8">
             <p className="text-xs tracking-[0.12em] text-muted-foreground">Focus</p>
             <ul className="space-y-2.5 text-sm leading-6 text-foreground/78">
               <li>AI-native workflow</li>

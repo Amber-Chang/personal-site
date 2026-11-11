@@ -17,7 +17,7 @@ export function ProjectCard({
   return (
     <Link
       href={`/projects/${project.slug}`}
-      className="group block rounded-[1.75rem] border border-border/70 bg-card/40 px-5 py-5 transition-colors hover:border-foreground/35 md:px-7 md:py-6"
+      className="group block rounded-[1.75rem] border border-border bg-card/40 px-5 py-5 transition-colors hover:border-strong md:px-7 md:py-6"
     >
       <div className="max-w-2xl space-y-2.5">
         <Heading className="text-lg font-medium tracking-tight group-hover:underline">{project.title}</Heading>
