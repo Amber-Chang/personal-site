@@ -25,11 +25,11 @@ export function AnalyticsConsentBanner() {
 
   return (
     <div className="fixed inset-x-0 bottom-0 z-50 px-4 pb-4 md:px-6 md:pb-6">
-      <div className="mx-auto w-full max-w-2xl rounded-[2rem] border border-border bg-background/92 px-5 py-4 shadow-[0_20px_60px_-28px_rgba(15,23,42,0.35)] backdrop-blur-xl md:px-6 md:py-[1.125rem]">
+      <div className="mx-auto w-full max-w-2xl rounded-panel border border-border bg-background/92 px-5 py-4 shadow-overlay backdrop-blur-xl md:px-6 md:py-4.5">
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div className="space-y-2">
-            <p className="text-[0.7rem] font-medium uppercase tracking-[0.18em] text-muted-foreground">Privacy preference</p>
-            <p className="max-w-xl font-display text-[1.05rem] leading-7 text-foreground md:text-[1.15rem]">
+            <p className="text-label font-medium uppercase tracking-caps text-muted-foreground">Privacy preference</p>
+            <p className="max-w-xl font-display text-lead leading-7 text-foreground">
               這個網站會在你同意後啟用 PostHog，以了解公開頁面的瀏覽情況。
             </p>
           </div>
