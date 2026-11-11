@@ -10,6 +10,7 @@
   --color-foreground: var(--foreground);
   --font-sans:
     "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", "Helvetica Neue", Arial, sans-serif;
+  /* 標題字體：直接用 font-display utility（不要再寫 font-[family-name:var(--font-display)]） */
   --font-display:
     "Iowan Old Style", "Palatino Linotype", "Times New Roman", "Noto Serif TC", serif;
   --font-mono:
@@ -51,6 +52,47 @@
   --radius-2xl: calc(var(--radius) + 8px);
   --radius-3xl: calc(var(--radius) + 12px);
   --radius-4xl: calc(var(--radius) + 16px);
+  /* 文字深淺第二階（次要）：內文段落、次要文字。與 foreground（主要）、muted-foreground（輔助）合成 3 階。 */
+  --color-foreground-soft: color-mix(in oklab, var(--foreground) 88%, transparent);
+}
+
+/* 公開頁 design token。用途與挑選方式見 docs/design-tokens.md。 */
+@theme {
+  /* 字級：一個 token 對應一個角色。標 RWD 的 token 會在下方 @layer base 依斷點換值，頁面不用再寫 md:/xl:。 */
+  --text-display: 1.875rem; /* 首頁主標（RWD：md 2.25rem、xl 3.25rem） */
+  --text-display--line-height: 1.22;
+  --text-title: 2.25rem; /* 頁面大標：About、列表頁、404（RWD：md 2.6rem） */
+  --text-title--line-height: 1.5;
+  --text-article-title: 2.35rem; /* 文章與案例內頁的大標（RWD：md 3rem） */
+  --text-article-title--line-height: 1.12;
+  --text-heading: 2rem; /* 首頁區塊標題 */
+  --text-heading--line-height: 1.5;
+  --text-prose-h2: 1.8rem; /* 內文大標（RWD：md 2rem）；行高由 Prose 元件決定 */
+  --text-prose-h3: 1.35rem; /* 內文小標（RWD：md 1.5rem）；行高由 Prose 元件決定 */
+  --text-card-title: 1.125rem; /* 卡片標題 */
+  --text-card-title--line-height: calc(1.75 / 1.125);
+  --text-body: 1.02rem; /* 長文內文（RWD：md 1.06rem）；行高由 Prose 元件決定 */
+  --text-lead: 1.05rem; /* 浮層裡的引言句，例如同意橫幅（RWD：md 1.15rem）；行高另配 leading-7 */
+  --text-tagline: 0.875rem; /* 首頁姓名下方的標語（RWD：md 0.95rem） */
+  --text-tagline--line-height: calc(1.25 / 0.875);
+  --text-label: 0.75rem; /* 小標籤：日期、Focus、Privacy preference */
+  --text-label--line-height: calc(1 / 0.75);
+
+  /* 字距 2 種 */
+  --tracking-heading: -0.03em; /* 標題（h1–h3 預設套用） */
+  --tracking-label: 0.08em; /* 小標籤、日期、標語 */
+
+  /* 圓角 3 種：card、panel，膠囊直接用 rounded-full */
+  --radius-card: 1.75rem; /* 可點的內容卡片：文章、案例、延伸閱讀 */
+  --radius-panel: 1.5rem; /* 資訊面板與浮層：案例資訊框、手機選單、同意橫幅、程式碼區塊、內文圖片 */
+
+  /* 陰影 */
+  --shadow-overlay: 0 20px 60px -28px rgba(15, 23, 42, 0.35); /* 浮在頁面上的元件，例如同意橫幅 */
+}
+
+/* 邊框強調階：hover 時的線條。預設階是 border-border。 */
+@utility border-strong {
+  border-color: color-mix(in oklab, var(--foreground) 35%, transparent);
 }
 
 :root {
@@ -145,6 +187,24 @@
   h1,
   h2,
   h3 {
-    letter-spacing: -0.03em;
+    letter-spacing: var(--tracking-heading);
+  }
+  /* RWD 字級：斷點與 Tailwind 的 md（48rem）、xl（80rem）一致。 */
+  @media (width >= 48rem) {
+    :root {
+      --text-display: 2.25rem;
+      --text-title: 2.6rem;
+      --text-article-title: 3rem;
+      --text-prose-h2: 2rem;
+      --text-prose-h3: 1.5rem;
+      --text-body: 1.06rem;
+      --text-lead: 1.15rem;
+      --text-tagline: 0.95rem;
+    }
+  }
+  @media (width >= 80rem) {
+    :root {
+      --text-display: 3.25rem;
+    }
   }
 }
