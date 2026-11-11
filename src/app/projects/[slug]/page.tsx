@@ -6,6 +6,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import ReactMarkdown from "react-markdown";
 import { PostHogPageView } from "@/components/PostHogPageView";
+import { Prose } from "@/components/Prose";
 import { RelatedPostsSection } from "@/components/RelatedPostsSection";
 import { Badge } from "@/components/ui/badge";
 import { createPageViewProperties } from "@/lib/analytics/pageview";
@@ -115,9 +116,9 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
         ) : null}
       </header>
 
-      <div className="prose prose-neutral max-w-none text-[1.02rem] leading-8 prose-headings:font-[family-name:var(--font-display)] prose-headings:tracking-[-0.03em] prose-h2:mt-12 prose-h2:text-[1.8rem] prose-h2:leading-tight prose-h2:font-semibold prose-h3:mt-8 prose-h3:text-[1.35rem] prose-h3:leading-snug prose-h3:font-semibold prose-p:text-foreground/88 prose-p:leading-8 prose-li:leading-8 prose-blockquote:border-l-border prose-blockquote:text-foreground/78 prose-strong:text-foreground prose-a:text-foreground prose-a:decoration-muted-foreground/60 prose-a:underline-offset-4 hover:prose-a:text-primary prose-code:rounded prose-code:bg-muted/65 prose-code:px-1 prose-code:py-0.5 prose-code:text-[0.92em] prose-pre:rounded-2xl prose-pre:border prose-pre:border-border prose-pre:bg-card/80 prose-img:rounded-2xl prose-img:border prose-img:border-border md:text-[1.06rem] md:leading-9 md:prose-h2:text-[2rem] md:prose-h3:text-[1.5rem]">
+      <Prose>
         <ReactMarkdown>{project.content}</ReactMarkdown>
-      </div>
+      </Prose>
 
       <RelatedPostsSection relatedPosts={project.relatedPosts} />
     </article>
