@@ -9,6 +9,7 @@ import { PostHogPageView } from "@/components/PostHogPageView";
 import { RelatedProjectSection } from "@/components/RelatedProjectSection";
 import { createPageViewProperties } from "@/lib/analytics/pageview";
 import { formatDate } from "@/lib/format";
+import { sharedOpenGraph } from "../../shared-metadata";
 import { getPublicBlogContentService } from "../blog-context";
 import { loadBlogPostPageData } from "../data";
 
@@ -35,6 +36,7 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
     title: `${post.title} — Amber Chang`,
     description: post.description,
     openGraph: {
+      ...sharedOpenGraph,
       title: post.title,
       description: post.description,
     },

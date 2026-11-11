@@ -5,11 +5,13 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { PostHogPageView } from "@/components/PostHogPageView";
 import { createPageViewProperties } from "@/lib/analytics/pageview";
+import { sharedOpenGraph } from "../shared-metadata";
 
 export const metadata: Metadata = {
   title: "About / 關於我 — Amber Chang",
   description: "AI-native Product Builder，擅長把模糊需求、系統脈絡與有限資源整理成可被討論、驗證與推進的產品方案。",
   openGraph: {
+    ...sharedOpenGraph,
     title: "About / 關於我 — Amber Chang",
     description: "AI-native Product Builder，擅長把模糊需求、系統脈絡與有限資源整理成可被討論、驗證與推進的產品方案。",
   },

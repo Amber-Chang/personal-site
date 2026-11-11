@@ -6,6 +6,7 @@ import type { Metadata } from "next";
 import { PostHogPageView } from "@/components/PostHogPageView";
 import { PostCard } from "@/components/PostCard";
 import { createPageViewProperties } from "@/lib/analytics/pageview";
+import { sharedOpenGraph } from "../shared-metadata";
 import { getPublicBlogContentService } from "./blog-context";
 import { loadBlogIndexPageData } from "./data";
 
@@ -13,6 +14,7 @@ export const metadata: Metadata = {
   title: "Writing & Notes — Amber Chang",
   description: "Amber 的文章列表：AI 協作、產品管理、學習紀錄。",
   openGraph: {
+    ...sharedOpenGraph,
     title: "Writing & Notes — Amber Chang",
     description: "Amber 的文章列表：AI 協作、產品管理、學習紀錄。",
   },

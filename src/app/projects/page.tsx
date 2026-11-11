@@ -6,6 +6,7 @@ import type { Metadata } from "next";
 import { PostHogPageView } from "@/components/PostHogPageView";
 import { ProjectCard } from "@/components/ProjectCard";
 import { createPageViewProperties } from "@/lib/analytics/pageview";
+import { sharedOpenGraph } from "../shared-metadata";
 import { getPublicBlogContentService } from "../blog/blog-context";
 import { loadProjectsPageData } from "./data";
 
@@ -13,6 +14,7 @@ export const metadata: Metadata = {
   title: "Projects — Amber Chang",
   description: "一些我如何理解問題、整理脈絡，並把它們推進成產品成果的紀錄。",
   openGraph: {
+    ...sharedOpenGraph,
     title: "Projects — Amber Chang",
     description: "一些我如何理解問題、整理脈絡，並把它們推進成產品成果的紀錄。",
   },

@@ -78,6 +78,42 @@ test("readSupabaseEnv prefers explicit NEXT_PUBLIC_SITE_URL over Vercel host fal
   assert.equal(env.siteUrl, "https://amber.test");
 });
 
+test("readSiteUrl returns null instead of throwing when no site URL env is set", async () => {
+  const envModule = await loadModule<{
+    readSiteUrl: (input?: Record<string, string | undefined>) => string | null;
+  }>("./env.ts", "Supabase env");
+
+  assert.equal(envModule.readSiteUrl({}), null);
+  assert.equal(envModule.readSiteUrl({ NEXT_PUBLIC_SITE_URL: "   " }), null);
+});
+
+test("readSiteUrl reuses the same resolution order as readSupabaseEnv", async () => {
+  const envModule = await loadModule<{
+    readSiteUrl: (input?: Record<string, string | undefined>) => string | null;
+  }>("./env.ts", "Supabase env");
+
+  assert.equal(
+    envModule.readSiteUrl({
+      NEXT_PUBLIC_SITE_URL: "https://amber.test",
+      VERCEL_PROJECT_PRODUCTION_URL: "personal-site.vercel.app",
+      VERCEL_URL: "personal-site-git-branch-user.vercel.app",
+    }),
+    "https://amber.test",
+  );
+  assert.equal(
+    envModule.readSiteUrl({
+      VERCEL_PROJECT_PRODUCTION_URL: "personal-site.vercel.app",
+      VERCEL_URL: "personal-site-git-branch-user.vercel.app",
+    }),
+    "https://personal-site.vercel.app",
+  );
+  assert.equal(
+    envModule.readSiteUrl({ VERCEL_URL: "personal-site-git-branch-user.vercel.app" }),
+    "https://personal-site-git-branch-user.vercel.app",
+  );
+  assert.equal(envModule.readSiteUrl({ NEXT_PUBLIC_SITE_URL: "http://localhost:3130" }), "http://localhost:3130");
+});
+
 test("readSupabaseEnv still accepts the legacy SUPABASE_ADMIN_EMAILS fallback during migration", async () => {
   const envModule = await loadModule<{
     readSupabaseEnv: (input?: Record<string, string | undefined>) => {
