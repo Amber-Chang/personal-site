@@ -25,7 +25,7 @@ export function RelatedPostsSection({ relatedPosts }: { relatedPosts: RelatedPos
           <Link
             key={post.slug}
             href={`/blog/${post.slug}`}
-            className="block rounded-xl border border-border p-4 transition-colors hover:border-strong"
+            className="block rounded-panel border border-border p-4 transition-colors hover:border-strong"
           >
             <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
               <h3 className="text-base font-medium leading-snug">{post.title}</h3>

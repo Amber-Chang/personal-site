@@ -80,13 +80,14 @@
   --text-label: 0.75rem; /* 小標籤：日期、Focus、Privacy preference */
   --text-label--line-height: calc(1 / 0.75);
 
-  /* 字距 2 種 */
+  /* 字距：標題一種，小標籤分一般與全大寫兩種 */
   --tracking-heading: -0.03em; /* 標題（h1–h3 預設套用） */
-  --tracking-label: 0.08em; /* 小標籤、日期、標語 */
+  --tracking-label: 0.08em; /* 一般小標籤：標語、文章日期、404、Focus */
+  --tracking-caps: 0.16em; /* 全大寫或數字的小標籤：卡片日期、Privacy preference */
 
   /* 圓角 3 種：card、panel，膠囊直接用 rounded-full */
-  --radius-card: 1.75rem; /* 可點的內容卡片：文章、案例、延伸閱讀 */
-  --radius-panel: 1.5rem; /* 資訊面板與浮層：案例資訊框、手機選單、同意橫幅、程式碼區塊、內文圖片 */
+  --radius-card: 1.75rem; /* 網格排列的內容卡片：案例卡片、相關案例 */
+  --radius-panel: 1.5rem; /* 整列寬的列表項目與資訊面板：文章列表、延伸閱讀、案例資訊框、手機選單、同意橫幅、程式碼區塊、內文圖片 */
 
   /* 陰影 */
   --shadow-overlay: 0 20px 60px -28px rgba(15, 23, 42, 0.35); /* 浮在頁面上的元件，例如同意橫幅 */

@@ -12,7 +12,7 @@ const baseClassName = [
   "prose-blockquote:border-l-border prose-blockquote:text-foreground-soft",
   "prose-strong:text-foreground prose-a:text-foreground prose-a:decoration-muted-foreground/60 prose-a:underline-offset-4 hover:prose-a:text-primary",
   "prose-code:rounded prose-code:bg-muted/65 prose-code:px-1 prose-code:py-0.5 prose-code:text-[0.92em]",
-  "prose-pre:rounded-panel prose-pre:border prose-pre:border-border prose-pre:bg-card/80",
+  "prose-pre:rounded-panel prose-pre:border prose-pre:border-border prose-pre:bg-muted/25",
   "prose-img:rounded-panel prose-img:border prose-img:border-border",
 ].join(" ");
 
