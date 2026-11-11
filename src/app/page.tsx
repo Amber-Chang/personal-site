@@ -43,7 +43,7 @@ export default async function HomePage() {
       <section className="space-y-10 border-b border-border pb-14 pt-6 md:space-y-14 md:pb-20 md:pt-10">
         <div className="space-y-5 md:space-y-6">
           <div className="space-y-1.5">
-            <p className="text-lg font-medium tracking-[-0.02em] text-foreground/90 md:text-xl">Amber Chang</p>
+            <p className="text-lg font-medium tracking-heading text-foreground-soft md:text-xl">Amber Chang</p>
             <p className="text-tagline tracking-label text-muted-foreground">
               AI-native product portfolio
             </p>
@@ -64,7 +64,7 @@ export default async function HomePage() {
             <div className="flex flex-wrap gap-3 text-sm">
               <Link
                 href="/projects"
-                className="inline-flex min-h-12 items-center rounded-full bg-foreground px-6 py-3 text-base font-medium text-background transition-colors hover:bg-foreground/90"
+                className="inline-flex min-h-12 items-center rounded-full bg-foreground px-6 py-3 text-base font-medium text-background transition-colors hover:bg-foreground-soft"
               >
                 Projects
               </Link>
@@ -78,8 +78,8 @@ export default async function HomePage() {
           </div>
 
           <div className="space-y-4 border-t border-border pt-6 md:border-t-0 md:border-l md:pt-0 md:pl-8">
-            <p className="text-xs tracking-[0.12em] text-muted-foreground">Focus</p>
-            <ul className="space-y-2.5 text-sm leading-6 text-foreground/78">
+            <p className="text-label tracking-label text-muted-foreground">Focus</p>
+            <ul className="space-y-2.5 text-sm leading-6 text-foreground-soft">
               <li>AI-native workflow</li>
               <li>Product &amp; systems thinking</li>
               <li>Notes from work and life</li>
@@ -124,7 +124,7 @@ export default async function HomePage() {
         <SectionHeading title="Contact" />
         <a
           href="mailto:taco5239@gmail.com"
-          className="inline-block text-base text-muted-foreground underline decoration-muted-foreground/70 underline-offset-4 hover:text-foreground"
+          className="inline-block text-base text-muted-foreground underline decoration-muted-foreground/60 underline-offset-4 hover:text-foreground"
         >
           如果你想聊聊，歡迎來信。
         </a>
