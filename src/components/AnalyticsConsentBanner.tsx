@@ -1,32 +1,23 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
 
 import { Button } from "@/components/ui/button";
 import {
-  ANALYTICS_CONSENT_EVENT,
   type AnalyticsConsentStatus,
   readAnalyticsConsent,
+  subscribeToAnalyticsConsent,
   writeAnalyticsConsent,
 } from "@/lib/analytics/consent";
 import { bootstrapPostHogIfConsented } from "@/lib/analytics/client";
 
+// The server cannot read localStorage, so it always renders the "unknown" state.
+function getServerConsentSnapshot(): AnalyticsConsentStatus {
+  return "unknown";
+}
+
 export function AnalyticsConsentBanner() {
-  const [consent, setConsent] = useState<AnalyticsConsentStatus>("unknown");
-
-  useEffect(() => {
-    setConsent(readAnalyticsConsent());
-
-    const handleConsentChanged = () => {
-      setConsent(readAnalyticsConsent());
-    };
-
-    window.addEventListener(ANALYTICS_CONSENT_EVENT, handleConsentChanged);
-
-    return () => {
-      window.removeEventListener(ANALYTICS_CONSENT_EVENT, handleConsentChanged);
-    };
-  }, []);
+  const consent = useSyncExternalStore(subscribeToAnalyticsConsent, readAnalyticsConsent, getServerConsentSnapshot);
 
   if (consent !== "unknown") {
     return null;

@@ -19,6 +19,7 @@
 
 ## 最近完成
 
+- 已讓 `npm run lint` 恢復通過（0 errors）：`eslint.config.mjs` 把 `gates/`、`loops/`、`onboarding/` 的 `.cjs` 治理工具改用 Node CommonJS 規則檢查（保留 `no-undef`），analytics consent banner 改用 `useSyncExternalStore`，瀏覽器實測同意 / 拒絕 / 重新整理行為與改寫前一致；剩餘 16 個 warning 皆在治理工具腳本
 - 已新增 Supabase 防暫停排程：`vercel.json` 每天 3 次以 Vercel Cron 呼叫受 `CRON_SECRET` 保護的 `/api/cron/supabase-keep-alive`，直接查詢 published posts，避免 Free plan 因 7 天低活動被自動暫停
 - 已修掉 3 個既有 failing tests：`src/app/blog/[slug]/page.test.ts` 與 `src/lib/infra/repositories/factory.test.ts` 已跟上目前實作，`npm test` 目前為 `285 pass / 0 fail`
 - 已補 public content runtime 的 build resilience：當 Vercel preview / build 缺少 `NEXT_PUBLIC_SUPABASE_URL` 或 `NEXT_PUBLIC_SUPABASE_ANON_KEY` 時，`getPublicBlogContentService()` 會自動從 Supabase public repositories 退回 repo 內 Markdown repositories，避免公開頁面在 page-data 階段直接 build fail
@@ -62,7 +63,7 @@
 - 已完成 `projects Supabase-first` round：`/projects`、`/projects/[slug]`、首頁代表案例與 `/admin/projects` 已收斂到同一套 Supabase content source，Markdown `content/projects/*.md` 改退為 migration/import source
 - 已將 `supabase/migrations/202606090001_expand_projects_for_public_content.sql` 套用到實際 Supabase 環境，並重跑 `npm run content:sync-projects`，把既有 Markdown project 內容同步進 `role / period / tags / outcomes / featured / content_markdown`
 - 已確認 production 首頁、`/projects`、`/projects/ai-writing-review-product`、`/projects/sms-management-platform` 可正常顯示 Supabase-backed project 內容
-- 已完成依賴安裝後的技術驗證：`npm test`、`npm run lint` 通過；`npm run build` 在補齊必要 env 後可成功
+- 已完成依賴安裝後的技術驗證：`npm test` 通過；`npm run build` 在補齊必要 env 後可成功（`npm run lint` 目前狀態見最近完成第 1 條）
 
 ## 目前最重要的事
 
