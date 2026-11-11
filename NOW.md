@@ -69,7 +69,7 @@
 
 ## 目前最重要的事
 
-- PM 驗收全站健檢第 2 包：標題改用 Noto Serif TC 後的觀感；同意橫幅那句話只載 600 字重後變成半粗體，需決定維持、加載 400 字重或改用內文字體；本機模擬慢速 4G 時首屏出現時間多約 0.6 秒（一般網速無差異）
+- PM 驗收全站健檢第 2 包：標題改用 Noto Serif TC 後的觀感；同意橫幅那句話改用內文字體（只載 600 字重時標題字體會讓它變半粗體），請確認觀感；本機模擬慢速 4G 時首屏出現時間多約 0.6 秒（一般網速無差異）
 - PM 驗收全站健檢第 1 包：首頁大標斷行（任務 1.7）的改前改後觀感（任務 1.8 內文行長經 PM 檢視後決定不做，內文維持全寬）；上線後用 LinkedIn Post Inspector 確認分享圖，並確認 production 的 `NEXT_PUBLIC_SITE_URL` 是正式網址（分享圖、sitemap、robots 的絕對網址都依它產生）
 - 確認 Supabase 防暫停排程在 production 生效：Vercel 已設定 `CRON_SECRET`、Cron Jobs 頁面看得到 3 個排程，且上線 7 天後 Supabase 專案仍為 `ACTIVE_HEALTHY`
 - 重新建立可重複使用的 production smoke sample，因舊的 `admin-flow-check-20260607-0215` 與 `sms-management-platform` 驗證路徑已不再存在

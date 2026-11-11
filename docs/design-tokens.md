@@ -88,7 +88,7 @@
 | `font-display` | Noto Serif TC 600，由 `src/app/layout.tsx` 的 `next/font` 載入 | 標題 |
 | `font-sans`（預設） | 系統字體：PingFang TC、Microsoft JhengHei 等 | 其他所有文字 |
 
-- 只載入 600 字重。`font-display` 用在一般字重的文字時會顯示成 600。
+- 只載入 600 字重。`font-display` 用在一般字重的文字時會顯示成 600，所以一般文字（例如同意橫幅的說明句）用內文字體。
 - 中文字依 unicode-range 切成多個小檔，瀏覽器只下載頁面上用到的字；每頁約 6 到 11 個檔、240 到 500 KB。
 
 ## 陰影

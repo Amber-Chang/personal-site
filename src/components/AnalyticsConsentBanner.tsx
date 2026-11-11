@@ -29,7 +29,7 @@ export function AnalyticsConsentBanner() {
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div className="space-y-2">
             <p className="text-label font-medium uppercase tracking-caps text-muted-foreground">Privacy preference</p>
-            <p className="max-w-xl font-display text-lead leading-7 text-foreground">
+            <p className="max-w-xl text-lead leading-7 text-foreground">
               這個網站會在你同意後啟用 PostHog，以了解公開頁面的瀏覽情況。
             </p>
           </div>
