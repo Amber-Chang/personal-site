@@ -127,7 +127,7 @@ export default async function HomePage() {
       </section>
 
       <section className="space-y-4 pt-2 md:pt-4">
-        <p className="font-[family-name:var(--font-display)] text-[2rem] font-semibold tracking-[-0.03em]">Contact</p>
+        <h2 className="font-[family-name:var(--font-display)] text-[2rem] font-semibold tracking-[-0.03em]">Contact</h2>
         <a
           href="mailto:taco5239@gmail.com"
           className="inline-block text-base text-muted-foreground underline decoration-muted-foreground/70 underline-offset-4 hover:text-foreground"

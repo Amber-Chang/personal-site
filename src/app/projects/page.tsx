@@ -49,7 +49,7 @@ export default async function ProjectsPage() {
 
       <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3 md:gap-6">
         {projects.length > 0 ? (
-          projects.map((project) => <ProjectCard key={project.slug} project={project} />)
+          projects.map((project) => <ProjectCard key={project.slug} project={project} headingLevel="h2" />)
         ) : (
           <p className="text-sm text-muted-foreground">目前還沒有公開案例。</p>
         )}

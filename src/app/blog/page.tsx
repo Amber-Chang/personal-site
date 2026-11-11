@@ -46,7 +46,7 @@ export default async function BlogPage() {
       </header>
       <div className="space-y-4 md:space-y-5">
         {posts.length > 0 ? (
-          posts.map((post) => <PostCard key={post.slug} post={post} />)
+          posts.map((post) => <PostCard key={post.slug} post={post} headingLevel="h2" />)
         ) : (
           <p className="text-sm text-muted-foreground">目前還沒有文章。</p>
         )}
