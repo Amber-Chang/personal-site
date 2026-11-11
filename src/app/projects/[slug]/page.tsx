@@ -84,11 +84,11 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
 
         <div className="grid gap-4 rounded-[1.5rem] border border-border/70 bg-muted/25 p-5 text-sm md:grid-cols-2 md:p-6">
           <div className="space-y-1">
-            <p className="text-muted-foreground/80">角色</p>
+            <p className="text-muted-foreground">角色</p>
             <p className="leading-7">{project.role || "未提供"}</p>
           </div>
           <div className="space-y-1">
-            <p className="text-muted-foreground/80">期間</p>
+            <p className="text-muted-foreground">期間</p>
             <p className="leading-7">{project.period || "未提供"}</p>
           </div>
         </div>

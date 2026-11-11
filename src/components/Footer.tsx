@@ -7,7 +7,7 @@ export function Footer() {
   return (
     <footer className="mt-24 border-t border-border/70">
       <div className="mx-auto flex w-full max-w-md flex-col items-center justify-center gap-3 px-4 py-6 text-center text-sm text-muted-foreground md:py-7">
-        <nav className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-xs text-muted-foreground/85">
+        <nav className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
           <Link href="/projects" className="hover:text-foreground">
             Projects
           </Link>
