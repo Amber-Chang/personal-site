@@ -2,11 +2,59 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import {
+  ANALYTICS_CONSENT_EVENT,
   ANALYTICS_CONSENT_STORAGE_KEY,
   readAnalyticsConsentFromSource,
   shouldEnableAnalytics,
+  subscribeToAnalyticsConsentFromTarget,
   writeAnalyticsConsentToSource,
 } from "./consent.ts";
+
+test("subscribeToAnalyticsConsentFromTarget notifies the listener when consent changes", () => {
+  const target = new EventTarget();
+  let notifications = 0;
+
+  subscribeToAnalyticsConsentFromTarget(target, () => {
+    notifications += 1;
+  });
+  target.dispatchEvent(new CustomEvent(ANALYTICS_CONSENT_EVENT, { detail: "accepted" }));
+  target.dispatchEvent(new CustomEvent(ANALYTICS_CONSENT_EVENT, { detail: "rejected" }));
+
+  assert.equal(notifications, 2);
+});
+
+test("subscribeToAnalyticsConsentFromTarget ignores unrelated events", () => {
+  const target = new EventTarget();
+  let notifications = 0;
+
+  subscribeToAnalyticsConsentFromTarget(target, () => {
+    notifications += 1;
+  });
+  target.dispatchEvent(new Event("storage"));
+
+  assert.equal(notifications, 0);
+});
+
+test("subscribeToAnalyticsConsentFromTarget stops notifying after unsubscribe", () => {
+  const target = new EventTarget();
+  let notifications = 0;
+
+  const unsubscribe = subscribeToAnalyticsConsentFromTarget(target, () => {
+    notifications += 1;
+  });
+  unsubscribe();
+  target.dispatchEvent(new CustomEvent(ANALYTICS_CONSENT_EVENT, { detail: "accepted" }));
+
+  assert.equal(notifications, 0);
+});
+
+test("subscribeToAnalyticsConsentFromTarget returns a no-op unsubscribe when no target is available", () => {
+  const unsubscribe = subscribeToAnalyticsConsentFromTarget(null, () => {
+    assert.fail("listener should never be called without a target");
+  });
+
+  assert.doesNotThrow(() => unsubscribe());
+});
 
 test("readAnalyticsConsentFromSource returns unknown when storage is unavailable", () => {
   assert.equal(readAnalyticsConsentFromSource(null), "unknown");
