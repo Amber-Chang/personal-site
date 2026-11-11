@@ -70,7 +70,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
           tags: project.tags,
         })}
       />
-      <Link href="/projects" className="inline-block text-sm text-muted-foreground hover:underline">
+      <Link href="/projects" className="-mt-3 inline-flex min-h-8 items-end text-sm text-muted-foreground hover:underline">
         ← 返回專案列表
       </Link>
 

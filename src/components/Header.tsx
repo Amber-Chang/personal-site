@@ -40,23 +40,23 @@ export async function Header() {
               Menu
             </summary>
             <nav className="absolute inset-x-4 top-full mt-3 rounded-[1.5rem] border border-border/80 bg-background/96 p-4 shadow-sm backdrop-blur md:inset-x-6">
-              <div className="flex flex-col gap-3 text-sm text-muted-foreground">
-                <Link href="/about" className="rounded-full px-2 py-1 hover:text-foreground">
+              <div className="flex flex-col text-sm text-muted-foreground">
+                <Link href="/about" className="flex min-h-11 items-center rounded-full px-2 hover:text-foreground">
                   About
                 </Link>
-                <Link href="/projects" className="rounded-full px-2 py-1 hover:text-foreground">
+                <Link href="/projects" className="flex min-h-11 items-center rounded-full px-2 hover:text-foreground">
                   Projects
                 </Link>
-                <Link href="/blog" className="rounded-full px-2 py-1 hover:text-foreground">
+                <Link href="/blog" className="flex min-h-11 items-center rounded-full px-2 hover:text-foreground">
                   Writing &amp; Notes
                 </Link>
                 {showAdminAffordance ? (
                   <>
-                    <Link href="/admin/posts" className="rounded-full px-2 py-1 font-medium text-foreground hover:text-foreground/80">
+                    <Link href="/admin/posts" className="flex min-h-11 items-center rounded-full px-2 font-medium text-foreground hover:text-foreground/80">
                       後台
                     </Link>
                     <form action={requestAdminLogout}>
-                      <Button className="h-auto w-full rounded-full border-border/80 px-3 py-2" size="sm" type="submit" variant="outline">
+                      <Button className="h-auto min-h-11 w-full rounded-full border-border/80 px-3 py-2" size="sm" type="submit" variant="outline">
                         登出
                       </Button>
                     </form>
@@ -67,18 +67,18 @@ export async function Header() {
           </details>
 
           <nav className="hidden items-center gap-5 text-sm text-muted-foreground lg:flex">
-            <Link href="/about" className="hover:text-foreground">
+            <Link href="/about" className="inline-flex min-h-11 items-center hover:text-foreground">
               About
             </Link>
-            <Link href="/projects" className="hover:text-foreground">
+            <Link href="/projects" className="inline-flex min-h-11 items-center hover:text-foreground">
               Projects
             </Link>
-            <Link href="/blog" className="hover:text-foreground">
+            <Link href="/blog" className="inline-flex min-h-11 items-center hover:text-foreground">
               Writing &amp; Notes
             </Link>
             {showAdminAffordance ? (
               <>
-                <Link href="/admin/posts" className="font-medium text-foreground hover:text-foreground/80">
+                <Link href="/admin/posts" className="inline-flex min-h-11 items-center font-medium text-foreground hover:text-foreground/80">
                   後台
                 </Link>
                 <form action={requestAdminLogout}>

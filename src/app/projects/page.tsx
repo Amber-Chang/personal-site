@@ -36,7 +36,7 @@ export default async function ProjectsPage() {
         })}
       />
       <header className="space-y-2">
-        <Link href="/" className="inline-block text-sm text-muted-foreground hover:underline">
+        <Link href="/" className="-mt-3 inline-flex min-h-8 items-end text-sm text-muted-foreground hover:underline">
           ← 返回首頁
         </Link>
         <h1 className="font-[family-name:var(--font-display)] text-[2.25rem] font-semibold tracking-[-0.03em] md:text-[2.6rem]">

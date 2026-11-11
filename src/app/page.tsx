@@ -92,7 +92,7 @@ export default async function HomePage() {
             <h2 className="font-[family-name:var(--font-display)] text-[2rem] font-semibold tracking-[-0.03em]">Projects</h2>
             <p className="text-sm text-muted-foreground">這些是我怎麼理解問題、整理脈絡，並把它們慢慢推進成成果的紀錄。</p>
           </div>
-          <Link href="/projects" className="shrink-0 text-sm underline underline-offset-4 hover:text-foreground">
+          <Link href="/projects" className="-mt-3 inline-flex min-h-8 shrink-0 items-end text-sm underline underline-offset-4 hover:text-foreground">
             All projects
           </Link>
         </div>
@@ -112,7 +112,7 @@ export default async function HomePage() {
             <h2 className="font-[family-name:var(--font-display)] text-[2rem] font-semibold tracking-[-0.03em]">Writing &amp; Notes</h2>
             <p className="text-sm text-muted-foreground">我記工作裡的判斷，也記生活裡那些還值得想一下的事。</p>
           </div>
-          <Link href="/blog" className="shrink-0 text-sm underline underline-offset-4 hover:text-foreground">
+          <Link href="/blog" className="-mt-3 inline-flex min-h-8 shrink-0 items-end text-sm underline underline-offset-4 hover:text-foreground">
             All posts
           </Link>
         </div>
