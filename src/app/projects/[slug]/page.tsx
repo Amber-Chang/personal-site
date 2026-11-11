@@ -1,10 +1,10 @@
 // [AI-ASSISTED] Generated with Codex, 2026-05-18
 // 功能：單一案例頁，依 slug 讀取 Markdown 並進行 SSG。
 
-import Link from "next/link";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import ReactMarkdown from "react-markdown";
+import { BackLink } from "@/components/PageHeader";
 import { PostHogPageView } from "@/components/PostHogPageView";
 import { Prose } from "@/components/Prose";
 import { RelatedPostsSection } from "@/components/RelatedPostsSection";
@@ -71,9 +71,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
           tags: project.tags,
         })}
       />
-      <Link href="/projects" className="-mt-3 inline-flex min-h-8 items-end text-sm text-muted-foreground hover:underline">
-        ← 返回專案列表
-      </Link>
+      <BackLink href="/projects" label="返回專案列表" />
 
       <header className="space-y-5 border-b border-border pb-6 md:pb-8">
         <div className="space-y-3">

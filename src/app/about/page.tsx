@@ -1,8 +1,8 @@
 // [AI-ASSISTED] Generated with Codex, 2026-02-19
 // 功能：關於我頁面，說明 Amber 的背景、觀點與合作方式。
 
-import Link from "next/link";
 import type { Metadata } from "next";
+import { PageHeader } from "@/components/PageHeader";
 import { PostHogPageView } from "@/components/PostHogPageView";
 import { Prose } from "@/components/Prose";
 import { createPageViewProperties } from "@/lib/analytics/pageview";
@@ -27,14 +27,7 @@ export default function AboutPage() {
           sourceTemplate: "about",
         })}
       />
-      <header className="space-y-2">
-        <Link href="/" className="-mt-3 inline-flex min-h-8 items-end text-sm text-muted-foreground hover:underline">
-          ← 返回首頁
-        </Link>
-        <h1 className="font-[family-name:var(--font-display)] text-[2.25rem] font-semibold tracking-[-0.03em] md:text-[2.6rem]">
-          關於我
-        </h1>
-      </header>
+      <PageHeader backHref="/" backLabel="返回首頁" title="關於我" />
 
       <Prose as="article" variant="page">
         <p>我是 Amber，一位 AI-native Product Builder。</p>

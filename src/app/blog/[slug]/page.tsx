@@ -1,10 +1,10 @@
 // [AI-ASSISTED] Generated with Codex, 2026-02-19
 // 功能：單篇文章頁，依 slug 讀取已發佈文章。
 
-import Link from "next/link";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import ReactMarkdown from "react-markdown";
+import { BackLink } from "@/components/PageHeader";
 import { PostHogPageView } from "@/components/PostHogPageView";
 import { Prose } from "@/components/Prose";
 import { RelatedProjectSection } from "@/components/RelatedProjectSection";
@@ -67,9 +67,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
           tags: post.tags,
         })}
       />
-      <Link href="/blog" className="-mt-3 inline-flex min-h-8 items-end text-sm text-muted-foreground hover:underline">
-        ← 返回文章列表
-      </Link>
+      <BackLink href="/blog" label="返回文章列表" />
       <header className="border-b border-border pb-6 md:pb-8">
         <h1 className="font-[family-name:var(--font-display)] text-[2.35rem] font-semibold leading-[1.12] tracking-[-0.03em] md:text-[3rem]">
           {post.title}

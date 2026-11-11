@@ -1,8 +1,8 @@
 // [AI-ASSISTED] Generated with Codex, 2026-02-19
 // 功能：文章列表頁，顯示所有已發布文章。
 
-import Link from "next/link";
 import type { Metadata } from "next";
+import { PageHeader } from "@/components/PageHeader";
 import { PostHogPageView } from "@/components/PostHogPageView";
 import { PostCard } from "@/components/PostCard";
 import { createPageViewProperties } from "@/lib/analytics/pageview";
@@ -35,15 +35,7 @@ export default async function BlogPage() {
           sourceTemplate: "blog_index",
         })}
       />
-      <header className="space-y-2">
-        <Link href="/" className="-mt-3 inline-flex min-h-8 items-end text-sm text-muted-foreground hover:underline">
-          ← 返回首頁
-        </Link>
-        <h1 className="font-[family-name:var(--font-display)] text-[2.25rem] font-semibold tracking-[-0.03em] md:text-[2.6rem]">
-          Writing &amp; Notes
-        </h1>
-        <p className="text-sm text-muted-foreground">工作裡的思考，也一些生活裡的觀察。</p>
-      </header>
+      <PageHeader backHref="/" backLabel="返回首頁" title="Writing & Notes" description="工作裡的思考，也一些生活裡的觀察。" />
       <div className="space-y-4 md:space-y-5">
         {posts.length > 0 ? (
           posts.map((post) => <PostCard key={post.slug} post={post} headingLevel="h2" />)
