@@ -20,7 +20,7 @@ export async function Header() {
         <div className="flex items-center justify-between gap-4">
           <Link
             href="/"
-            className="inline-flex items-center text-[1.02rem] font-semibold tracking-[-0.02em] text-foreground/92"
+            className="inline-flex items-center"
             aria-label="回到首頁"
           >
             <span className="flex size-11 items-center justify-center overflow-hidden rounded-full bg-transparent">
@@ -36,10 +36,10 @@ export async function Header() {
           </Link>
 
           <details className="group lg:hidden">
-            <summary className="flex min-h-11 cursor-pointer list-none items-center rounded-full border border-border px-4 text-sm text-foreground/82 transition-colors hover:border-strong">
+            <summary className="flex min-h-11 cursor-pointer list-none items-center rounded-full border border-border px-4 text-sm text-foreground-soft transition-colors hover:border-strong">
               Menu
             </summary>
-            <nav className="absolute inset-x-4 top-full mt-3 rounded-[1.5rem] border border-border bg-background/96 p-4 shadow-sm backdrop-blur md:inset-x-6">
+            <nav className="absolute inset-x-4 top-full mt-3 rounded-panel border border-border bg-background/92 p-4 shadow-sm backdrop-blur md:inset-x-6">
               <div className="flex flex-col text-sm text-muted-foreground">
                 <Link href="/about" className="flex min-h-11 items-center rounded-full px-2 hover:text-foreground">
                   About
@@ -52,7 +52,7 @@ export async function Header() {
                 </Link>
                 {showAdminAffordance ? (
                   <>
-                    <Link href="/admin/posts" className="flex min-h-11 items-center rounded-full px-2 font-medium text-foreground hover:text-foreground/80">
+                    <Link href="/admin/posts" className="flex min-h-11 items-center rounded-full px-2 font-medium text-foreground hover:text-foreground-soft">
                       後台
                     </Link>
                     <form action={requestAdminLogout}>
@@ -78,7 +78,7 @@ export async function Header() {
             </Link>
             {showAdminAffordance ? (
               <>
-                <Link href="/admin/posts" className="inline-flex min-h-11 items-center font-medium text-foreground hover:text-foreground/80">
+                <Link href="/admin/posts" className="inline-flex min-h-11 items-center font-medium text-foreground hover:text-foreground-soft">
                   後台
                 </Link>
                 <form action={requestAdminLogout}>

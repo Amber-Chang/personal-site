@@ -23,7 +23,7 @@ export function Footer() {
 
         <div className="flex flex-col items-center gap-1.5 sm:flex-row sm:items-center sm:gap-3">
           <p className="text-sm font-medium text-foreground">Amber Chang</p>
-          <span className="hidden text-muted-foreground/50 sm:inline">/</span>
+          <span className="hidden text-muted-foreground/40 sm:inline">/</span>
           <a
             href="mailto:taco5239@gmail.com"
             className="-my-1 w-fit py-1 underline decoration-muted-foreground/60 underline-offset-4 hover:text-foreground"
