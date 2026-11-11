@@ -22,7 +22,7 @@ const colors = {
 
 const fontDirectory = join(process.cwd(), "src/assets/fonts");
 const avatarPath = join(process.cwd(), "public/amber-avatar.png");
-const avatarSize = 216;
+const avatarSize = 200;
 
 export default async function OpenGraphImage() {
   const [serifRegular, serifSemiBold, avatar] = await Promise.all([
@@ -48,11 +48,13 @@ export default async function OpenGraphImage() {
           width: "100%",
         }}
       >
-        <img alt="" height={avatarSize} src={avatarSrc} style={{ marginBottom: 12, marginLeft: -30 }} width={avatarSize} />
-        <div style={{ display: "flex", fontSize: 120, fontWeight: 600, letterSpacing: "-0.03em", lineHeight: 1.05 }}>
-          Amber Chang
+        <div style={{ alignItems: "center", display: "flex" }}>
+          <img alt="" height={avatarSize} src={avatarSrc} style={{ marginLeft: -26, marginRight: 8 }} width={avatarSize} />
+          <div style={{ display: "flex", fontSize: 108, fontWeight: 600, letterSpacing: "-0.03em", lineHeight: 1.05 }}>
+            Amber Chang
+          </div>
         </div>
-        <div style={{ backgroundColor: colors.foreground, display: "flex", height: 3, marginTop: 44, width: 96 }} />
+        <div style={{ backgroundColor: colors.foreground, display: "flex", height: 3, marginTop: 28, width: 96 }} />
         <div style={{ color: colors.mutedForeground, display: "flex", fontSize: 48, fontWeight: 400, marginTop: 40 }}>
           AI-native Product Builder
         </div>
