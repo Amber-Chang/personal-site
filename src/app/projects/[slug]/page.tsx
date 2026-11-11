@@ -75,13 +75,13 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
 
       <header className="space-y-5 border-b border-border pb-6 md:pb-8">
         <div className="space-y-3">
-          <h1 className="font-[family-name:var(--font-display)] text-[2.35rem] font-semibold leading-[1.12] tracking-[-0.03em] md:text-[3rem]">
+          <h1 className="font-display text-article-title font-semibold tracking-heading">
             {project.title}
           </h1>
           <p className="max-w-3xl text-base leading-8 text-muted-foreground">{project.summary}</p>
         </div>
 
-        <div className="grid gap-4 rounded-[1.5rem] border border-border bg-muted/25 p-5 text-sm md:grid-cols-2 md:p-6">
+        <div className="grid gap-4 rounded-panel border border-border bg-muted/25 p-5 text-sm md:grid-cols-2 md:p-6">
           <div className="space-y-1">
             <p className="text-muted-foreground">角色</p>
             <p className="leading-7">{project.role || "未提供"}</p>
@@ -94,7 +94,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
 
         {project.outcomes.length > 0 ? (
           <div className="space-y-3">
-            <p className="text-sm text-foreground/84">關鍵成果</p>
+            <p className="text-sm text-foreground-soft">關鍵成果</p>
             <ul className="space-y-2 text-sm leading-7 text-muted-foreground">
               {project.outcomes.map((outcome) => (
                 <li key={outcome}>- {outcome}</li>

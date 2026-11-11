@@ -69,10 +69,10 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
       />
       <BackLink href="/blog" label="返回文章列表" />
       <header className="border-b border-border pb-6 md:pb-8">
-        <h1 className="font-[family-name:var(--font-display)] text-[2.35rem] font-semibold leading-[1.12] tracking-[-0.03em] md:text-[3rem]">
+        <h1 className="font-display text-article-title font-semibold tracking-heading">
           {post.title}
         </h1>
-        <p className="mt-4 text-sm tracking-[0.08em] text-muted-foreground">{formatDate(post.date)}</p>
+        <p className="mt-4 text-sm tracking-label text-muted-foreground">{formatDate(post.date)}</p>
       </header>
 
       <RelatedProjectSection relatedProject={post.relatedProject} />
