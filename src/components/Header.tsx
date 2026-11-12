@@ -39,7 +39,7 @@ export async function Header() {
             <summary className="flex min-h-11 cursor-pointer list-none items-center rounded-full border border-border px-4 text-sm text-foreground-soft transition-colors hover:border-strong">
               Menu
             </summary>
-            <nav className="absolute inset-x-4 top-full mt-3 rounded-panel border border-border bg-background/92 p-4 shadow-sm backdrop-blur md:inset-x-6">
+            <nav className="absolute inset-x-4 top-full mt-3 rounded-panel border border-border bg-background p-4 shadow-sm md:inset-x-6">
               <div className="flex flex-col text-sm text-muted-foreground">
                 <Link href="/about" className="flex min-h-11 items-center rounded-full px-2 hover:text-foreground">
                   About

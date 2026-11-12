@@ -55,7 +55,7 @@
 | class | 用在哪 |
 |---|---|
 | `bg-background/78` | 頁首（搭配 `backdrop-blur`） |
-| `bg-background/92` | 浮層：手機選單、同意橫幅 |
+| `bg-background/92` | 浮層：同意橫幅（搭配 `backdrop-blur-xl`）。手機選單用不透明的 `bg-background`：它位在已套用 backdrop-blur 的頁首裡，巢狀模糊不會生效，半透明會讓底下的頁面文字透出來 |
 | `bg-card/30` | 文章列表卡片 |
 | `bg-card/40` | 案例卡片 |
 | `bg-muted/25` | 資訊面板：案例資訊框、相關案例、程式碼區塊 |
