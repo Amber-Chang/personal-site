@@ -7,9 +7,10 @@ test("blog post page renders the related project section between the header and 
 
   assert.match(source, /RelatedProjectSection/);
   assert.match(source, /<RelatedProjectSection relatedProject={post\.relatedProject} \/>/);
-  assert.match(source, /className="prose prose-neutral max-w-none[^"]*"/);
+  // 內文排版由共用的 Prose 元件負責（取代原本寫在頁面裡的 prose class）。
+  assert.match(source, /import \{ Prose \} from "@\/components\/Prose";/);
   assert.match(
     source,
-    /<\/header>\s*<RelatedProjectSection relatedProject={post\.relatedProject} \/>\s*<div className="prose prose-neutral max-w-none[^"]*">/s,
+    /<\/header>\s*<RelatedProjectSection relatedProject={post\.relatedProject} \/>\s*<Prose>\s*<ReactMarkdown>\{post\.content\}<\/ReactMarkdown>\s*<\/Prose>/s,
   );
 });

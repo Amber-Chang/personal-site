@@ -19,6 +19,7 @@
 
 ## 最近完成
 
+- 已完成全站健檢第 2 包 design token（分支 `codex/design-tokens`，疊在第 1 包分支上，尚未 push / 合併）：`globals.css` 定義字級、文字深淺、邊框、圓角、字距、陰影 token，刪除沒用到的 `sidebar`、`chart` token；抽出 `Prose`、`PageHeader`、`SectionHeading`；公開頁寫死數值 89 → 7（其中 4 處在 shadcn 元件內，未改）、「token 加透明度」組合 26 → 8；標題改載 Noto Serif TC 600，內文用系統字體。字體以外的改動與基準圖相比每頁差異 ≤ 0.38%。token 清單與挑選方式見 [docs/design-tokens.md](./docs/design-tokens.md)
 - 已完成全站健檢第 1 包（分支 `codex/site-health-fixes`，尚未 push / 合併）：社群分享圖與 `metadataBase`、自訂 404、`sitemap.xml` / `robots.txt`、文字對比、可點範圍、標題層級、首頁大標斷行；本機 8 頁 × 2 寬度量測：對比不足、可點高度 < 24px、標題跳號、橫向捲動皆為 0。規劃與驗收條件見 [docs/plans/2026-11-11-site-health-and-design-tokens.md](./docs/plans/2026-11-11-site-health-and-design-tokens.md)
 - 已讓 `npm run lint` 恢復通過（0 errors）：`eslint.config.mjs` 把 `gates/`、`loops/`、`onboarding/` 的 `.cjs` 治理工具改用 Node CommonJS 規則檢查（保留 `no-undef`），analytics consent banner 改用 `useSyncExternalStore`，瀏覽器實測同意 / 拒絕 / 重新整理行為與改寫前一致；剩餘 16 個 warning 皆在治理工具腳本
 - 已新增 Supabase 防暫停排程：`vercel.json` 每天 3 次以 Vercel Cron 呼叫受 `CRON_SECRET` 保護的 `/api/cron/supabase-keep-alive`，直接查詢 published posts，避免 Free plan 因 7 天低活動被自動暫停
@@ -68,6 +69,7 @@
 
 ## 目前最重要的事
 
+- PM 驗收全站健檢第 2 包：標題改用 Noto Serif TC 後的觀感；同意橫幅那句話改用內文字體（只載 600 字重時標題字體會讓它變半粗體），請確認觀感；本機模擬慢速 4G 時首屏出現時間多約 0.6 秒（一般網速無差異）
 - PM 驗收全站健檢第 1 包：首頁大標斷行（任務 1.7）的改前改後觀感（任務 1.8 內文行長經 PM 檢視後決定不做，內文維持全寬）；上線後用 LinkedIn Post Inspector 確認分享圖，並確認 production 的 `NEXT_PUBLIC_SITE_URL` 是正式網址（分享圖、sitemap、robots 的絕對網址都依它產生）
 - 確認 Supabase 防暫停排程在 production 生效：Vercel 已設定 `CRON_SECRET`、Cron Jobs 頁面看得到 3 個排程，且上線 7 天後 Supabase 專案仍為 `ACTIVE_HEALTHY`
 - 重新建立可重複使用的 production smoke sample，因舊的 `admin-flow-check-20260607-0215` 與 `sms-management-platform` 驗證路徑已不再存在
@@ -81,7 +83,7 @@
 
 ## 下一步建議
 
-1. 第 1 包驗收、合併後，開始第 2 包（design token，分支 `codex/design-tokens`）
+1. 第 1、2 包驗收、合併後，準備第 3 包（內容與版面，需求待 PM 提供 D4 素材）
 2. 先建立新的 production smoke sample（文章 + project），取代已失效的舊 sample 路徑
 3. 在可互動環境補真實 Google OAuth admin smoke check，並把最新結果回填到 `docs/deployment-security-readiness.md`
 4. 視需要做 headed 驗證，確認 analytics consent banner 的互動式行為與 PostHog 只在同意後初始化

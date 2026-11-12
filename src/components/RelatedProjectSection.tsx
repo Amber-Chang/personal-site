@@ -15,7 +15,7 @@ export function RelatedProjectSection({ relatedProject }: { relatedProject: Rela
 
   return (
     <section className="mb-8">
-      <Card className="gap-4 border-border/70 bg-muted/20 py-5">
+      <Card className="gap-4 rounded-card border-border bg-muted/25 py-5">
         <CardHeader className="gap-3 pb-0">
           <Badge variant="outline" className="w-fit font-normal">
             相關案例

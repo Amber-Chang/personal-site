@@ -1,11 +1,12 @@
 // [AI-ASSISTED] Generated with Codex, 2026-02-19
 // 功能：單篇文章頁，依 slug 讀取已發佈文章。
 
-import Link from "next/link";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import ReactMarkdown from "react-markdown";
+import { BackLink } from "@/components/PageHeader";
 import { PostHogPageView } from "@/components/PostHogPageView";
+import { Prose } from "@/components/Prose";
 import { RelatedProjectSection } from "@/components/RelatedProjectSection";
 import { createPageViewProperties } from "@/lib/analytics/pageview";
 import { formatDate } from "@/lib/format";
@@ -66,21 +67,19 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
           tags: post.tags,
         })}
       />
-      <Link href="/blog" className="-mt-3 inline-flex min-h-8 items-end text-sm text-muted-foreground hover:underline">
-        ← 返回文章列表
-      </Link>
-      <header className="border-b border-border/70 pb-6 md:pb-8">
-        <h1 className="font-[family-name:var(--font-display)] text-[2.35rem] font-semibold leading-[1.12] tracking-[-0.03em] md:text-[3rem]">
+      <BackLink href="/blog" label="返回文章列表" />
+      <header className="border-b border-border pb-6 md:pb-8">
+        <h1 className="font-display text-article-title font-semibold tracking-heading">
           {post.title}
         </h1>
-        <p className="mt-4 text-sm tracking-[0.08em] text-muted-foreground">{formatDate(post.date)}</p>
+        <p className="mt-4 text-sm tracking-label text-muted-foreground">{formatDate(post.date)}</p>
       </header>
 
       <RelatedProjectSection relatedProject={post.relatedProject} />
 
-      <div className="prose prose-neutral max-w-none text-[1.02rem] leading-8 prose-headings:font-[family-name:var(--font-display)] prose-headings:tracking-[-0.03em] prose-h2:mt-12 prose-h2:text-[1.8rem] prose-h2:leading-tight prose-h2:font-semibold prose-h3:mt-8 prose-h3:text-[1.35rem] prose-h3:leading-snug prose-h3:font-semibold prose-p:text-foreground/88 prose-p:leading-8 prose-li:leading-8 prose-blockquote:border-l-border prose-blockquote:text-foreground/78 prose-strong:text-foreground prose-a:text-foreground prose-a:decoration-muted-foreground/60 prose-a:underline-offset-4 hover:prose-a:text-primary prose-code:rounded prose-code:bg-muted/65 prose-code:px-1 prose-code:py-0.5 prose-code:text-[0.92em] prose-pre:rounded-2xl prose-pre:border prose-pre:border-border/70 prose-pre:bg-card/80 prose-img:rounded-2xl prose-img:border prose-img:border-border/60 md:text-[1.06rem] md:leading-9 md:prose-h2:text-[2rem] md:prose-h3:text-[1.5rem]">
+      <Prose>
         <ReactMarkdown>{post.content}</ReactMarkdown>
-      </div>
+      </Prose>
     </article>
   );
 }

@@ -11,6 +11,6 @@ test("project page uses composed page data and renders related posts after the a
   assert.match(source, /<RelatedPostsSection relatedPosts={project\.relatedPosts} \/>/);
   assert.match(
     source,
-    /<ReactMarkdown>{project\.content}<\/ReactMarkdown>\s*<\/div>\s*<RelatedPostsSection relatedPosts={project\.relatedPosts} \/>/s,
+    /<Prose>\s*<ReactMarkdown>{project\.content}<\/ReactMarkdown>\s*<\/Prose>\s*<RelatedPostsSection relatedPosts={project\.relatedPosts} \/>/s,
   );
 });

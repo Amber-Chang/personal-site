@@ -6,6 +6,7 @@ import type { Metadata } from "next";
 import { PostHogPageView } from "@/components/PostHogPageView";
 import { PostCard } from "@/components/PostCard";
 import { ProjectCard } from "@/components/ProjectCard";
+import { SectionHeading } from "@/components/SectionHeading";
 import { createPageViewProperties } from "@/lib/analytics/pageview";
 import { getPublicBlogContentService } from "./blog/blog-context";
 import { loadHomeFeaturedProjectsData, loadHomeWritingData } from "./home-data";
@@ -39,16 +40,16 @@ export default async function HomePage() {
           sourceTemplate: "home",
         })}
       />
-      <section className="space-y-10 border-b border-border/70 pb-14 pt-6 md:space-y-14 md:pb-20 md:pt-10">
+      <section className="space-y-10 border-b border-border pb-14 pt-6 md:space-y-14 md:pb-20 md:pt-10">
         <div className="space-y-5 md:space-y-6">
           <div className="space-y-1.5">
-            <p className="text-lg font-medium tracking-[-0.02em] text-foreground/90 md:text-xl">Amber Chang</p>
-            <p className="text-sm tracking-[0.08em] text-muted-foreground md:text-[0.95rem]">
+            <p className="text-lg font-medium tracking-heading text-foreground-soft md:text-xl">Amber Chang</p>
+            <p className="text-tagline tracking-label text-muted-foreground">
               AI-native product portfolio
             </p>
           </div>
           {/* 最大寬度用 em：15em 約等於 15 個中文字（含 -0.03em 字距），不論字級多大，第一句剛好一行，第二句斷成 15 + 7 字，不會只剩「楚的問題。」 */}
-          <h1 className="max-w-[15em] text-balance font-[family-name:var(--font-display)] text-3xl font-semibold leading-[1.22] tracking-[-0.03em] md:text-4xl xl:text-[3.25rem]">
+          <h1 className="max-w-[15em] text-balance font-display text-display font-semibold tracking-heading">
             我用產品思維、系統理解與寫作，
             <br />
             整理那些在工作現場與生活裡還說不清楚的問題。
@@ -63,22 +64,22 @@ export default async function HomePage() {
             <div className="flex flex-wrap gap-3 text-sm">
               <Link
                 href="/projects"
-                className="inline-flex min-h-12 items-center rounded-full bg-foreground px-6 py-3 text-base font-medium text-background transition-colors hover:bg-foreground/90"
+                className="inline-flex min-h-12 items-center rounded-full bg-foreground px-6 py-3 text-base font-medium text-background transition-colors hover:bg-foreground-soft"
               >
                 Projects
               </Link>
               <Link
                 href="/blog"
-                className="inline-flex min-h-12 items-center rounded-full border border-border px-6 py-3 text-base font-medium text-foreground transition-colors hover:border-foreground/35"
+                className="inline-flex min-h-12 items-center rounded-full border border-border px-6 py-3 text-base font-medium text-foreground transition-colors hover:border-strong"
               >
                 Writing &amp; Notes
               </Link>
             </div>
           </div>
 
-          <div className="space-y-4 border-t border-border/70 pt-6 md:border-t-0 md:border-l md:pt-0 md:pl-8">
-            <p className="text-xs tracking-[0.12em] text-muted-foreground">Focus</p>
-            <ul className="space-y-2.5 text-sm leading-6 text-foreground/78">
+          <div className="space-y-4 border-t border-border pt-6 md:border-t-0 md:border-l md:pt-0 md:pl-8">
+            <p className="text-label tracking-label text-muted-foreground">Focus</p>
+            <ul className="space-y-2.5 text-sm leading-6 text-foreground-soft">
               <li>AI-native workflow</li>
               <li>Product &amp; systems thinking</li>
               <li>Notes from work and life</li>
@@ -88,15 +89,11 @@ export default async function HomePage() {
       </section>
 
       <section className="space-y-7 md:space-y-9">
-        <div className="flex items-end justify-between gap-4">
-          <div className="space-y-2">
-            <h2 className="font-[family-name:var(--font-display)] text-[2rem] font-semibold tracking-[-0.03em]">Projects</h2>
-            <p className="text-sm text-muted-foreground">這些是我怎麼理解問題、整理脈絡，並把它們慢慢推進成成果的紀錄。</p>
-          </div>
-          <Link href="/projects" className="-mt-3 inline-flex min-h-8 shrink-0 items-end text-sm underline underline-offset-4 hover:text-foreground">
-            All projects
-          </Link>
-        </div>
+        <SectionHeading
+          title="Projects"
+          description="這些是我怎麼理解問題、整理脈絡，並把它們慢慢推進成成果的紀錄。"
+          link={{ href: "/projects", label: "All projects" }}
+        />
 
         <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3 md:gap-6">
           {featuredProjects.length > 0 ? (
@@ -108,15 +105,11 @@ export default async function HomePage() {
       </section>
 
       <section className="space-y-7 md:space-y-9">
-        <div className="flex items-end justify-between gap-4">
-          <div className="space-y-2">
-            <h2 className="font-[family-name:var(--font-display)] text-[2rem] font-semibold tracking-[-0.03em]">Writing &amp; Notes</h2>
-            <p className="text-sm text-muted-foreground">我記工作裡的判斷，也記生活裡那些還值得想一下的事。</p>
-          </div>
-          <Link href="/blog" className="-mt-3 inline-flex min-h-8 shrink-0 items-end text-sm underline underline-offset-4 hover:text-foreground">
-            All posts
-          </Link>
-        </div>
+        <SectionHeading
+          title="Writing & Notes"
+          description="我記工作裡的判斷，也記生活裡那些還值得想一下的事。"
+          link={{ href: "/blog", label: "All posts" }}
+        />
 
         <div className="space-y-4 md:space-y-5">
           {latestPosts.length > 0 ? (
@@ -128,10 +121,10 @@ export default async function HomePage() {
       </section>
 
       <section className="space-y-4 pt-2 md:pt-4">
-        <h2 className="font-[family-name:var(--font-display)] text-[2rem] font-semibold tracking-[-0.03em]">Contact</h2>
+        <SectionHeading title="Contact" />
         <a
           href="mailto:taco5239@gmail.com"
-          className="inline-block text-base text-muted-foreground underline decoration-muted-foreground/70 underline-offset-4 hover:text-foreground"
+          className="inline-block text-base text-muted-foreground underline decoration-muted-foreground/60 underline-offset-4 hover:text-foreground"
         >
           如果你想聊聊，歡迎來信。
         </a>

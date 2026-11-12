@@ -1,8 +1,8 @@
 // [AI-ASSISTED] Generated with Codex, 2026-05-18
 // 功能：案例列表頁，顯示已發布的代表專案。
 
-import Link from "next/link";
 import type { Metadata } from "next";
+import { PageHeader } from "@/components/PageHeader";
 import { PostHogPageView } from "@/components/PostHogPageView";
 import { ProjectCard } from "@/components/ProjectCard";
 import { createPageViewProperties } from "@/lib/analytics/pageview";
@@ -35,17 +35,12 @@ export default async function ProjectsPage() {
           sourceTemplate: "projects_index",
         })}
       />
-      <header className="space-y-2">
-        <Link href="/" className="-mt-3 inline-flex min-h-8 items-end text-sm text-muted-foreground hover:underline">
-          ← 返回首頁
-        </Link>
-        <h1 className="font-[family-name:var(--font-display)] text-[2.25rem] font-semibold tracking-[-0.03em] md:text-[2.6rem]">
-          Projects
-        </h1>
-        <p className="text-sm text-muted-foreground">
-          這裡收的是一些我如何理解問題、整理脈絡，並把它們推進成產品成果的紀錄。
-        </p>
-      </header>
+      <PageHeader
+        backHref="/"
+        backLabel="返回首頁"
+        title="Projects"
+        description="這裡收的是一些我如何理解問題、整理脈絡，並把它們推進成產品成果的紀錄。"
+      />
 
       <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3 md:gap-6">
         {projects.length > 0 ? (
