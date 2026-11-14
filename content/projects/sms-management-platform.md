@@ -10,6 +10,7 @@ outcomes:
   - "把零散營運需求收斂成可治理的產品流程"
   - "為後續自動化行銷與多通路觸達建立基礎"
 featured: true
+type: work
 draft: false
 ---
 

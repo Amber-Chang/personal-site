@@ -8,6 +8,7 @@ import type {
   SyncProjectInput,
   UpdateProjectInput,
 } from "../../content/types.ts";
+import { normalizeProjectType } from "../../content/project-type.ts";
 
 type ProjectRow = {
   content_markdown: string | null;
@@ -16,6 +17,8 @@ type ProjectRow = {
   id: string;
   outcomes: string[] | null;
   period: string | null;
+  // 資料庫有 CHECK，但讀取時仍當成任意字串處理，交給 normalizeProjectType 判斷。
+  project_type?: string | null;
   published_at: string | null;
   role: string | null;
   sort_order: number;
@@ -89,6 +92,10 @@ type QueryClient = {
 
 const DEFAULT_SORT_ORDER = 2_147_483_647;
 
+const PUBLIC_PROJECT_SUMMARY_COLUMNS = "id, slug, title, summary, role, period, tags, outcomes, featured, project_type, published_at, status";
+const PUBLIC_PROJECT_DETAIL_COLUMNS =
+  "id, slug, title, summary, role, period, tags, outcomes, featured, project_type, content_markdown, published_at, status";
+
 function mapProjectRow(row: ProjectRow): ProjectOption {
   return {
     id: row.id,
@@ -105,6 +112,7 @@ function mapProjectRecord(row: ProjectRow): ProjectRecord {
     id: row.id,
     outcomes: row.outcomes ?? [],
     period: row.period,
+    projectType: normalizeProjectType(row.project_type),
     publishedAt: row.published_at,
     role: row.role,
     sortOrder: row.sort_order,
@@ -123,6 +131,7 @@ function mapPublicProjectSummary(row: ProjectRow): ProjectSummary {
     id: row.id,
     outcomes: row.outcomes ?? [],
     period: row.period ?? "",
+    projectType: normalizeProjectType(row.project_type),
     role: row.role ?? "",
     slug: row.slug,
     summary: row.summary ?? "",
@@ -138,6 +147,7 @@ function mapPublicProjectRecord(row: ProjectRow): PublicProjectRecord {
     id: row.id,
     outcomes: row.outcomes ?? [],
     period: row.period ?? "",
+    projectType: normalizeProjectType(row.project_type),
     role: row.role ?? "",
     slug: row.slug,
     summary: row.summary ?? "",
@@ -204,6 +214,7 @@ function mapCreateInput(input: CreateProjectInput) {
     featured: input.featured ?? false,
     outcomes: input.outcomes ?? [],
     period: input.period ?? null,
+    project_type: input.projectType,
     role: input.role ?? null,
     sort_order: input.sortOrder ?? DEFAULT_SORT_ORDER,
     slug: input.slug,
@@ -220,6 +231,7 @@ function mapUpdateInput(input: UpdateProjectInput) {
     ...(input.featured !== undefined ? { featured: input.featured } : {}),
     ...(input.outcomes !== undefined ? { outcomes: input.outcomes } : {}),
     ...(input.period !== undefined ? { period: input.period } : {}),
+    ...(input.projectType !== undefined ? { project_type: input.projectType } : {}),
     ...(input.role !== undefined ? { role: input.role } : {}),
     ...(input.sortOrder !== undefined ? { sort_order: input.sortOrder } : {}),
     ...(input.slug !== undefined ? { slug: input.slug } : {}),
@@ -265,7 +277,7 @@ export class SupabaseProjectsRepository implements ProjectsRepository {
     const { data, error } = await orderBySortOrderWithUpdatedAtFallback<ProjectRow>(
       this.client
         .from("projects")
-        .select("id, slug, title, summary, role, period, tags, outcomes, featured, published_at, status")
+        .select(PUBLIC_PROJECT_SUMMARY_COLUMNS)
         .eq("status", "published"),
     );
 
@@ -298,7 +310,7 @@ export class SupabaseProjectsRepository implements ProjectsRepository {
   async getPublicProjectById(id: string): Promise<ProjectSummary | null> {
     const { data, error } = await this.client
       .from("projects")
-      .select("id, slug, title, summary, role, period, tags, outcomes, featured, published_at, status")
+      .select(PUBLIC_PROJECT_SUMMARY_COLUMNS)
       .eq("id", id)
       .eq("status", "published")
       .maybeSingle();
@@ -311,7 +323,7 @@ export class SupabaseProjectsRepository implements ProjectsRepository {
   async getPublicProjectBySlug(slug: string): Promise<PublicProjectRecord | null> {
     const { data, error } = await this.client
       .from("projects")
-      .select("id, slug, title, summary, role, period, tags, outcomes, featured, content_markdown, published_at, status")
+      .select(PUBLIC_PROJECT_DETAIL_COLUMNS)
       .eq("slug", slug)
       .eq("status", "published")
       .maybeSingle();
@@ -330,6 +342,7 @@ export class SupabaseProjectsRepository implements ProjectsRepository {
           featured: input.featured ?? false,
           outcomes: input.outcomes ?? [],
           period: input.period ?? null,
+          project_type: input.projectType,
           published_at: input.publishedAt ?? null,
           role: input.role ?? null,
           ...(input.sortOrder !== undefined ? { sort_order: input.sortOrder } : {}),

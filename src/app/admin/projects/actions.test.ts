@@ -12,6 +12,7 @@ type ProjectRecord = {
   id: string;
   outcomes: string[];
   period: string | null;
+  projectType: "work" | "research" | "side" | null;
   publishedAt: string | null;
   role: string | null;
   sortOrder: number;
@@ -28,6 +29,7 @@ type CreateProjectInput = {
   featured?: boolean;
   outcomes?: string[];
   period?: string | null;
+  projectType: "work" | "research" | "side";
   role?: string | null;
   slug: string;
   status?: "draft" | "published";
@@ -46,6 +48,7 @@ function createProject(overrides?: Partial<ProjectRecord>): ProjectRecord {
     id: "project-1",
     outcomes: [],
     period: null,
+    projectType: "side",
     publishedAt: null,
     role: null,
     sortOrder: 1,
@@ -126,6 +129,7 @@ test("createAdminProjectAction creates a project with public content fields and 
     ["outcomes", " Outcome one \nOutcome two \n  "],
     ["contentMarkdown", "  # Project body  "],
     ["featured", "on"],
+    ["projectType", "research"],
     ["status", "published"],
   ]);
 
@@ -140,6 +144,7 @@ test("createAdminProjectAction creates a project with public content fields and 
       featured: true,
       outcomes: ["Outcome one", "Outcome two"],
       period: "2025",
+      projectType: "research",
       role: "Product lead",
       slug: "new-project",
       status: "published",
@@ -200,6 +205,7 @@ test("updateAdminProjectAction updates an existing project with public content f
     ["tags", "Growth, CRM"],
     ["outcomes", " First outcome \nSecond outcome "],
     ["contentMarkdown", " Updated body "],
+    ["projectType", "work"],
     ["status", "draft"],
   ]);
 
@@ -216,6 +222,7 @@ test("updateAdminProjectAction updates an existing project with public content f
         featured: false,
         outcomes: ["First outcome", "Second outcome"],
         period: "2026",
+        projectType: "work",
         role: "Staff PM",
         slug: "updated-project",
         status: "draft",
@@ -265,6 +272,7 @@ test("createAdminProjectAction returns a controlled error when the slug already 
       ["title", "New project"],
       ["slug", "duplicate-project"],
       ["summary", ""],
+      ["projectType", "side"],
       ["status", "published"],
     ]),
   );
@@ -312,6 +320,7 @@ test("updateAdminProjectAction returns a controlled error when the project is mi
       ["title", "Missing project"],
       ["slug", "missing-project"],
       ["summary", ""],
+      ["projectType", "side"],
       ["status", "draft"],
     ]),
   );
@@ -605,3 +614,62 @@ test("reorderAdminProjectsAction server wrapper returns a controlled error for a
     error: "專案排序資料不可為空。",
   });
 });
+
+for (const scenario of [
+  { error: "請選擇專案類型（工作案例、研究或個人專案）。", label: "missing", value: null },
+  { error: "請選擇專案類型（工作案例、研究或個人專案）。", label: "blank", value: "  " },
+  { error: "專案類型無效，請從選單選擇工作案例、研究或個人專案。", label: "unknown", value: "personal" },
+  { error: "專案類型無效，請從選單選擇工作案例、研究或個人專案。", label: "wrong case", value: "Work" },
+]) {
+  test(`create and update project actions reject a ${scenario.label} project type before writing`, async () => {
+    const actionsModule = await loadModule<{
+      createAdminProjectMutationActions: (input: {
+        redirectTo: (path: string) => never;
+        revalidatePath: (path: string, type?: "layout" | "page") => void;
+        service: {
+          createProject: (input: CreateProjectInput) => Promise<ProjectRecord>;
+          updateProject: (id: string, input: UpdateProjectInput) => Promise<ProjectRecord>;
+        };
+      }) => {
+        createProject: (state: AdminProjectFormState, formData: FormData) => Promise<AdminProjectFormState>;
+        updateProject: (state: AdminProjectFormState, formData: FormData) => Promise<AdminProjectFormState>;
+      };
+      initialAdminProjectFormState: AdminProjectFormState;
+    }>("./action-core.ts", "admin projects actions");
+
+    const writes: string[] = [];
+    const actions = actionsModule.createAdminProjectMutationActions({
+      redirectTo: (path) => {
+        throw new Error(`unexpected redirect:${path}`);
+      },
+      revalidatePath: () => {},
+      service: {
+        createProject: async (input) => {
+          writes.push("create");
+          return createProject(input);
+        },
+        updateProject: async (id, input) => {
+          writes.push("update");
+          return createProject({ id, ...input });
+        },
+      },
+    });
+
+    const entries: Array<[string, string]> = [
+      ["title", "Typed project"],
+      ["slug", "typed-project"],
+      ["status", "draft"],
+      ...(scenario.value === null ? [] : ([["projectType", scenario.value]] as Array<[string, string]>)),
+    ];
+
+    const createResult = await actions.createProject(actionsModule.initialAdminProjectFormState, createFormData(entries));
+    const updateResult = await actions.updateProject(
+      actionsModule.initialAdminProjectFormState,
+      createFormData([["id", "project-1"], ...entries]),
+    );
+
+    assert.deepEqual(createResult, { error: scenario.error });
+    assert.deepEqual(updateResult, { error: scenario.error });
+    assert.deepEqual(writes, []);
+  });
+}

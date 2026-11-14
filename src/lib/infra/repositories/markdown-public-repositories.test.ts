@@ -166,3 +166,58 @@ draft: true
   assert.equal(publishedProject?.content, "專案內容。");
   assert.equal(projectById?.id, "published-project");
 });
+
+test("createMarkdownPublicContentRepositories reads the project type from frontmatter and ignores unknown values", async () => {
+  const repositoriesModule = await loadModule<{
+    createMarkdownPublicContentRepositories: (input: { postsDirectory: string; projectsDirectory: string }) => {
+      projects: {
+        getPublicProjectById: (id: string) => Promise<{ projectType: string | null } | null>;
+        getPublicProjectBySlug: (slug: string) => Promise<{ projectType: string | null } | null>;
+        listPublishedProjects: () => Promise<Array<{ projectType: string | null; slug: string }>>;
+      };
+    };
+  }>("./markdown-public-repositories.ts", "markdown public repositories");
+
+  const tempDirectory = await fs.mkdtemp(path.join(os.tmpdir(), "markdown-project-types-"));
+  const projectsDirectory = path.join(tempDirectory, "projects");
+
+  await fs.mkdir(projectsDirectory, { recursive: true });
+
+  for (const [slug, typeLine] of [
+    ["research-project", "type: research"],
+    ["untyped-project", ""],
+    ["unknown-type-project", "type: personal"],
+  ]) {
+    await fs.writeFile(path.join(projectsDirectory, `${slug}.md`), `---\ntitle: ${slug}\n${typeLine}\n---\n\n內容。\n`, "utf8");
+  }
+
+  const repositories = repositoriesModule.createMarkdownPublicContentRepositories({
+    postsDirectory: path.join(tempDirectory, "posts"),
+    projectsDirectory,
+  });
+
+  const projects = await repositories.projects.listPublishedProjects();
+
+  assert.deepEqual(
+    Object.fromEntries(projects.map((project) => [project.slug, project.projectType])),
+    { "research-project": "research", "unknown-type-project": null, "untyped-project": null },
+  );
+  assert.equal((await repositories.projects.getPublicProjectBySlug("research-project"))?.projectType, "research");
+  assert.equal((await repositories.projects.getPublicProjectById("research-project"))?.projectType, "research");
+});
+
+test("the repo's own Markdown projects all declare a valid type", async () => {
+  const repositoriesModule = await loadModule<{
+    createMarkdownPublicContentRepositories: () => {
+      projects: { listPublishedProjects: () => Promise<Array<{ projectType: string | null; slug: string }>> };
+    };
+  }>("./markdown-public-repositories.ts", "markdown public repositories");
+
+  const projects = await repositoriesModule.createMarkdownPublicContentRepositories().projects.listPublishedProjects();
+
+  assert.ok(projects.length > 0);
+  assert.deepEqual(
+    projects.filter((project) => !["work", "research", "side"].includes(project.projectType ?? "")).map((project) => project.slug),
+    [],
+  );
+});

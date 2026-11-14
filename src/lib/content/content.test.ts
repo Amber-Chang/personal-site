@@ -739,6 +739,7 @@ test("SupabaseProjectsRepository gets an admin project by id", async () => {
                 id: "project-1",
                 outcomes: [],
                 period: null,
+                project_type: "work",
                 published_at: null,
                 role: null,
                 sort_order: 3,
@@ -765,6 +766,7 @@ test("SupabaseProjectsRepository gets an admin project by id", async () => {
     id: "project-1",
     outcomes: [],
     period: null,
+    projectType: "work",
     publishedAt: null,
     role: null,
     sortOrder: 3,
@@ -856,6 +858,7 @@ test("SupabaseProjectsRepository creates and updates admin project identities", 
                 id: "project-created",
                 outcomes: [],
                 period: null,
+                project_type: "work",
                 published_at: null,
                 role: null,
                 sort_order: 9,
@@ -890,6 +893,7 @@ test("SupabaseProjectsRepository creates and updates admin project identities", 
                   id: "project-created",
                   outcomes: [],
                   period: null,
+                  project_type: "work",
                   published_at: null,
                   role: null,
                   sort_order: 4,
@@ -910,6 +914,7 @@ test("SupabaseProjectsRepository creates and updates admin project identities", 
   });
 
   const created = await repository.createProject({
+    projectType: "research",
     slug: "new-project",
     status: "published",
     summary: "New summary",
@@ -928,6 +933,7 @@ test("SupabaseProjectsRepository creates and updates admin project identities", 
       featured: false,
       outcomes: [],
       period: null,
+      project_type: "research",
       role: null,
       sort_order: 2147483647,
       slug: "new-project",
@@ -1015,6 +1021,7 @@ test("SupabaseProjectsRepository upserts project identities by slug without rese
                 id: "project-1",
                 outcomes: [],
                 period: null,
+                project_type: "work",
                 published_at: null,
                 role: null,
                 sort_order: 8,
@@ -1035,6 +1042,7 @@ test("SupabaseProjectsRepository upserts project identities by slug without rese
 
   const result = await repository.upsertProject({
     contentMarkdown: "Project body",
+    projectType: "work",
     publishedAt: null,
     slug: "sms-management-platform",
     status: "published",
@@ -1051,6 +1059,7 @@ test("SupabaseProjectsRepository upserts project identities by slug without rese
         featured: false,
         outcomes: [],
         period: null,
+        project_type: "work",
         published_at: null,
         role: null,
         slug: "sms-management-platform",
@@ -1068,6 +1077,7 @@ test("SupabaseProjectsRepository upserts project identities by slug without rese
     id: "project-1",
     outcomes: [],
     period: null,
+    projectType: "work",
     publishedAt: null,
     role: null,
     sortOrder: 8,
@@ -1157,7 +1167,7 @@ test("SupabaseProjectsRepository lists published public projects with stable fal
   assert.deepEqual(calls, [
     {
       table: "projects",
-      columns: "id, slug, title, summary, role, period, tags, outcomes, featured, published_at, status",
+      columns: "id, slug, title, summary, role, period, tags, outcomes, featured, project_type, published_at, status",
       filters: [{ column: "status", value: "published" }],
       orders: [
         { ascending: true, column: "sort_order" },
@@ -1244,6 +1254,7 @@ test("SupabaseProjectsRepository resolves a public project by slug with Supabase
                       id: "project-1",
                       outcomes: ["把需求整理成可執行流程"],
                       period: "2025",
+                      project_type: "work",
                       published_at: "2026-06-09T00:00:00.000Z",
                       role: "PM",
                       slug: "sms-management-platform",
@@ -1271,6 +1282,7 @@ test("SupabaseProjectsRepository resolves a public project by slug with Supabase
     id: "project-1",
     outcomes: ["把需求整理成可執行流程"],
     period: "2025",
+    projectType: "work",
     role: "PM",
     slug: "sms-management-platform",
     summary: "把分散需求產品化。",
@@ -1280,7 +1292,7 @@ test("SupabaseProjectsRepository resolves a public project by slug with Supabase
   assert.deepEqual(calls, [
     {
       table: "projects",
-      columns: "id, slug, title, summary, role, period, tags, outcomes, featured, content_markdown, published_at, status",
+      columns: "id, slug, title, summary, role, period, tags, outcomes, featured, project_type, content_markdown, published_at, status",
       filters: [
         { column: "slug", value: "sms-management-platform" },
         { column: "status", value: "published" },
@@ -1375,6 +1387,7 @@ test("SupabaseProjectsRepository lists published public projects with full card 
                           id: "project-1",
                           outcomes: ["把需求整理成可執行流程"],
                           period: "2025",
+                          project_type: "work",
                           published_at: "2026-06-09T00:00:00.000Z",
                           role: "PM",
                           slug: "sms-management-platform",
@@ -1404,6 +1417,7 @@ test("SupabaseProjectsRepository lists published public projects with full card 
       id: "project-1",
       outcomes: ["把需求整理成可執行流程"],
       period: "2025",
+      projectType: "work",
       role: "PM",
       slug: "sms-management-platform",
       summary: "把分散需求產品化。",
@@ -1414,7 +1428,7 @@ test("SupabaseProjectsRepository lists published public projects with full card 
   assert.deepEqual(calls, [
     {
       table: "projects",
-      columns: "id, slug, title, summary, role, period, tags, outcomes, featured, published_at, status",
+      columns: "id, slug, title, summary, role, period, tags, outcomes, featured, project_type, published_at, status",
       filters: [{ column: "status", value: "published" }],
       orders: [
         { ascending: true, column: "sort_order" },

@@ -26,6 +26,7 @@ function createProjectRecord(input: SyncProjectInput, overrides?: Partial<Projec
     id: overrides?.id ?? `project-${input.slug}`,
     outcomes: input.outcomes ?? [],
     period: input.period ?? null,
+    projectType: input.projectType,
     publishedAt: input.publishedAt ?? null,
     role: input.role ?? null,
     slug: input.slug,
@@ -52,6 +53,7 @@ test("loadMarkdownProjectInputs maps markdown files to sync project inputs", asy
       'summary: "Published summary"',
       'role: "PM"',
       'period: "2025"',
+      "type: work",
       "tags:",
       "  - Strategy",
       "  - Workflow",
@@ -71,6 +73,7 @@ test("loadMarkdownProjectInputs maps markdown files to sync project inputs", asy
       "---",
       'title: "Draft Project"',
       'summary: "Draft summary"',
+      "type: research",
       "draft: true",
       "---",
       "",
@@ -87,6 +90,7 @@ test("loadMarkdownProjectInputs maps markdown files to sync project inputs", asy
       featured: false,
       outcomes: [],
       period: null,
+      projectType: "research",
       publishedAt: null,
       role: null,
       slug: "draft-project",
@@ -100,6 +104,7 @@ test("loadMarkdownProjectInputs maps markdown files to sync project inputs", asy
       featured: true,
       outcomes: ["Outcome A", "Outcome B"],
       period: "2025",
+      projectType: "work",
       publishedAt: null,
       role: "PM",
       slug: "published-project",
@@ -147,6 +152,7 @@ test("syncMarkdownProjects creates, updates, and skips project identities by slu
         featured: false,
         outcomes: [],
         period: null,
+        projectType: "side",
         publishedAt: null,
         role: null,
         slug: "already-synced",
@@ -160,6 +166,7 @@ test("syncMarkdownProjects creates, updates, and skips project identities by slu
         featured: false,
         outcomes: [],
         period: null,
+        projectType: "side",
         publishedAt: null,
         role: null,
         slug: "needs-update",
@@ -173,6 +180,7 @@ test("syncMarkdownProjects creates, updates, and skips project identities by slu
         featured: false,
         outcomes: [],
         period: null,
+        projectType: "side",
         publishedAt: null,
         role: null,
         slug: "new-project",
@@ -189,6 +197,7 @@ test("syncMarkdownProjects creates, updates, and skips project identities by slu
           featured: false,
           outcomes: [],
           period: null,
+          projectType: "side",
           publishedAt: null,
           role: null,
           slug: "already-synced",
@@ -202,6 +211,7 @@ test("syncMarkdownProjects creates, updates, and skips project identities by slu
           featured: false,
           outcomes: [],
           period: null,
+          projectType: "side",
           publishedAt: null,
           role: null,
           slug: "needs-update",
@@ -225,6 +235,7 @@ test("syncMarkdownProjects creates, updates, and skips project identities by slu
       featured: false,
       outcomes: [],
       period: null,
+      projectType: "side",
       publishedAt: null,
       role: null,
       slug: "needs-update",
@@ -238,6 +249,7 @@ test("syncMarkdownProjects creates, updates, and skips project identities by slu
       featured: false,
       outcomes: [],
       period: null,
+      projectType: "side",
       publishedAt: null,
       role: null,
       slug: "new-project",
@@ -252,4 +264,53 @@ test("syncMarkdownProjects creates, updates, and skips project identities by slu
     skipped: ["already-synced"],
     updated: ["needs-update"],
   });
+});
+
+test("loadMarkdownProjectInputs stops with the file name when type is missing or unknown", async () => {
+  const migrationModule = await loadModule<{
+    loadMarkdownProjectInputs: (directory: string) => Promise<SyncProjectInput[]>;
+  }>("./project-migration.ts", "project migration");
+
+  for (const typeLine of [null, "type: personal"]) {
+    const projectsDirectory = createTempProjectsDirectory();
+    fs.writeFileSync(
+      path.join(projectsDirectory, "untyped-project.md"),
+      ["---", 'title: "Untyped"', ...(typeLine ? [typeLine] : []), "---", "", "Body"].join("\n"),
+    );
+
+    await assert.rejects(
+      () => migrationModule.loadMarkdownProjectInputs(projectsDirectory),
+      /untyped-project\.md.*type.*work.*research.*side/s,
+    );
+  }
+});
+
+test("syncMarkdownProjects updates a project whose only difference is its type", async () => {
+  const migrationModule = await loadModule<{
+    syncMarkdownProjects: (input: {
+      projects: SyncProjectInput[];
+      service: {
+        listAdminProjects: () => Promise<ProjectRecord[]>;
+        upsertProject: (input: SyncProjectInput) => Promise<ProjectRecord>;
+      };
+    }) => Promise<{ created: string[]; skipped: string[]; updated: string[] }>;
+  }>("./project-migration.ts", "project migration");
+
+  const project: SyncProjectInput = {
+    contentMarkdown: "Body",
+    projectType: "work",
+    slug: "retyped",
+    status: "published",
+    title: "Retyped",
+  };
+
+  const result = await migrationModule.syncMarkdownProjects({
+    projects: [project],
+    service: {
+      listAdminProjects: async () => [createProjectRecord({ ...project, projectType: "side" })],
+      upsertProject: async (input) => createProjectRecord(input),
+    },
+  });
+
+  assert.deepEqual(result, { created: [], skipped: [], updated: ["retyped"] });
 });

@@ -4,7 +4,8 @@ import {
   PublishedContentDeletionError,
 } from "../../../lib/content/service.ts";
 import { AdminAuthorizationError } from "../../../lib/auth/guards.ts";
-import type { CreateProjectInput, UpdateProjectInput } from "../../../lib/content/types.ts";
+import { isProjectType } from "../../../lib/content/project-type.ts";
+import type { CreateProjectInput, ProjectType, UpdateProjectInput } from "../../../lib/content/types.ts";
 import type { AdminProjectFormState } from "./action-state.ts";
 
 export { initialAdminProjectFormState } from "./action-state.ts";
@@ -59,6 +60,21 @@ function parseStatus(formData: FormData): "draft" | "published" {
   throw new Error("專案狀態無效。");
 }
 
+// 類型是必填：表單的 select 已設 required，這裡在伺服器端再擋一次，避免繞過前端送出空值或任意字串。
+function parseProjectType(formData: FormData): ProjectType {
+  const value = getStringValue(formData, "projectType")?.trim();
+
+  if (!value) {
+    throw new Error("請選擇專案類型（工作案例、研究或個人專案）。");
+  }
+
+  if (!isProjectType(value)) {
+    throw new Error("專案類型無效，請從選單選擇工作案例、研究或個人專案。");
+  }
+
+  return value;
+}
+
 function parseOptionalTrimmedField(formData: FormData, key: string) {
   return getStringValue(formData, key)?.trim() || null;
 }
@@ -87,6 +103,7 @@ function parseFormValues(formData: FormData): CreateProjectInput {
     featured: formData.get("featured") === "on",
     outcomes: parseLineSeparatedValues(formData, "outcomes"),
     period: parseOptionalTrimmedField(formData, "period"),
+    projectType: parseProjectType(formData),
     role: parseOptionalTrimmedField(formData, "role"),
     slug: parseRequiredTrimmedField(formData, "slug", "slug"),
     status: parseStatus(formData),

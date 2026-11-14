@@ -1,3 +1,7 @@
+import type { ProjectType } from "./project-type.ts";
+
+export type { ProjectType } from "./project-type.ts";
+
 export type ContentStatus = "draft" | "published";
 
 export type BlogPostRecord = {
@@ -32,6 +36,7 @@ export type CreateProjectInput = {
   featured?: boolean;
   outcomes?: string[];
   period?: string | null;
+  projectType: ProjectType;
   role?: string | null;
   sortOrder?: number;
   slug: string;
@@ -56,6 +61,8 @@ export type ProjectRecord = {
   id: string;
   outcomes: string[];
   period: string | null;
+  // 讀取端寬鬆：資料庫裡不認得的值會變成 null（不顯示標籤），寫入端一律要求三個值之一。
+  projectType: ProjectType | null;
   publishedAt: string | null;
   role: string | null;
   sortOrder: number;
@@ -72,6 +79,7 @@ export type SyncProjectInput = {
   featured?: boolean;
   outcomes?: string[];
   period?: string | null;
+  projectType: ProjectType;
   publishedAt?: string | null;
   role?: string | null;
   sortOrder?: number;
@@ -86,6 +94,7 @@ export type ProjectSummary = ProjectOption & {
   featured: boolean;
   outcomes: string[];
   period: string;
+  projectType: ProjectType | null;
   role: string;
   summary: string;
   tags: string[];
@@ -97,6 +106,7 @@ export type PublicProjectRecord = {
   id: string;
   outcomes: string[];
   period: string;
+  projectType: ProjectType | null;
   role: string;
   slug: string;
   summary: string;

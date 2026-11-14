@@ -5,7 +5,8 @@ import { useActionState } from "react";
 
 import type { AdminProjectFormState } from "../../app/admin/projects/action-state.ts";
 import { initialAdminProjectFormState } from "../../app/admin/projects/action-state.ts";
-import type { ContentStatus } from "../../lib/content/types.ts";
+import { PROJECT_TYPE_OPTIONS } from "../../lib/content/project-type.ts";
+import type { ContentStatus, ProjectType } from "../../lib/content/types.ts";
 import { ContentStatusBadge, getContentStatusLabel } from "./content-status-badge.tsx";
 
 type AdminProjectFormAction = (state: AdminProjectFormState, formData: FormData) => Promise<AdminProjectFormState>;
@@ -16,6 +17,8 @@ type AdminProjectFormValues = {
   id?: string;
   outcomes: string;
   period: string;
+  // 空字串代表尚未選擇：新增時不預選，避免沒看就送出預設值。
+  projectType: ProjectType | "";
   role: string;
   slug: string;
   status: ContentStatus;
@@ -80,6 +83,27 @@ export function AdminProjectForm(input: {
             name="slug"
             required
           />
+        </div>
+
+        <div className="space-y-2">
+          <label className="text-sm font-medium text-black" htmlFor="projectType">
+            Type
+          </label>
+          <p className="text-xs leading-5 text-black/55">必填。會以中文標籤顯示在前台案例卡片與案例頁：工作案例、研究或個人專案。</p>
+          <select
+            className="w-full rounded-2xl border border-black/10 bg-white px-4 py-3 text-base outline-none transition focus:border-black/30"
+            defaultValue={input.values.projectType}
+            id="projectType"
+            name="projectType"
+            required
+          >
+            <option disabled value="">請選擇類型</option>
+            {PROJECT_TYPE_OPTIONS.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
         </div>
 
         <div className="space-y-2">
