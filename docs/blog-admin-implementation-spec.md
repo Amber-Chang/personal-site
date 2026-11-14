@@ -190,7 +190,7 @@ src/
 
 ### 6.1 `projects`
 
-第一版先建立可被 blog 關聯的最小欄位。
+第一版先建立可被 blog 關聯的最小欄位。之後加入的公開欄位（`role`、`period`、`tags`、`outcomes`、`featured`、`sort_order`、`project_type`）見 [projects-supabase-first-spec.md](./projects-supabase-first-spec.md) 與 [SPEC-002](./02-spec/SPEC-002-content-architecture.md)。
 
 - `id` `uuid primary key`
 - `slug` `text unique not null`

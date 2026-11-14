@@ -75,7 +75,7 @@
 
 ### 情境 B：站主在後台完整調整公開 project 內容
 
-- 站主在 `/admin/projects/[id]` 編輯 title、summary、role、period、tags、outcomes、content、featured、status
+- 站主在 `/admin/projects/[id]` 編輯 title、type、summary、role、period、tags、outcomes、content、featured、status
 - 儲存後，前台 project 頁與列表使用最新內容
 
 ### 情境 C：Markdown 內容作為 migration source
@@ -96,6 +96,7 @@ Supabase `projects` 至少需要完整承接目前前台 project card 與 projec
 - `outcomes`
 - `content_markdown`
 - `featured`
+- `project_type`（必填，`work` / `research` / `side`，2026-11 加入，見 [SPEC-002](./02-spec/SPEC-002-content-architecture.md)）
 - `status`
 - `published_at`
 

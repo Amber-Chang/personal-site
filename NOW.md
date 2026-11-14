@@ -19,6 +19,7 @@
 
 ## 最近完成
 
+- 已完成內容架構調整 3A（分支 `codex/content-architecture`，尚未 push / 合併；migration 尚未套用）：專案新增必填類型 `project_type`（工作案例 / 研究 / 個人專案，後台必選、伺服器端驗證，前台卡片與內頁顯示中文標籤）；首頁改為身分 → 代表案例 → 精選文章 → 關於我（短版）→ 聯絡五段，代表案例沒有 featured 時改顯示排序前 3 個；文章日期改為「2026 年 6 月」並固定用台北時間；「工作隨筆」下架後文章頁不顯示相關案例、sitemap 不列出。規格、上線順序與驗收條件見 [docs/02-spec/SPEC-002-content-architecture.md](./docs/02-spec/SPEC-002-content-architecture.md)
 - 已完成全站健檢第 2 包 design token（分支 `codex/design-tokens`，疊在第 1 包分支上，尚未 push / 合併）：`globals.css` 定義字級、文字深淺、邊框、圓角、字距、陰影 token，刪除沒用到的 `sidebar`、`chart` token；抽出 `Prose`、`PageHeader`、`SectionHeading`；公開頁寫死數值 89 → 7（其中 4 處在 shadcn 元件內，未改）、「token 加透明度」組合 26 → 8；標題改載 Noto Serif TC 600，內文用系統字體。字體以外的改動與基準圖相比每頁差異 ≤ 0.38%。token 清單與挑選方式見 [docs/design-tokens.md](./docs/design-tokens.md)
 - 已完成全站健檢第 1 包（分支 `codex/site-health-fixes`，尚未 push / 合併）：社群分享圖與 `metadataBase`、自訂 404、`sitemap.xml` / `robots.txt`、文字對比、可點範圍、標題層級、首頁大標斷行；本機 8 頁 × 2 寬度量測：對比不足、可點高度 < 24px、標題跳號、橫向捲動皆為 0。規劃與驗收條件見 [docs/plans/2026-11-11-site-health-and-design-tokens.md](./docs/plans/2026-11-11-site-health-and-design-tokens.md)
 - 已讓 `npm run lint` 恢復通過（0 errors）：`eslint.config.mjs` 把 `gates/`、`loops/`、`onboarding/` 的 `.cjs` 治理工具改用 Node CommonJS 規則檢查（保留 `no-undef`），analytics consent banner 改用 `useSyncExternalStore`，瀏覽器實測同意 / 拒絕 / 重新整理行為與改寫前一致；剩餘 16 個 warning 皆在治理工具腳本
@@ -69,6 +70,8 @@
 
 ## 目前最重要的事
 
+- 3A 上線順序必須是「先 migration、後程式」：PM 同意後由 reviewer 套用 `supabase/migrations/202611150001_add_project_type.sql`，確認回填結果，再合併部署，最後把「工作隨筆」下架。新程式碰到沒有 `project_type` 欄位的資料庫時，首頁、`/projects`、專案內頁與有關聯專案的文章頁會回 500，Vercel build 也會失敗
+- PM 驗收 3A：首頁五段的觀感與文案；日期時區（原需求範例 `2026-06-30T23:30:00Z` 在台北時間已是 7 月，實作採台北時間，待確認）；身分區塊是否保留「Amber Chang」與「這裡放我做過的專案，也放我持續在想的事。」兩行
 - PM 驗收全站健檢第 2 包：標題改用 Noto Serif TC 後的觀感；同意橫幅那句話改用內文字體（只載 600 字重時標題字體會讓它變半粗體），請確認觀感；本機模擬慢速 4G 時首屏出現時間多約 0.6 秒（一般網速無差異）
 - PM 驗收全站健檢第 1 包：首頁大標斷行（任務 1.7）的改前改後觀感（任務 1.8 內文行長經 PM 檢視後決定不做，內文維持全寬）；上線後用 LinkedIn Post Inspector 確認分享圖，並確認 production 的 `NEXT_PUBLIC_SITE_URL` 是正式網址（分享圖、sitemap、robots 的絕對網址都依它產生）
 - 確認 Supabase 防暫停排程在 production 生效：Vercel 已設定 `CRON_SECRET`、Cron Jobs 頁面看得到 3 個排程，且上線 7 天後 Supabase 專案仍為 `ACTIVE_HEALTHY`
@@ -83,7 +86,7 @@
 
 ## 下一步建議
 
-1. 第 1、2 包驗收、合併後，準備第 3 包（內容與版面，需求待 PM 提供 D4 素材）
+1. 3A 驗收、套用 migration、合併後，進行之後的視覺改版包與 About 內容改寫（舊首頁大標那句之後搬到 About）
 2. 先建立新的 production smoke sample（文章 + project），取代已失效的舊 sample 路徑
 3. 在可互動環境補真實 Google OAuth admin smoke check，並把最新結果回填到 `docs/deployment-security-readiness.md`
 4. 視需要做 headed 驗證，確認 analytics consent banner 的互動式行為與 PostHog 只在同意後初始化

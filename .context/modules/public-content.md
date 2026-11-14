@@ -8,6 +8,7 @@
 
 - `src/app/page.tsx`
 - `src/app/home-data.ts`
+- `src/components/ProjectCard.tsx`、`src/components/PostCard.tsx`
 - `src/app/blog/data.ts`
 - `src/app/blog/[slug]/page.tsx`
 - `src/app/projects/data.ts`
@@ -18,8 +19,11 @@
 ## 運作方式
 
 - 頁面層透過 `data.ts` / loader 向 `content-runtime` 取資料，不直接碰 Supabase client。
-- 首頁會分別讀 featured projects 與最新公開文章，再裁成首頁需要的數量。
-- blog post 詳頁會補出 `related_project_id` 指向的 project；project 詳頁則會反查關聯文章。
+- 首頁固定五段：身分 → 代表案例 → 精選文章 → 關於我（短版）→ 聯絡（SPEC-002）。
+- 代表案例讀一次 `listPublicProjects`，`selectHomeProjects` 取 featured 前 3 個；一個 featured 都沒有時改取排序最前面的 3 個已上架專案。卡片顯示類型標籤、角色、標題、摘要與第一條成果。
+- 精選文章取排序最前面的 3 篇，摘要經 `normalizeExcerpt` 整理（合併空白與換行、80 字截斷加「…」）；沒有摘要只顯示標題。
+- 專案卡片、`/projects` 與專案內頁顯示中文類型標籤（工作案例 / 研究 / 個人專案）。
+- blog post 詳頁會補出 `related_project_id` 指向的 project；關聯的 project 下架或不存在時不顯示相關案例區塊。project 詳頁則會反查關聯文章。
 
 ## 邊界
 
