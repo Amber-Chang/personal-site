@@ -280,7 +280,7 @@ test("loadMarkdownProjectInputs stops with the file name when type is missing or
 
     await assert.rejects(
       () => migrationModule.loadMarkdownProjectInputs(projectsDirectory),
-      /untyped-project\.md.*type.*work.*research.*side/s,
+      /untyped-project\.md.*type.*work.*research.*side/,
     );
   }
 });

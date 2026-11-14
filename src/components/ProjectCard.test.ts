@@ -26,6 +26,6 @@ test("project detail page shows the type label above the title only when there i
 
   assert.match(
     source,
-    /\{project\.projectTypeLabel \? \(\s*<p className="text-label tracking-label text-muted-foreground">\{project\.projectTypeLabel\}<\/p>\s*\) : null\}\s*<h1/s,
+    /\{project\.projectTypeLabel \? \(\s*<p className="text-label tracking-label text-muted-foreground">\{project\.projectTypeLabel\}<\/p>\s*\) : null\}\s*<h1/,
   );
 });

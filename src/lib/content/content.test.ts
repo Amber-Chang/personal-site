@@ -827,6 +827,7 @@ test("SupabaseProjectsRepository creates and updates admin project identities", 
       };
     }) => {
       createProject: (input: {
+        projectType: "work" | "research" | "side";
         slug: string;
         status?: "draft" | "published";
         summary?: string | null;
@@ -987,6 +988,7 @@ test("SupabaseProjectsRepository upserts project identities by slug without rese
     }) => {
       upsertProject: (input: {
         contentMarkdown: string | null;
+        projectType: "work" | "research" | "side";
         publishedAt: string | null;
         slug: string;
         status: "draft" | "published";

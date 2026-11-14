@@ -37,7 +37,7 @@ test("AdminProjectForm has a required project type select built from the shared 
   const filePath = path.join(process.cwd(), "src/components/admin/project-form.tsx");
   const source = fs.readFileSync(filePath, "utf8");
 
-  assert.match(source, /<select[^>]*name="projectType"[^>]*required/s);
+  assert.match(source, /<select[^>]*name="projectType"[^>]*required/);
   assert.match(source, /defaultValue=\{input\.values\.projectType\}/);
   assert.match(source, /<option disabled value="">請選擇類型<\/option>/);
   assert.match(source, /PROJECT_TYPE_OPTIONS\.map\(/);
