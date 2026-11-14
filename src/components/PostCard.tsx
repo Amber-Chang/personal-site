@@ -1,5 +1,5 @@
 // [AI-ASSISTED] Generated with Codex, 2026-02-19
-// 功能：文章摘要卡片，顯示標題、日期、標籤並連到文章頁。
+// 功能：文章摘要卡片，顯示標題、日期、摘要（有才顯示）、標籤並連到文章頁。
 
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
@@ -7,6 +7,8 @@ import { formatDate } from "@/lib/format";
 
 type PostCardPost = {
   date: string;
+  // 首頁精選文章才會帶；沒有摘要時只顯示標題，不輸出空白段落。
+  excerpt?: string | null;
   slug: string;
   tags: string[];
   title: string;
@@ -25,6 +27,7 @@ export function PostCard({ post, headingLevel = "h3" }: { post: PostCardPost; he
         <Heading className="max-w-lg text-card-title font-medium tracking-tight group-hover:underline">{post.title}</Heading>
         <span className="shrink-0 pt-0.5 text-label uppercase tracking-caps text-muted-foreground">{formatDate(post.date)}</span>
       </div>
+      {post.excerpt ? <p className="mt-3 max-w-2xl text-sm leading-7 text-muted-foreground">{post.excerpt}</p> : null}
       {post.tags.length > 0 ? (
         <div className="mt-4 flex flex-wrap gap-2">
           {post.tags.map((tag) => (

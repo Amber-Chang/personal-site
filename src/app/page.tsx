@@ -1,5 +1,5 @@
 // [AI-ASSISTED] Updated with Codex, 2026-05-18
-// 功能：首頁，採編輯式敘事呈現定位、成果、代表案例與精選文章。
+// 功能：首頁，固定五段：身分 → 代表案例 → 精選文章 → 關於我（短版）→ 聯絡（SPEC-002）。
 
 import Link from "next/link";
 import type { Metadata } from "next";
@@ -13,10 +13,10 @@ import { loadHomeFeaturedProjectsData, loadHomeWritingData } from "./home-data";
 
 export const metadata: Metadata = {
   title: "Amber Chang — AI-native Product Builder",
-  description: "用產品思維、系統理解與寫作，整理工作現場與生活裡那些還說不清楚的問題。",
+  description: "我把模糊的需求整理成可以上線的產品，並用 AI 把想法更快做成成果。",
   openGraph: {
     title: "Amber Chang — AI-native Product Builder",
-    description: "用產品思維、系統理解與寫作，整理工作現場與生活裡那些還說不清楚的問題。",
+    description: "我把模糊的需求整理成可以上線的產品，並用 AI 把想法更快做成成果。",
   },
 };
 
@@ -44,46 +44,31 @@ export default async function HomePage() {
         <div className="space-y-5 md:space-y-6">
           <div className="space-y-1.5">
             <p className="text-lg font-medium tracking-heading text-foreground-soft md:text-xl">Amber Chang</p>
-            <p className="text-tagline tracking-label text-muted-foreground">
-              AI-native product portfolio
-            </p>
+            <p className="text-tagline tracking-label text-muted-foreground">Product Manager / Product Builder</p>
           </div>
-          {/* 最大寬度用 em：15em 約等於 15 個中文字（含 -0.03em 字距），不論字級多大，第一句剛好一行，第二句斷成 15 + 7 字，不會只剩「楚的問題。」 */}
-          <h1 className="max-w-[15em] text-balance font-display text-display font-semibold tracking-heading">
-            我用產品思維、系統理解與寫作，
-            <br />
-            整理那些在工作現場與生活裡還說不清楚的問題。
+          {/* break-keep 讓中文只在 <wbr /> 與空白處換行，不把「產品」「可以」這類詞拆成兩行；text-balance 再把各行長度拉平，最後一行不會只剩幾個字。 */}
+          <h1 className="text-balance break-keep font-display text-display font-semibold tracking-heading">
+            我把模糊的需求<wbr />整理成<wbr />可以上線的產品，<wbr />並用 AI <wbr />把想法<wbr />更快做成成果。
           </h1>
         </div>
 
-        <div className="grid gap-10 md:grid-cols-[1.5fr_0.7fr] md:items-end md:gap-12">
-          <div className="space-y-8">
-            <p className="max-w-xl text-sm leading-7 text-muted-foreground md:text-base">
-              這裡放我做過的專案，也放我持續在想的事。
-            </p>
-            <div className="flex flex-wrap gap-3 text-sm">
-              <Link
-                href="/projects"
-                className="inline-flex min-h-12 items-center rounded-full bg-foreground px-6 py-3 text-base font-medium text-background transition-colors hover:bg-foreground-soft"
-              >
-                Projects
-              </Link>
-              <Link
-                href="/blog"
-                className="inline-flex min-h-12 items-center rounded-full border border-border px-6 py-3 text-base font-medium text-foreground transition-colors hover:border-strong"
-              >
-                Writing &amp; Notes
-              </Link>
-            </div>
-          </div>
-
-          <div className="space-y-4 border-t border-border pt-6 md:border-t-0 md:border-l md:pt-0 md:pl-8">
-            <p className="text-label tracking-label text-muted-foreground">Focus</p>
-            <ul className="space-y-2.5 text-sm leading-6 text-foreground-soft">
-              <li>AI-native workflow</li>
-              <li>Product &amp; systems thinking</li>
-              <li>Notes from work and life</li>
-            </ul>
+        <div className="space-y-8">
+          <p className="max-w-xl text-sm leading-7 text-muted-foreground md:text-base">
+            這裡放我做過的專案，也放我持續在想的事。
+          </p>
+          <div className="flex flex-wrap gap-3 text-sm">
+            <Link
+              href="/projects"
+              className="inline-flex min-h-12 items-center rounded-full bg-foreground px-6 py-3 text-base font-medium text-background transition-colors hover:bg-foreground-soft"
+            >
+              Projects
+            </Link>
+            <Link
+              href="/blog"
+              className="inline-flex min-h-12 items-center rounded-full border border-border px-6 py-3 text-base font-medium text-foreground transition-colors hover:border-strong"
+            >
+              Writing &amp; Notes
+            </Link>
           </div>
         </div>
       </section>
@@ -118,6 +103,17 @@ export default async function HomePage() {
             <p className="text-sm text-muted-foreground">目前還沒有精選文章，敬請期待。</p>
           )}
         </div>
+      </section>
+
+      <section className="space-y-4">
+        <SectionHeading title="About" />
+        <p className="max-w-2xl text-pretty text-base leading-8 text-foreground-soft">我從教育現場、BD 與產品規劃，一路走到產品經理。</p>
+        <Link
+          href="/about"
+          className="inline-block text-base text-muted-foreground underline decoration-muted-foreground/60 underline-offset-4 hover:text-foreground"
+        >
+          更多關於我
+        </Link>
       </section>
 
       <section className="space-y-4 pt-2 md:pt-4">

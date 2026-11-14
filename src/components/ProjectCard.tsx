@@ -21,11 +21,12 @@ export function ProjectCard({
       className="group block rounded-card border border-border bg-card/40 px-5 py-5 transition-colors hover:border-strong md:px-7 md:py-6"
     >
       <div className="max-w-2xl space-y-2.5">
+        {/* 類型與角色排成一行文字：角色很長時自然換行，分隔點跟著前面的類型，不會單獨掛在行尾。 */}
         {project.typeLabel || project.role ? (
-          <p className="flex flex-wrap gap-x-2 text-label tracking-label text-muted-foreground">
+          <p className="text-label tracking-label text-muted-foreground">
             {project.typeLabel ? <span>{project.typeLabel}</span> : null}
             {project.typeLabel && project.role ? (
-              <span aria-hidden="true" className="text-muted-foreground/40">
+              <span aria-hidden="true" className="mx-2 text-muted-foreground/40">
                 ·
               </span>
             ) : null}
