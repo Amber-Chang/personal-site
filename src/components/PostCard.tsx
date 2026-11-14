@@ -3,7 +3,7 @@
 
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
-import { formatDate } from "@/lib/format";
+import { formatYearMonth } from "@/lib/format";
 
 type PostCardPost = {
   date: string;
@@ -25,7 +25,7 @@ export function PostCard({ post, headingLevel = "h3" }: { post: PostCardPost; he
     >
       <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
         <Heading className="max-w-lg text-card-title font-medium tracking-tight group-hover:underline">{post.title}</Heading>
-        <span className="shrink-0 pt-0.5 text-label uppercase tracking-caps text-muted-foreground">{formatDate(post.date)}</span>
+        <span className="shrink-0 pt-0.5 text-label uppercase tracking-caps text-muted-foreground">{formatYearMonth(post.date)}</span>
       </div>
       {post.excerpt ? <p className="mt-3 max-w-2xl text-sm leading-7 text-muted-foreground">{post.excerpt}</p> : null}
       {post.tags.length > 0 ? (

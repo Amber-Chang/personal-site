@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { formatDate } from "@/lib/format";
+import { formatYearMonth } from "@/lib/format";
 
 type RelatedPost = {
   date: string;
@@ -29,7 +29,7 @@ export function RelatedPostsSection({ relatedPosts }: { relatedPosts: RelatedPos
           >
             <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
               <h3 className="text-base font-medium leading-snug">{post.title}</h3>
-              <span className="shrink-0 text-xs text-muted-foreground">{formatDate(post.date)}</span>
+              <span className="shrink-0 text-xs text-muted-foreground">{formatYearMonth(post.date)}</span>
             </div>
             <p className="mt-3 text-sm leading-6 text-muted-foreground">{post.description}</p>
           </Link>
