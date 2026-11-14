@@ -65,7 +65,7 @@ test("home metadata keeps the title and no longer uses the removed headline", ()
 test("about section shows the short text and links to /about", () => {
   const source = readSource("src/app/page.tsx");
 
-  assert.match(source, />\s*我從教育現場、BD 與產品規劃，一路走到產品經理。\s*</);
+  assert.match(source, />\s*我從教育現場、BD 與產品規劃，一路走到產品經理。現在是 AI 產品經理，協助公司進行組織 AI 化。\s*</);
   assert.match(source, /href="\/about"[\s\S]*?>\s*更多關於我\s*<\/Link>/);
 });
 

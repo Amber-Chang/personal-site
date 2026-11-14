@@ -107,7 +107,7 @@ export default async function HomePage() {
 
       <section className="space-y-4">
         <SectionHeading title="About" />
-        <p className="max-w-2xl text-pretty text-base leading-8 text-foreground-soft">我從教育現場、BD 與產品規劃，一路走到產品經理。</p>
+        <p className="max-w-2xl text-pretty text-base leading-8 text-foreground-soft">我從教育現場、BD 與產品規劃，一路走到產品經理。現在是 AI 產品經理，協助公司進行組織 AI 化。</p>
         <Link
           href="/about"
           className="inline-block text-base text-muted-foreground underline decoration-muted-foreground/60 underline-offset-4 hover:text-foreground"
