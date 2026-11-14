@@ -6,6 +6,7 @@ type ProjectSummary = {
   id: string;
   outcomes: string[];
   period: string;
+  projectType: "work" | "research" | "side" | null;
   role: string;
   slug: string;
   summary: string;
@@ -19,6 +20,7 @@ function createProject(index: number, overrides?: Partial<ProjectSummary>): Proj
     id: `project-${index}`,
     outcomes: [`Outcome ${index}`],
     period: `202${index}`,
+    projectType: index === 1 ? "work" : null,
     role: "PM",
     slug: `project-${index}`,
     summary: `Summary ${index}`,
@@ -42,7 +44,7 @@ test("loadProjectsPageData lists published projects through the public content s
       service: {
         listPublicProjects: () => Promise<ProjectSummary[]>;
       };
-    }) => Promise<{ projects: ProjectSummary[] }>;
+    }) => Promise<{ projects: Array<{ slug: string; summary: string; title: string; typeLabel: string | null }> }>;
   }>("./data.ts", "projects list data");
 
   const calls: string[] = [];
@@ -58,5 +60,11 @@ test("loadProjectsPageData lists published projects through the public content s
   });
 
   assert.deepEqual(calls, ["listPublicProjects"]);
-  assert.deepEqual(result, { projects });
+  // 列表卡片只帶標題、摘要與類型標籤；不認得的類型不顯示標籤。
+  assert.deepEqual(result, {
+    projects: [
+      { firstOutcome: null, role: null, slug: "project-1", summary: "Summary 1", title: "Project 1", typeLabel: "工作案例" },
+      { firstOutcome: null, role: null, slug: "project-2", summary: "Summary 2", title: "Project 2", typeLabel: null },
+    ],
+  });
 });

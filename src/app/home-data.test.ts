@@ -123,6 +123,7 @@ test("loadHomeFeaturedProjectsData lists featured public projects for the homepa
           outcomes: ["Outcome 1"],
           period: "2025",
           role: "PM",
+          projectType: "research",
           slug: "project-1",
           summary: "Summary 1",
           tags: ["Tag 1"],
@@ -146,15 +147,12 @@ test("loadHomeFeaturedProjectsData lists featured public projects for the homepa
   assert.deepEqual(result, {
     projects: [
       {
-        featured: true,
-        id: "project-1",
-        outcomes: ["Outcome 1"],
-        period: "2025",
-        role: "PM",
+        firstOutcome: null,
+        role: null,
         slug: "project-1",
         summary: "Summary 1",
-        tags: ["Tag 1"],
         title: "Project 1",
+        typeLabel: "研究",
       },
     ],
   });

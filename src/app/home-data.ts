@@ -1,4 +1,5 @@
 import { mapPublicBlogPostSummary } from "./blog/data.ts";
+import { mapPublicProjectCard } from "../lib/content/public-project.ts";
 import type { BlogPostRecord, ProjectSummary } from "../lib/content/types.ts";
 
 type HomeWritingDataService = {
@@ -29,6 +30,6 @@ export async function loadHomeFeaturedProjectsData(input: {
   const projects = await input.service.listFeaturedProjects();
 
   return {
-    projects: projects.slice(0, limit),
+    projects: projects.slice(0, limit).map((project) => mapPublicProjectCard(project)),
   };
 }
