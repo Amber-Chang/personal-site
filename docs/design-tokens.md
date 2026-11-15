@@ -1,7 +1,7 @@
 # Design Tokens
 
 > 用途：公開頁面的樣式 token 清單、各自用在哪、新增畫面時怎麼選。
-> 狀態：2026-11-12 第 2 包完成時的現況；2026-11-15 內容架構 3A 改首頁時拿掉了主標寬度 `max-w-[15em]` 與第一屏兩欄比例兩個寫死數值。定義在 `src/app/globals.css`。
+> 狀態：2026-11-12 第 2 包完成時的現況；2026-11-15 內容架構 3A 改首頁時拿掉了主標寬度 `max-w-[15em]` 與第一屏兩欄比例兩個寫死數值；同日 3B（SPEC-003）新增程式碼上色色票與表格樣式。定義在 `src/app/globals.css`。
 
 ## 新增畫面時的挑選規則
 
@@ -81,6 +81,36 @@
 
 - 卡片標題維持 Tailwind 內建的 `tracking-tight`（-0.025em）。
 
+## 表格（長文內）
+
+| 位置 | class | 對比（最深的頁面底色 #f4f7f8） |
+|---|---|---|
+| 表頭文字 | `prose-th:text-foreground` | 17.42:1 |
+| 內容文字 | `prose-td:text-foreground-soft` | 12.77:1 |
+| 表頭下緣、每列下緣的線 | `prose-thead:border-border`、`prose-tr:border-border` | — |
+
+- 表格沒有底色，直接疊在頁面上。比內容欄寬時，在 `MarkdownContent` 包的 `overflow-x-auto` 容器內左右捲動。
+
+## 程式碼上色
+
+程式碼區塊在伺服器端由 `rehype-highlight` 標上 `hljs-*` class，顏色由 `globals.css` 結尾「程式碼上色」段落的 7 個色票決定。區塊文字預設用 `prose-pre:text-foreground`。
+
+| 色票 | 值 | 用在哪 | 對比 |
+|---|---|---|---|
+| `--code-keyword` | `#b42318` | 關鍵字、型別、刪除的行 | 6.05:1 |
+| `--code-title` | `#6639ba` | 函式與類別名稱 | 6.76:1 |
+| `--code-constant` | `#0550ae` | 數字、常數、屬性、運算子、Markdown 標題 | 6.99:1 |
+| `--code-string` | `#0a3069` | 字串、正規表示式 | 11.79:1 |
+| `--code-builtin` | `#953800` | 內建函式、符號、清單符號 | 6.80:1 |
+| `--code-comment` | `#57606a` | 註解 | 5.88:1 |
+| `--code-tag` | `#116329` | HTML 標籤名、引用、新增的行 | 6.81:1 |
+| `text-foreground`（未上色的字） | — | 其他程式碼文字 | 17.29:1 |
+
+- 對比是和程式碼區塊最深的底色比：區塊底色 `bg-muted/25` 疊在頁面左上角 accent 光暈最深處，換算成 sRGB 是 `#f4f6f6`。一般位置的底色 `#f9f9f5` 對比會再高一點（例如註解 6.05:1）。
+- 換算方式：`globals.css` 的 oklch 值轉成 sRGB，`color-mix(in oklab, …)` 依 oklab 混色，半透明疊色依瀏覽器的 sRGB alpha 合成，再算 WCAG 對比。`src/app/code-highlight-colors.test.ts` 會檢查每個色票與 `#f4f6f6` 的對比 ≥ 4.5:1。
+- 新增色票時沿用同一張表的分類，不在 `.hljs-*` 規則裡直接寫色碼。
+- 程式碼區塊內的 `code` 不套行內程式碼的底色、內距與字級（`.prose pre code` 重設）。
+
 ## 字體
 
 | class | 字體 | 用在哪 |
@@ -100,6 +130,7 @@
 | 元件 | 負責 | 用法 |
 |---|---|---|
 | `Prose` | 長文排版 | 文章、案例內頁用預設 `variant="article"`；About 用 `as="article" variant="page"`，保留較鬆的大標行高 |
+| `MarkdownContent` | Markdown 轉成 HTML：表格、刪除線、待辦清單、程式碼上色、圖片延後載入；原始 HTML 只顯示成文字 | 放在 `Prose` 裡：`<Prose><MarkdownContent content={…} /></Prose>`。文章內頁、案例內頁、後台預覽共用 |
 | `PageHeader` | 返回連結、頁面大標、副標 | About、Writing & Notes、Projects |
 | `BackLink` | 「← 返回…」連結 | 文章、案例內頁 |
 | `SectionHeading` | 首頁區塊標題、說明、右側連結 | 只有標題時直接輸出 `h2` |

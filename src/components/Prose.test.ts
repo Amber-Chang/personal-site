@@ -36,3 +36,14 @@ test("article, project and about pages use Prose instead of their own prose clas
 
   assert.match(readSource("src/app/about/page.tsx"), /<Prose as="article" variant="page">/);
 });
+
+test("Prose styles code blocks and tables with existing tokens only", () => {
+  const source = readSource("src/components/Prose.tsx");
+
+  // 程式碼區塊的文字用主要深淺（typography 預設是給深色底用的淺灰字）。
+  assert.match(source, /prose-pre:text-foreground/);
+  // 表格：表頭用主要深淺、內容用次要深淺，線條用預設邊框階。
+  assert.match(source, /prose-th:text-foreground prose-td:text-foreground-soft prose-thead:border-border prose-tr:border-border/);
+  assert.doesNotMatch(source, /text-\[(?!0\.92em\])/);
+  assert.doesNotMatch(source, /rounded-\[|tracking-\[/);
+});

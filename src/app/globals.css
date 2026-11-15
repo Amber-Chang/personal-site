@@ -172,3 +172,99 @@
     }
   }
 }
+
+/* 程式碼上色（SPEC-003）：文章與案例內頁的程式碼區塊在伺服器端用 rehype-highlight 標上 hljs-* class，
+   這裡決定顏色。每種顏色與程式碼區塊最深的底色（左上角 accent 光暈處 #f4f6f6）對比都 ≥ 5.8:1，
+   量測方式與數值見 docs/design-tokens.md。顏色只透過下面的 --code-* 色票使用。 */
+:root {
+  --code-keyword: #b42318; /* 關鍵字、型別：紅 */
+  --code-title: #6639ba; /* 函式與類別名稱：紫 */
+  --code-constant: #0550ae; /* 數字、常數、屬性、運算子：藍 */
+  --code-string: #0a3069; /* 字串、正規表示式：深藍 */
+  --code-builtin: #953800; /* 內建函式、符號、清單符號：褐 */
+  --code-comment: #57606a; /* 註解：灰 */
+  --code-tag: #116329; /* HTML 標籤名、引用、新增的行：綠 */
+}
+
+@layer utilities {
+  /* 程式碼區塊內的 code 不套行內程式碼的底色、內距與字級（Prose 的 prose-code:* 會套到所有 code）。 */
+  .prose pre code {
+    background-color: transparent;
+    border-radius: 0;
+    font-size: inherit;
+    padding: 0;
+  }
+
+  /* 待辦清單已有勾選框，不再顯示項目符號。 */
+  .prose .contains-task-list {
+    list-style: none;
+    padding-inline-start: 0;
+  }
+
+  .hljs-doctag,
+  .hljs-keyword,
+  .hljs-meta .hljs-keyword,
+  .hljs-template-tag,
+  .hljs-template-variable,
+  .hljs-type,
+  .hljs-variable.language_,
+  .hljs-deletion {
+    color: var(--code-keyword);
+  }
+
+  .hljs-title,
+  .hljs-title.class_,
+  .hljs-title.class_.inherited__,
+  .hljs-title.function_ {
+    color: var(--code-title);
+  }
+
+  .hljs-attr,
+  .hljs-attribute,
+  .hljs-literal,
+  .hljs-meta,
+  .hljs-number,
+  .hljs-operator,
+  .hljs-variable,
+  .hljs-selector-attr,
+  .hljs-selector-class,
+  .hljs-selector-id,
+  .hljs-section {
+    color: var(--code-constant);
+  }
+
+  .hljs-regexp,
+  .hljs-string,
+  .hljs-meta .hljs-string {
+    color: var(--code-string);
+  }
+
+  .hljs-built_in,
+  .hljs-symbol,
+  .hljs-bullet {
+    color: var(--code-builtin);
+  }
+
+  .hljs-comment,
+  .hljs-code,
+  .hljs-formula {
+    color: var(--code-comment);
+  }
+
+  .hljs-name,
+  .hljs-quote,
+  .hljs-selector-tag,
+  .hljs-selector-pseudo,
+  .hljs-addition {
+    color: var(--code-tag);
+  }
+
+  .hljs-section,
+  .hljs-strong {
+    font-weight: 600;
+  }
+
+  .hljs-emphasis {
+    font-style: italic;
+  }
+}

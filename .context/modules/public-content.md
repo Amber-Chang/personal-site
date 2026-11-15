@@ -15,6 +15,7 @@
 - `src/app/projects/[slug]/data.ts`
 - `src/components/RelatedProjectSection.tsx`
 - `src/components/RelatedPostsSection.tsx`
+- `src/components/MarkdownContent.tsx`、`src/lib/markdown/markdown-options.ts`
 
 ## 運作方式
 
@@ -23,6 +24,7 @@
 - 代表案例讀一次 `listPublicProjects`，`selectHomeProjects` 取 featured 前 3 個；一個 featured 都沒有時改取排序最前面的 3 個已上架專案。卡片顯示類型標籤、角色、標題、摘要與第一條成果。
 - 精選文章取排序最前面的 3 篇，摘要經 `normalizeExcerpt` 整理（合併空白與換行、80 字截斷加「…」）；沒有摘要只顯示標題。
 - 專案卡片、`/projects` 與專案內頁顯示中文類型標籤（工作案例 / 研究 / 個人專案）。
+- 文章與專案內頁的內文都由 `MarkdownContent` 輸出（SPEC-003）：GFM 表格、刪除線（只認 `~~`）、待辦清單，程式碼在伺服器端上色，圖片延後載入；Markdown 裡的原始 HTML 只顯示成文字。外層排版仍是 `Prose`。
 - blog post 詳頁會補出 `related_project_id` 指向的 project；關聯的 project 下架或不存在時不顯示相關案例區塊。project 詳頁則會反查關聯文章。
 
 ## 邊界

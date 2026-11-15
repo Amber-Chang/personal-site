@@ -3,7 +3,7 @@
 
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import ReactMarkdown from "react-markdown";
+import { MarkdownContent } from "@/components/MarkdownContent";
 import { BackLink } from "@/components/PageHeader";
 import { PostHogPageView } from "@/components/PostHogPageView";
 import { Prose } from "@/components/Prose";
@@ -78,7 +78,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
       <RelatedProjectSection relatedProject={post.relatedProject} />
 
       <Prose>
-        <ReactMarkdown>{post.content}</ReactMarkdown>
+        <MarkdownContent content={post.content} />
       </Prose>
     </article>
   );

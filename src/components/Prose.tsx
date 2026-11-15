@@ -2,7 +2,8 @@
 
 import type { ReactNode } from "react";
 
-// 所有長文共用：字級、標題字體、段落深淺，以及引言、連結、程式碼、圖片的樣式。
+// 所有長文共用：字級、標題字體、段落深淺，以及引言、連結、程式碼、表格、圖片的樣式。
+// 程式碼上色的顏色與區塊內 code 的重設寫在 globals.css 的「程式碼上色」段落。
 const baseClassName = [
   "prose prose-neutral max-w-none text-body leading-8",
   "prose-headings:font-display prose-headings:tracking-heading",
@@ -12,7 +13,8 @@ const baseClassName = [
   "prose-blockquote:border-l-border prose-blockquote:text-foreground-soft",
   "prose-strong:text-foreground prose-a:text-foreground prose-a:decoration-muted-foreground/60 prose-a:underline-offset-4 hover:prose-a:text-primary",
   "prose-code:rounded prose-code:bg-muted/65 prose-code:px-1 prose-code:py-0.5 prose-code:text-[0.92em]",
-  "prose-pre:rounded-panel prose-pre:border prose-pre:border-border prose-pre:bg-muted/25",
+  "prose-pre:rounded-panel prose-pre:border prose-pre:border-border prose-pre:bg-muted/25 prose-pre:text-foreground",
+  "prose-th:text-foreground prose-td:text-foreground-soft prose-thead:border-border prose-tr:border-border",
   "prose-img:rounded-panel prose-img:border prose-img:border-border",
 ].join(" ");
 
