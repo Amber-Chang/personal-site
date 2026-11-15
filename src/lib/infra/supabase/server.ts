@@ -4,7 +4,11 @@ import { readSupabasePublicEnv } from "./env.ts";
 
 export type SupabaseCookieAdapter = {
   getAll: () => Array<{ name: string; value: string }>;
-  setAll: (cookies: Array<{ name: string; options?: Record<string, unknown>; value: string }>) => void;
+  // @supabase/ssr 會一併傳入不可快取的回應標頭（Cache-Control 等），需要時套用到回應上。
+  setAll: (
+    cookies: Array<{ name: string; options?: Record<string, unknown>; value: string }>,
+    headers?: Record<string, string>,
+  ) => void;
 };
 
 export function createServerSupabaseClient(input: {
