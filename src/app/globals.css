@@ -205,6 +205,12 @@
     margin-block: 0.75em 0;
   }
 
+  /* 表格欄位至少留 5 個字寬：手機上欄位多時改成左右捲動，不把中文擠成一行一個字。 */
+  .prose th,
+  .prose td {
+    min-width: 5em;
+  }
+
   /* 待辦清單已有勾選框，不再顯示項目符號。 */
   .prose .contains-task-list {
     list-style: none;
