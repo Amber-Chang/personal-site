@@ -11,6 +11,7 @@ import { useEffect, useId, useRef, useState, useSyncExternalStore, type ChangeEv
 import { insertImageMarkdown } from "../../lib/content-images/image-markdown.ts";
 import type { TextEditState } from "../../lib/markdown/text-edits.ts";
 import { getToolbarShortcut, insertLink, wrapBold, wrapItalic } from "../../lib/markdown/toolbar-actions.ts";
+import { ADMIN_EDITOR_NARROW_CHILDREN } from "./admin-editor-layout.ts";
 import { ContentImageUpload } from "./content-image-upload.tsx";
 import { MarkdownToolbar } from "./markdown-toolbar.tsx";
 import { applyTextareaEdit } from "./textarea-edit.ts";
@@ -148,7 +149,8 @@ export function MarkdownContentField(input: {
   }
 
   return (
-    <div className="space-y-2">
+    // 寬螢幕的編輯頁：標題列、工具列與上傳區塊維持原本寬度，只有編輯區與預覽那一列用滿寬度。
+    <div className={`space-y-2 ${ADMIN_EDITOR_NARROW_CHILDREN}`} data-admin-wide>
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div className="space-y-2">
           <label className="text-sm font-medium text-black" htmlFor={input.id}>
@@ -171,7 +173,7 @@ export function MarkdownContentField(input: {
       {isWide || mode === "edit" ? (
         <MarkdownToolbar controls={input.id} disabled={input.disabled} onEdit={runEdit} onImage={focusImageUpload} />
       ) : null}
-      <div className={isWide ? "grid grid-cols-2 gap-4" : undefined}>
+      <div className={isWide ? "grid grid-cols-2 gap-4" : undefined} data-admin-wide>
         {/* 窄螢幕預覽時 textarea 只隱藏不卸載：未儲存的文字、游標位置與表單送出的值都保留。 */}
         <textarea
           className={input.textareaClassName}

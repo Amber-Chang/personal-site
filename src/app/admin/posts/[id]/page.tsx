@@ -22,7 +22,7 @@ export default async function EditAdminPostPage(input: {
   }
 
   return (
-    <main className="mx-auto flex min-h-[60vh] w-full max-w-4xl flex-col px-6 py-16">
+    <main className="mx-auto flex min-h-[60vh] w-full max-w-4xl flex-col px-6 py-16 lg:max-w-7xl lg:px-0" data-admin-editor>
       <AdminPostForm
         action={updateAdminPostAction}
         description="調整既有文章的最小欄位集，內容仍走目前的 markdown skeleton。"

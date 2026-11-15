@@ -41,7 +41,10 @@ export default function RootLayout({
     <html lang="zh-Hant" className={notoSerifTC.variable}>
       <body className="flex min-h-screen flex-col antialiased">
         <Header />
-        <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-10 md:px-6 md:py-14">{children}</main>
+        {/* 內容外框 max-w-5xl；後台文章與專案編輯頁（含 data-admin-editor）在 lg 以上放寬到 max-w-7xl，讓 Markdown 編輯區與預覽並排。 */}
+        <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-10 md:px-6 md:py-14 lg:has-[[data-admin-editor]]:max-w-7xl">
+          {children}
+        </main>
         <Footer />
         <AnalyticsConsentBanner />
       </body>

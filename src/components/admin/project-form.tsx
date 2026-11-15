@@ -7,6 +7,7 @@ import type { AdminProjectFormState } from "../../app/admin/projects/action-stat
 import { initialAdminProjectFormState } from "../../app/admin/projects/action-state.ts";
 import { PROJECT_TYPE_OPTIONS } from "../../lib/content/project-type.ts";
 import type { ContentStatus, ProjectType } from "../../lib/content/types.ts";
+import { ADMIN_EDITOR_NARROW_CHILDREN } from "./admin-editor-layout.ts";
 import { ContentStatusBadge, getContentStatusLabel } from "./content-status-badge.tsx";
 import { MarkdownContentField } from "./markdown-content-field.tsx";
 
@@ -48,14 +49,15 @@ export function AdminProjectForm(input: {
   const isPublished = input.values.status === "published";
 
   return (
-    <div className="space-y-4 rounded-3xl border border-black/10 bg-white/80 p-8 shadow-sm">
+    <div className={`space-y-4 rounded-3xl border border-black/10 bg-white/80 p-8 shadow-sm ${ADMIN_EDITOR_NARROW_CHILDREN}`}>
       <div className="space-y-2">
         <p className="text-sm uppercase tracking-[0.24em] text-black/50">Project Admin</p>
         <h1 className="text-3xl font-semibold text-black">{input.title}</h1>
         <p className="text-sm leading-6 text-black/65">{input.description}</p>
       </div>
 
-      <form action={formAction} className="space-y-5">
+      {/* 寬螢幕時只有 Markdown 編輯區與預覽用滿寬度，其他欄位維持原本的寬度。 */}
+      <form action={formAction} className={`space-y-5 ${ADMIN_EDITOR_NARROW_CHILDREN}`} data-admin-wide>
         {input.values.id ? <input name="id" type="hidden" value={input.values.id} /> : null}
 
         <div className="space-y-2">

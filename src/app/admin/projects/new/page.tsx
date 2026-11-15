@@ -8,7 +8,7 @@ export default async function NewAdminProjectPage() {
   await getAdminPageContentService();
 
   return (
-    <main className="mx-auto flex min-h-[60vh] w-full max-w-4xl flex-col px-6 py-16">
+    <main className="mx-auto flex min-h-[60vh] w-full max-w-4xl flex-col px-6 py-16 lg:max-w-7xl lg:px-0" data-admin-editor>
       <AdminProjectForm
         action={createAdminProjectAction}
         description="建立新的 project，讓它可被文章關聯，並直接成為前台 `/projects`、案例頁與首頁代表案例的來源。"
