@@ -3,7 +3,7 @@
 // 功能：把 ```mermaid 區塊畫成圖表。Mermaid 程式只在這個元件掛上頁面後才動態載入，
 // 所以內容裡沒有 mermaid 區塊的頁面不會下載它。載入前、沒有 JavaScript 或語法錯誤時，讀者看到的是原始碼。
 
-import { useEffect, useId, useMemo, useState } from "react";
+import { useEffect, useId, useMemo, useState, type CSSProperties } from "react";
 
 import {
   MERMAID_ERROR_MESSAGE,
@@ -40,9 +40,20 @@ export function MermaidDiagram({ source }: { source: string }) {
     };
   }, [id, source]);
 
-  if (svgMarkup) {
+  if (svgMarkup && state.status === "ready") {
     // SVG 由 Mermaid 在 strict 安全等級下產生並清理過。not-prose：圖表內的文字不套長文樣式，避免標籤跑版。
-    return <div className="not-prose my-8 overflow-x-auto" dangerouslySetInnerHTML={svgMarkup} />;
+    // 圖表的最小寬度（原尺寸的 80%，最多 45rem）由 globals.css 的 .mermaid-diagram > svg 讀取；欄寬比它窄時在容器內左右捲動。
+    const minWidthStyle = state.minWidth
+      ? ({ "--mermaid-svg-min-width": `${state.minWidth}px` } as CSSProperties)
+      : undefined;
+
+    return (
+      <div
+        className="mermaid-diagram not-prose my-8 overflow-x-auto"
+        dangerouslySetInnerHTML={svgMarkup}
+        style={minWidthStyle}
+      />
+    );
   }
 
   return (

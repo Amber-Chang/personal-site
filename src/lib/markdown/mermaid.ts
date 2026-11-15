@@ -5,43 +5,13 @@ import type { MermaidConfig } from "mermaid";
 
 export const MERMAID_ERROR_MESSAGE = "這張圖表的語法有誤，無法顯示。";
 
-// 每種圖表都用原始尺寸輸出，不縮小塞進內容欄；比內容欄寬時由外層容器左右捲動。
-// 清單依 mermaid 12.2 的圖表種類；之後新增的種類會沿用 Mermaid 預設（縮到欄寬），一樣不會撐破版面。
-const DIAGRAM_TYPES = [
-  "agentflow",
-  "architecture",
-  "block",
-  "class",
-  "cynefin",
-  "er",
-  "eventmodeling",
-  "flowchart",
-  "gantt",
-  "gitGraph",
-  "ishikawa",
-  "journey",
-  "kanban",
-  "mindmap",
-  "packet",
-  "pie",
-  "quadrantChart",
-  "radar",
-  "railroad",
-  "requirement",
-  "sankey",
-  "sequence",
-  "state",
-  "swimlane",
-  "timeline",
-  "treeView",
-  "usecase",
-  "venn",
-  "xyChart",
-] as const satisfies ReadonlyArray<keyof MermaidConfig>;
-
-const NATURAL_WIDTH = Object.fromEntries(
-  DIAGRAM_TYPES.map((diagramType) => [diagramType, { useMaxWidth: false }]),
-) as Pick<MermaidConfig, (typeof DIAGRAM_TYPES)[number]>;
+// 圖表寬度：沿用 Mermaid 預設的 useMaxWidth（SVG 寬度 100%、最大不超過原尺寸），
+// 所以比內容欄寬的圖會縮到欄寬，桌機讀者不用捲動就看得到整張圖；圖表不會被放大超過原尺寸。
+// 為了讓手機上的字還看得清楚，圖表另外有最小寬度＝原尺寸的 80%，但最多 45rem（720px）；
+// 欄寬比最小寬度窄時（手機、後台並排預覽），在自己的容器內左右捲動。
+// 這樣原尺寸比欄寬窄的圖照原尺寸顯示、不被撐大；只比手機欄寬寬一點的圖縮進欄內，不會多出幾 px 的捲動。
+export const MERMAID_READABLE_MIN_WIDTH_PX = 720;
+export const MERMAID_MIN_SCALE = 0.8;
 
 // Mermaid 預設的 secure 清單（12.2）：這些設定只能由 initialize 決定，圖表裡的 %%{init}%% 指令改不了。
 const MERMAID_DEFAULT_SECURE_KEYS = ["secure", "securityLevel", "startOnLoad", "maxTextSize", "suppressErrorRendering", "maxEdges"];
@@ -58,7 +28,6 @@ export const MERMAID_CONFIG: MermaidConfig = {
   startOnLoad: false,
   // 語法錯誤時不讓 Mermaid 在頁面上插入它自己的錯誤圖示，改由元件顯示中文提示。
   suppressErrorRendering: true,
-  ...NATURAL_WIDTH,
 };
 
 export type MermaidApi = {
@@ -67,7 +36,35 @@ export type MermaidApi = {
   render: (id: string, text: string) => Promise<{ svg: string }>;
 };
 
-export type MermaidRenderResult = { status: "ready"; svg: string } | { status: "error" };
+export type MermaidRenderResult = { minWidth: number | null; status: "ready"; svg: string } | { status: "error" };
+
+// 從最外層 <svg> 讀出圖表的原尺寸寬度：優先用 viewBox 的寬，沒有時用 Mermaid 寫的 max-width。
+export function getSvgNaturalWidth(svg: string): number | null {
+  const rootTag = svg.match(/^\s*<svg\b[^>]*>/)?.[0];
+
+  if (!rootTag) {
+    return null;
+  }
+
+  const viewBoxWidth = Number(rootTag.match(/\bviewBox="([^"]*)"/)?.[1].trim().split(/[\s,]+/)[2]);
+
+  if (Number.isFinite(viewBoxWidth) && viewBoxWidth > 0) {
+    return viewBoxWidth;
+  }
+
+  const maxWidth = Number(rootTag.match(/max-width:\s*([\d.]+)px/)?.[1]);
+
+  return Number.isFinite(maxWidth) && maxWidth > 0 ? maxWidth : null;
+}
+
+// 圖表的最小寬度：原尺寸的 80%，最多 45rem；讀不到原尺寸時不設（交給欄寬）。
+export function getMermaidMinWidth(naturalWidth: number | null): number | null {
+  if (naturalWidth === null) {
+    return null;
+  }
+
+  return Math.min(MERMAID_READABLE_MIN_WIDTH_PX, Math.round(naturalWidth * MERMAID_MIN_SCALE));
+}
 
 // click 指令與 link 語法會讓 Mermaid 產生 <a> 連結；拿掉連結標籤、保留裡面的圖形與文字，圖表內就沒有可點擊的連結。
 // 就算某個屬性值裡有「>」，開頭的「<a」仍會被拿掉，連結一樣不會成立。
@@ -94,7 +91,7 @@ export async function renderMermaidDiagram(input: {
 
     const { svg } = await mermaid.render(input.id, input.source);
 
-    return { status: "ready", svg: removeLinks(svg) };
+    return { minWidth: getMermaidMinWidth(getSvgNaturalWidth(svg)), status: "ready", svg: removeLinks(svg) };
   } catch {
     // 語法錯誤、繪製失敗或程式載入失敗，都只影響這一張圖，頁面其他內容照常顯示。
     return { status: "error" };

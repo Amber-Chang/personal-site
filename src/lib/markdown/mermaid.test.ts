@@ -10,11 +10,15 @@ type MermaidApi = {
 type MermaidModule = {
   MERMAID_CONFIG: Record<string, unknown>;
   MERMAID_ERROR_MESSAGE: string;
+  MERMAID_MIN_SCALE: number;
+  MERMAID_READABLE_MIN_WIDTH_PX: number;
+  getMermaidMinWidth: (naturalWidth: number | null) => number | null;
+  getSvgNaturalWidth: (svg: string) => number | null;
   renderMermaidDiagram: (input: {
     id: string;
     loadMermaid: () => Promise<MermaidApi>;
     source: string;
-  }) => Promise<{ status: "ready"; svg: string } | { status: "error" }>;
+  }) => Promise<{ minWidth: number | null; status: "ready"; svg: string } | { status: "error" }>;
   toMermaidElementId: (reactId: string) => string;
 };
 
@@ -92,15 +96,56 @@ test("links that mermaid creates (for example from click directives) are removed
 
   const result = await renderMermaidDiagram({ id: "mermaid-r5", loadMermaid: async () => api, source: "flowchart LR\n  A" });
 
-  assert.deepEqual(result, { status: "ready", svg: '<svg><g><text>甲</text></g><animate attributeName="x"/>乙</svg>' });
+  assert.deepEqual(result, { minWidth: null, status: "ready", svg: '<svg><g><text>甲</text></g><animate attributeName="x"/>乙</svg>' });
 });
 
-test("diagrams keep their natural width so wide ones scroll inside their own container", async () => {
+test("renderMermaidDiagram reports the minimum width for a wide diagram", async () => {
+  const { renderMermaidDiagram } = await loadMermaidModule();
+  const { api } = createMermaidStub();
+
+  api.render = async (id) => ({ svg: `<svg id="${id}" width="100%" style="max-width: 1320px;" viewBox="0 0 1320 56"></svg>` });
+
+  const result = await renderMermaidDiagram({ id: "mermaid-r6", loadMermaid: async () => api, source: "flowchart LR\n  A" });
+
+  assert.equal(result.status === "ready" ? result.minWidth : "error", 720);
+});
+
+test("diagrams keep Mermaid's default fit-to-width output (no per-diagram useMaxWidth override)", async () => {
   const { MERMAID_CONFIG } = await loadMermaidModule();
 
+  // Mermaid 預設 useMaxWidth: true：SVG 寬度 100%、最大不超過原尺寸，所以寬的圖會縮到欄寬、不會被放大。
   for (const diagramType of ["flowchart", "sequence", "class", "state", "er", "gantt", "journey", "pie", "mindmap", "timeline"]) {
-    assert.deepEqual(MERMAID_CONFIG[diagramType], { useMaxWidth: false }, diagramType);
+    assert.equal(MERMAID_CONFIG[diagramType], undefined, diagramType);
   }
+});
+
+test("getSvgNaturalWidth reads the diagram's natural width from the root svg", async () => {
+  const { getSvgNaturalWidth } = await loadMermaidModule();
+
+  assert.equal(
+    getSvgNaturalWidth('<svg id="m" width="100%" style="max-width: 154.5px;" viewBox="-8 -8 154.5 278" role="graphics-document"><g/></svg>'),
+    154.5,
+  );
+  assert.equal(getSvgNaturalWidth('<svg id="m" viewBox="0,0,1320,56"><g/></svg>'), 1320);
+  assert.equal(getSvgNaturalWidth('<svg id="m" width="100%" style="max-width: 812px;"><g/></svg>'), 812);
+  // 只看最外層的 svg，不讀到裡面元素的 viewBox。
+  assert.equal(getSvgNaturalWidth('<svg id="m"><svg viewBox="0 0 50 50"/></svg>'), null);
+  assert.equal(getSvgNaturalWidth("<div></div>"), null);
+});
+
+test("the minimum width is 80% of the natural width, capped at 45rem", async () => {
+  const { MERMAID_MIN_SCALE, MERMAID_READABLE_MIN_WIDTH_PX, getMermaidMinWidth } = await loadMermaidModule();
+
+  // 45rem（720px）：五個節點左右排的流程圖（原寬約 936px）在手機上縮成 77%，字約 10.8px；
+  // 也剛好等於平板（768px）的內容欄寬，平板上不會因為最小寬度而捲動。
+  assert.equal(MERMAID_READABLE_MIN_WIDTH_PX, 720);
+  assert.equal(MERMAID_MIN_SCALE, 0.8);
+  assert.equal(getMermaidMinWidth(2280), 720);
+  assert.equal(getMermaidMinWidth(936), 720);
+  // 比較窄的圖最多縮到原尺寸的 80%：剛好比手機欄寬寬一點的圖可以縮進欄內，不會多出幾 px 的捲動。
+  assert.equal(getMermaidMinWidth(678), 542);
+  assert.equal(getMermaidMinWidth(360), 288);
+  assert.equal(getMermaidMinWidth(null), null);
 });
 
 test("renderMermaidDiagram initializes mermaid, validates the source and returns the svg", async () => {
@@ -109,7 +154,7 @@ test("renderMermaidDiagram initializes mermaid, validates the source and returns
 
   const result = await renderMermaidDiagram({ id: "mermaid-r1", loadMermaid: async () => api, source: "flowchart LR\n  A --> B" });
 
-  assert.deepEqual(result, { status: "ready", svg: '<svg id="mermaid-r1"></svg>' });
+  assert.deepEqual(result, { minWidth: null, status: "ready", svg: '<svg id="mermaid-r1"></svg>' });
   assert.deepEqual(calls.initialize, [MERMAID_CONFIG]);
   assert.deepEqual(calls.parse, ["flowchart LR\n  A --> B"]);
   assert.deepEqual(calls.render, [["mermaid-r1", "flowchart LR\n  A --> B"]]);

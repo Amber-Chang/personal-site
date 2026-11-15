@@ -30,7 +30,9 @@ test("MermaidDiagram shows the source before loading and on errors, with the agr
 test("a rendered diagram sits in its own scroll container outside the prose styles", () => {
   const source = readSource("src/components/MermaidDiagram.tsx");
 
-  assert.match(source, /className="not-prose my-8 overflow-x-auto"/);
+  assert.match(source, /className="mermaid-diagram not-prose my-8 overflow-x-auto"/);
+  // 圖表保留可讀的最小寬度：由 globals.css 的 .mermaid-diagram > svg 讀這個變數。
+  assert.match(source, /"--mermaid-svg-min-width": `\$\{state\.minWidth\}px`/);
   // React 19 只要 dangerouslySetInnerHTML 的物件換了就會重設 innerHTML；物件要跟著結果記住，
   // 否則後台即時預覽每次更新都會把沒變的圖表重新放一次。
   assert.match(source, /const svgMarkup = useMemo\(\(\) => \(state\.status === "ready" \? \{ __html: state\.svg \} : null\), \[state\]\);/);
@@ -42,4 +44,10 @@ test("MarkdownContent hands mermaid blocks to MermaidDiagram", () => {
 
   assert.match(source, /import \{ MermaidDiagram \} from "\.\/MermaidDiagram\.tsx";/);
   assert.match(source, /createMarkdownComponents\(\{ CodeCopyButton, MermaidDiagram \}\)/);
+});
+
+test("globals.css lets the svg shrink to the column but not below the minimum the component sets", () => {
+  const css = readSource("src/app/globals.css");
+
+  assert.match(css, /\.mermaid-diagram > svg \{\s*min-width: var\(--mermaid-svg-min-width, 0px\);\s*\}/);
 });

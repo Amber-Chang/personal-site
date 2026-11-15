@@ -211,6 +211,12 @@
     min-width: 5em;
   }
 
+  /* Mermaid 圖表：SVG 寬度 100%、最大不超過原尺寸（Mermaid 自己寫在 SVG 上），所以會縮到欄寬、不會放大。
+     MermaidDiagram 設 --mermaid-svg-min-width（原尺寸的 80%，最多 45rem），不縮到比它窄；欄寬不夠時在容器內捲動。 */
+  .mermaid-diagram > svg {
+    min-width: var(--mermaid-svg-min-width, 0px);
+  }
+
   /* 待辦清單已有勾選框，不再顯示項目符號。 */
   .prose .contains-task-list {
     list-style: none;

@@ -151,3 +151,4 @@
 
 - `prose-code:text-[0.92em]`：行內程式碼相對內文的字級。
 - `src/components/ui/` 內 shadcn 自帶的數值不改。
+- Mermaid 圖表的最小寬度：原尺寸的 80%、最多 45rem（720px），定義在 `src/lib/markdown/mermaid.ts`（`MERMAID_MIN_SCALE`、`MERMAID_READABLE_MIN_WIDTH_PX`），由 `MermaidDiagram` 以 `--mermaid-svg-min-width` 交給 `globals.css` 的 `.mermaid-diagram > svg`。45rem 是五個節點左右排的流程圖在手機上字約 10.8px 的寬度，也等於平板（768px）的內容欄寬。
