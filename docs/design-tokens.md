@@ -130,7 +130,7 @@
 | 元件 | 負責 | 用法 |
 |---|---|---|
 | `Prose` | 長文排版 | 文章、案例內頁用預設 `variant="article"`；About 用 `as="article" variant="page"`，保留較鬆的大標行高 |
-| `MarkdownContent` | Markdown 轉成 HTML：表格、刪除線、待辦清單、程式碼上色、圖片延後載入；原始 HTML 只顯示成文字 | 放在 `Prose` 裡：`<Prose><MarkdownContent content={…} /></Prose>`。文章內頁、案例內頁、後台預覽共用 |
+| `MarkdownContent` | Markdown 轉成 HTML：表格、刪除線、待辦清單、程式碼上色、Mermaid 圖表（`MermaidDiagram`）、圖片延後載入；原始 HTML 只顯示成文字 | 放在 `Prose` 裡：`<Prose><MarkdownContent content={…} /></Prose>`。文章內頁、案例內頁、後台預覽共用 |
 | `PageHeader` | 返回連結、頁面大標、副標 | About、Writing & Notes、Projects |
 | `BackLink` | 「← 返回…」連結 | 文章、案例內頁 |
 | `SectionHeading` | 首頁區塊標題、說明、右側連結 | 只有標題時直接輸出 `h2` |

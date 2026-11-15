@@ -16,6 +16,7 @@
 - `src/components/RelatedProjectSection.tsx`
 - `src/components/RelatedPostsSection.tsx`
 - `src/components/MarkdownContent.tsx`、`src/lib/markdown/markdown-options.ts`
+- `src/components/MermaidDiagram.tsx`、`src/lib/markdown/mermaid.ts`
 
 ## 運作方式
 
@@ -25,6 +26,7 @@
 - 精選文章取排序最前面的 3 篇，摘要經 `normalizeExcerpt` 整理（合併空白與換行、80 字截斷加「…」）；沒有摘要只顯示標題。
 - 專案卡片、`/projects` 與專案內頁顯示中文類型標籤（工作案例 / 研究 / 個人專案）。
 - 文章與專案內頁的內文都由 `MarkdownContent` 輸出（SPEC-003）：GFM 表格、刪除線（只認 `~~`）、待辦清單，程式碼在伺服器端上色，圖片延後載入；Markdown 裡的原始 HTML 只顯示成文字。外層排版仍是 `Prose`。
+- ```` ```mermaid ```` 區塊交給 `MermaidDiagram`（client component）：掛上頁面後才動態載入 `mermaid`，沒有 mermaid 區塊的頁面不會下載它。設定為 `securityLevel: "strict"`、純 SVG 文字標籤（`htmlLabels: false`，並鎖進 `secure` 清單），輸出前拿掉 `<a>` 連結；載入前、沒有 JavaScript 或語法錯誤時顯示原始碼，錯誤時加上「這張圖表的語法有誤，無法顯示。」。圖表用原始寬度輸出，比內容欄寬時在自己的容器內捲動。
 - blog post 詳頁會補出 `related_project_id` 指向的 project；關聯的 project 下架或不存在時不顯示相關案例區塊。project 詳頁則會反查關聯文章。
 
 ## 邊界

@@ -8,8 +8,10 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import Markdown, { type Components, type Options } from "react-markdown";
 
+type MermaidComponent = (props: { source: string }) => ReturnType<typeof createElement>;
+
 type MarkdownOptionsModule = {
-  createMarkdownComponents: () => Components;
+  createMarkdownComponents: (input: { MermaidDiagram: MermaidComponent }) => Components;
   rehypePlugins: Options["rehypePlugins"];
   remarkPlugins: Options["remarkPlugins"];
 };
@@ -22,12 +24,19 @@ async function loadMarkdownOptions(): Promise<MarkdownOptionsModule> {
   return loadedModule as MarkdownOptionsModule;
 }
 
+// 測試用的圖表元件：把收到的原始碼原樣輸出，方便檢查 mermaid 區塊交給了誰、內容是否完整。
+const StubMermaidDiagram: MermaidComponent = ({ source }) => createElement("mermaid-stub", null, source);
+
 // 用和 MarkdownContent 相同的設定把 Markdown 轉成 HTML 字串。
 async function renderMarkdown(content: string) {
   const { createMarkdownComponents, rehypePlugins, remarkPlugins } = await loadMarkdownOptions();
 
   return renderToStaticMarkup(
-    createElement(Markdown, { components: createMarkdownComponents(), rehypePlugins, remarkPlugins }, content),
+    createElement(
+      Markdown,
+      { components: createMarkdownComponents({ MermaidDiagram: StubMermaidDiagram }), rehypePlugins, remarkPlugins },
+      content,
+    ),
   );
 }
 
@@ -69,6 +78,25 @@ test("fenced code without a language or with an unknown language renders as plai
   assert.equal(plain, "<pre><code>npm test\n</code></pre>");
   assert.match(unknown, /<pre><code class="hljs language-not-a-language">a &lt;- b\n<\/code><\/pre>/);
   assert.doesNotMatch(unknown, /<span/);
+});
+
+test("a mermaid code block goes to the diagram component with its exact source and is not highlighted", async () => {
+  const source = ["flowchart LR", "  A[需求] --> B{確認?}", "  B -->|是| C[實作]"].join("\n");
+  const html = await renderMarkdown(["前文", "", "```mermaid", source, "```", "", "後文"].join("\n"));
+
+  assert.match(html, /<p>前文<\/p>\n<mermaid-stub>/);
+  assert.ok(html.includes(`<mermaid-stub>${source.replace(/>/g, "&gt;")}</mermaid-stub>`), html);
+  assert.doesNotMatch(html, /hljs/);
+  assert.doesNotMatch(html, /<pre>/);
+  assert.match(html, /<p>後文<\/p>/);
+});
+
+test("code blocks in other languages still render as pre and code, not as diagrams", async () => {
+  const html = await renderMarkdown(["```js", "const mermaid = 1;", "```", "", "`mermaid` 行內程式碼"].join("\n"));
+
+  assert.match(html, /<pre><code class="hljs language-js">/);
+  assert.match(html, /<code>mermaid<\/code> 行內程式碼/);
+  assert.doesNotMatch(html, /mermaid-stub/);
 });
 
 test("raw HTML in Markdown is shown as text and never rendered as tags", async () => {

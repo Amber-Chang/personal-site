@@ -1,0 +1,42 @@
+import assert from "node:assert/strict";
+import fs from "node:fs";
+import path from "node:path";
+import test from "node:test";
+
+function readSource(relativePath: string) {
+  return fs.readFileSync(path.join(process.cwd(), relativePath), "utf8");
+}
+
+test("MermaidDiagram is a client component that loads mermaid only when it mounts", () => {
+  const source = readSource("src/components/MermaidDiagram.tsx");
+
+  assert.match(source, /^"use client";/);
+  // 只在元件掛上頁面後才動態載入；沒有 mermaid 區塊的頁面不會下載 Mermaid 程式。
+  assert.match(source, /import\("mermaid"\)/);
+  assert.doesNotMatch(source, /from "mermaid"/);
+  assert.match(source, /useEffect\(/);
+  assert.match(source, /renderMermaidDiagram\(/);
+});
+
+test("MermaidDiagram shows the source before loading and on errors, with the agreed message", () => {
+  const source = readSource("src/components/MermaidDiagram.tsx");
+
+  // 載入前、沒有 JavaScript、語法錯誤時都看得到原始碼。
+  assert.match(source, /<pre>\s*<code className="language-mermaid">\{source\}<\/code>\s*<\/pre>/);
+  assert.match(source, /\{MERMAID_ERROR_MESSAGE\}/);
+  assert.match(source, /state\.status === "error"/);
+});
+
+test("a rendered diagram sits in its own scroll container outside the prose styles", () => {
+  const source = readSource("src/components/MermaidDiagram.tsx");
+
+  assert.match(source, /className="not-prose my-8 overflow-x-auto"/);
+  assert.match(source, /dangerouslySetInnerHTML=\{\{ __html: state\.svg \}\}/);
+});
+
+test("MarkdownContent hands mermaid blocks to MermaidDiagram", () => {
+  const source = readSource("src/components/MarkdownContent.tsx");
+
+  assert.match(source, /import \{ MermaidDiagram \} from "\.\/MermaidDiagram\.tsx";/);
+  assert.match(source, /createMarkdownComponents\(\{ MermaidDiagram \}\)/);
+});
