@@ -8,6 +8,7 @@ import { initialAdminProjectFormState } from "../../app/admin/projects/action-st
 import { PROJECT_TYPE_OPTIONS } from "../../lib/content/project-type.ts";
 import type { ContentStatus, ProjectType } from "../../lib/content/types.ts";
 import { ContentStatusBadge, getContentStatusLabel } from "./content-status-badge.tsx";
+import { MarkdownContentField } from "./markdown-content-field.tsx";
 
 type AdminProjectFormAction = (state: AdminProjectFormState, formData: FormData) => Promise<AdminProjectFormState>;
 
@@ -171,18 +172,15 @@ export function AdminProjectForm(input: {
           />
         </div>
 
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-black" htmlFor="contentMarkdown">
-            Content
-          </label>
-          <p className="text-xs leading-5 text-black/55">專案頁正文，使用 Markdown。</p>
-          <textarea
-            className="min-h-72 w-full rounded-2xl border border-black/10 px-4 py-3 font-mono text-sm outline-none transition focus:border-black/30"
-            defaultValue={input.values.contentMarkdown}
-            id="contentMarkdown"
-            name="contentMarkdown"
-          />
-        </div>
+        <MarkdownContentField
+          defaultValue={input.values.contentMarkdown}
+          description="專案頁正文，使用 Markdown。"
+          disabled={pending}
+          id="contentMarkdown"
+          label="Content"
+          name="contentMarkdown"
+          textareaClassName="min-h-72 w-full rounded-2xl border border-black/10 px-4 py-3 font-mono text-sm outline-none transition focus:border-black/30"
+        />
 
         <div className="space-y-2">
           <label className="text-sm font-medium text-black" htmlFor="status">

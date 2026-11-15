@@ -8,6 +8,7 @@ import type { AdminPostFormState } from "../../app/admin/posts/action-state.ts";
 import { initialAdminPostFormState } from "../../app/admin/posts/action-state.ts";
 import type { ContentStatus, ProjectOption } from "../../lib/content/types.ts";
 import { ContentStatusBadge } from "./content-status-badge.tsx";
+import { MarkdownContentField } from "./markdown-content-field.tsx";
 
 type AdminPostFormAction = (state: AdminPostFormState, formData: FormData) => Promise<AdminPostFormState>;
 
@@ -105,18 +106,15 @@ export function AdminPostForm(input: {
           />
         </div>
 
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-black" htmlFor="content_markdown">
-            Markdown
-          </label>
-          <p className="text-xs leading-5 text-black/55">文章正文內容，支援 Markdown 語法。</p>
-          <textarea
-            className="min-h-64 w-full rounded-2xl border border-black/10 px-4 py-3 font-mono text-sm outline-none transition focus:border-black/30"
-            defaultValue={input.values.contentMarkdown}
-            id="content_markdown"
-            name="content_markdown"
-          />
-        </div>
+        <MarkdownContentField
+          defaultValue={input.values.contentMarkdown}
+          description="文章正文內容，支援 Markdown 語法。"
+          disabled={pending}
+          id="content_markdown"
+          label="Markdown"
+          name="content_markdown"
+          textareaClassName="min-h-64 w-full rounded-2xl border border-black/10 px-4 py-3 font-mono text-sm outline-none transition focus:border-black/30"
+        />
 
         <div className="space-y-2">
           <label className="text-sm font-medium text-black" htmlFor="related_project_id">
