@@ -31,7 +31,10 @@ test("a rendered diagram sits in its own scroll container outside the prose styl
   const source = readSource("src/components/MermaidDiagram.tsx");
 
   assert.match(source, /className="not-prose my-8 overflow-x-auto"/);
-  assert.match(source, /dangerouslySetInnerHTML=\{\{ __html: state\.svg \}\}/);
+  // React 19 只要 dangerouslySetInnerHTML 的物件換了就會重設 innerHTML；物件要跟著結果記住，
+  // 否則後台即時預覽每次更新都會把沒變的圖表重新放一次。
+  assert.match(source, /const svgMarkup = useMemo\(\(\) => \(state\.status === "ready" \? \{ __html: state\.svg \} : null\), \[state\]\);/);
+  assert.match(source, /dangerouslySetInnerHTML=\{svgMarkup\}/);
 });
 
 test("MarkdownContent hands mermaid blocks to MermaidDiagram", () => {

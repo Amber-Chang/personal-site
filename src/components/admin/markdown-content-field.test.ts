@@ -43,3 +43,33 @@ test("post and project forms use MarkdownContentField only for their Markdown co
   assert.match(projectForm, /<textarea[^>]*id="summary"/);
   assert.match(projectForm, /<textarea[^>]*id="outcomes"/);
 });
+
+test("at the lg breakpoint the content field and the preview sit side by side; below it the toggle stays", () => {
+  const source = readSource(FIELD_SOURCE);
+
+  // 用 matchMedia 判斷寬度（與 Tailwind 的 lg 相同：64rem）；伺服器端先當成窄螢幕。
+  assert.match(source, /const WIDE_LAYOUT_QUERY = "\(min-width: 64rem\)";/);
+  assert.match(source, /useSyncExternalStore\(subscribeToWideLayout, getWideLayoutSnapshot, \(\) => false\)/);
+  assert.match(source, /isWide \? "grid grid-cols-2 gap-4" : undefined/);
+  assert.match(source, /hidden=\{!isWide && mode === "preview"\}/);
+  assert.match(source, /\{isWide \? null : \(/);
+  assert.match(source, /const showPreviewPane = isWide \|\| mode === "preview";/);
+});
+
+test("the live preview updates about 500ms after typing stops and never writes back to the form", () => {
+  const source = readSource(FIELD_SOURCE);
+
+  assert.match(source, /const PREVIEW_DEBOUNCE_MS = 500;/);
+  assert.match(source, /onChange=\{handleContentChange\}/);
+  assert.match(source, /window\.setTimeout\(\(\) => setPreviewContent\(value\), PREVIEW_DEBOUNCE_MS\)/);
+  assert.match(source, /window\.clearTimeout\(previewTimerRef\.current\)/);
+  // 預覽只讀 textarea 的值；不在預覽裡設定 textarea 的值。
+  assert.doesNotMatch(source, /textarea\.value =/);
+});
+
+test("the preview pane scrolls on its own with a capped height", () => {
+  const source = readSource(FIELD_SOURCE);
+
+  assert.match(source, /<section[\s\S]*?aria-label="預覽"/);
+  assert.match(source, /max-h-\[70vh\] overflow-y-auto/);
+});

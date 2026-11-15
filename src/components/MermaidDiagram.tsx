@@ -3,7 +3,7 @@
 // 功能：把 ```mermaid 區塊畫成圖表。Mermaid 程式只在這個元件掛上頁面後才動態載入，
 // 所以內容裡沒有 mermaid 區塊的頁面不會下載它。載入前、沒有 JavaScript 或語法錯誤時，讀者看到的是原始碼。
 
-import { useEffect, useId, useState } from "react";
+import { useEffect, useId, useMemo, useState } from "react";
 
 import {
   MERMAID_ERROR_MESSAGE,
@@ -17,6 +17,9 @@ type DiagramState = { status: "loading" } | MermaidRenderResult;
 export function MermaidDiagram({ source }: { source: string }) {
   const id = toMermaidElementId(useId());
   const [state, setState] = useState<DiagramState>({ status: "loading" });
+  // React 19 只要 dangerouslySetInnerHTML 的物件換了就會重設 innerHTML；跟著結果記住同一個物件，
+  // 外層重新輸出（例如後台即時預覽）時，沒變的圖表不會被重新放一次。
+  const svgMarkup = useMemo(() => (state.status === "ready" ? { __html: state.svg } : null), [state]);
 
   useEffect(() => {
     let cancelled = false;
@@ -37,9 +40,9 @@ export function MermaidDiagram({ source }: { source: string }) {
     };
   }, [id, source]);
 
-  if (state.status === "ready") {
+  if (svgMarkup) {
     // SVG 由 Mermaid 在 strict 安全等級下產生並清理過。not-prose：圖表內的文字不套長文樣式，避免標籤跑版。
-    return <div className="not-prose my-8 overflow-x-auto" dangerouslySetInnerHTML={{ __html: state.svg }} />;
+    return <div className="not-prose my-8 overflow-x-auto" dangerouslySetInnerHTML={svgMarkup} />;
   }
 
   return (

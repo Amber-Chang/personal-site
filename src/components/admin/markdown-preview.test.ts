@@ -26,9 +26,9 @@ test("MarkdownContentField toggles between editing and a lazily loaded preview w
   assert.match(source, /aria-pressed=\{mode === "edit"\}/);
   assert.match(source, /aria-pressed=\{mode === "preview"\}/);
   // textarea 只隱藏不卸載：未儲存的文字、游標位置與表單送出的值都保留。
-  assert.match(source, /hidden=\{mode === "preview"\}/);
+  assert.match(source, /hidden=\{!isWide && mode === "preview"\}/);
   assert.match(source, /setPreviewContent\(textareaRef\.current\?\.value \?\? ""\)/);
-  assert.match(source, /mode === "preview" \? \(\s*<div[^>]*>\s*<MarkdownPreview content=\{previewContent\} \/>\s*<\/div>\s*\) : null/);
+  assert.match(source, /showPreviewPane \? \([\s\S]*?<section[\s\S]*?<MarkdownPreview content=\{previewContent\} \/>\s*<\/section>\s*\) : null/);
   // 切換按鈕不會送出表單。
   assert.equal(source.match(/type="button"/g)?.length, 2);
 });
