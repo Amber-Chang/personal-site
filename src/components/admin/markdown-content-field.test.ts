@@ -25,7 +25,7 @@ test("MarkdownContentField inserts uploaded images at the caret of its own texta
   assert.match(source, /insertImageMarkdown\(/);
   assert.match(source, /hasCursor: cursorPlacedRef\.current/);
   assert.match(source, /applyTextareaEdit\(textarea, next\)/);
-  assert.match(source, /<ContentImageUpload disabled=\{input\.disabled\} onUploaded=\{insertImage\} \/>/);
+  assert.match(source, /<ContentImageUpload disabled=\{input\.disabled\} fileInputId=\{fileInputId\} onUploaded=\{insertImage\} \/>/);
 });
 
 test("post and project forms use MarkdownContentField only for their Markdown content field", () => {

@@ -17,7 +17,16 @@ import { uploadFileToSignedUrl } from "../../lib/infra/supabase/content-images-u
 
 type UploadMessage = { kind: "error" | "success"; text: string };
 
-export function ContentImageUpload({ disabled, onUploaded }: { disabled: boolean; onUploaded: (markdown: string) => void }) {
+export function ContentImageUpload({
+  disabled,
+  fileInputId,
+  onUploaded,
+}: {
+  disabled: boolean;
+  // 選檔欄位的 id：工具列的「圖片」按鈕用它把焦點移過來。
+  fileInputId: string;
+  onUploaded: (markdown: string) => void;
+}) {
   const id = useId();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [file, setFile] = useState<File | null>(null);
@@ -91,14 +100,14 @@ export function ContentImageUpload({ disabled, onUploaded }: { disabled: boolean
       </div>
 
       <div className="space-y-1">
-        <label className="text-sm text-black" htmlFor={`${id}-file`}>
+        <label className="text-sm text-black" htmlFor={fileInputId}>
           圖片檔案
         </label>
         <input
           accept={CONTENT_IMAGE_TYPES.join(",")}
           className="block w-full text-sm text-black/70 file:mr-3 file:rounded-full file:border file:border-black/10 file:bg-white file:px-4 file:py-2 file:text-sm file:text-black"
           disabled={disabled || pending}
-          id={`${id}-file`}
+          id={fileInputId}
           onChange={handleFileChange}
           ref={fileInputRef}
           type="file"

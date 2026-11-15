@@ -1,14 +1,17 @@
 "use client";
 
-// 功能：文章與專案表單共用的 Markdown 內容欄位：textarea、編輯／預覽切換，以及旁邊的「上傳圖片」區塊。
-// textarea 維持原本的 id、name 與 defaultValue，跟著表單送出，資料格式不變。
-// 上傳成功的圖片語法只會插入這個欄位（專案表單的摘要、成果等欄位不受影響）。
+// 功能：文章與專案表單共用的 Markdown 內容欄位：工具列、textarea、編輯／預覽切換，以及旁邊的「上傳圖片」區塊。
+// textarea 維持原本的 id、name 與 defaultValue，跟著表單送出，資料格式不變（仍是純 Markdown）。
+// 工具列、快捷鍵與上傳的圖片只作用在這個欄位（專案表單的摘要、成果等欄位不受影響）。
 
 import dynamic from "next/dynamic";
-import { useRef, useState } from "react";
+import { useId, useRef, useState, type KeyboardEvent } from "react";
 
 import { insertImageMarkdown } from "../../lib/content-images/image-markdown.ts";
+import type { TextEditState } from "../../lib/markdown/text-edits.ts";
+import { getToolbarShortcut, insertLink, wrapBold, wrapItalic } from "../../lib/markdown/toolbar-actions.ts";
 import { ContentImageUpload } from "./content-image-upload.tsx";
+import { MarkdownToolbar } from "./markdown-toolbar.tsx";
 import { applyTextareaEdit } from "./textarea-edit.ts";
 
 // 預覽第一次打開時才載入（含 Markdown 轉換與程式碼上色），平常編輯的頁面不必下載。
@@ -17,13 +20,15 @@ const MarkdownPreview = dynamic(() => import("./markdown-preview.tsx").then((mod
   ssr: false,
 });
 
+const SHORTCUT_EDITS = { bold: wrapBold, italic: wrapItalic, link: insertLink };
+
 const toggleButtonClassName =
   "rounded-full px-4 py-1.5 text-sm font-medium transition aria-pressed:bg-black aria-pressed:text-white text-black/65 hover:text-black";
 
 export function MarkdownContentField(input: {
   defaultValue: string;
   description: string;
-  // 表單送出中時停用上傳。
+  // 表單送出中時停用工具列與上傳。
   disabled: boolean;
   id: string;
   label: string;
@@ -35,11 +40,54 @@ export function MarkdownContentField(input: {
   const cursorPlacedRef = useRef(false);
   const [mode, setMode] = useState<"edit" | "preview">("edit");
   const [previewContent, setPreviewContent] = useState(input.defaultValue);
+  const fileInputId = `${useId()}-image-file`;
 
   function showPreview() {
     // 預覽的是 textarea 目前的文字（含尚未儲存的修改）；只讀，不改表單內容。
     setPreviewContent(textareaRef.current?.value ?? "");
     setMode("preview");
+  }
+
+  // 還沒點過內容欄位時，把游標當成在最後面。
+  function getEditState(textarea: HTMLTextAreaElement): TextEditState {
+    if (!cursorPlacedRef.current) {
+      return { selectionEnd: textarea.value.length, selectionStart: textarea.value.length, value: textarea.value };
+    }
+
+    return { selectionEnd: textarea.selectionEnd, selectionStart: textarea.selectionStart, value: textarea.value };
+  }
+
+  // 工具列與快捷鍵的修改：透過 insertText 寫回，Cmd/Ctrl+Z 可以復原。
+  function runEdit(edit: (state: TextEditState) => TextEditState) {
+    const textarea = textareaRef.current;
+
+    if (!textarea || input.disabled) {
+      return;
+    }
+
+    applyTextareaEdit(textarea, edit(getEditState(textarea)));
+    cursorPlacedRef.current = true;
+  }
+
+  function handleKeyDown(event: KeyboardEvent<HTMLTextAreaElement>) {
+    const shortcut = getToolbarShortcut(event);
+
+    if (!shortcut) {
+      return;
+    }
+
+    event.preventDefault();
+    runEdit(SHORTCUT_EDITS[shortcut]);
+  }
+
+  // 工具列的「圖片」：把焦點移到上傳區塊的選檔欄位，本身不插入文字。
+  function focusImageUpload() {
+    const fileInput = document.getElementById(fileInputId);
+
+    if (fileInput) {
+      fileInput.scrollIntoView({ behavior: "smooth", block: "center" });
+      fileInput.focus();
+    }
   }
 
   function insertImage(markdown: string) {
@@ -83,6 +131,9 @@ export function MarkdownContentField(input: {
           </button>
         </div>
       </div>
+      {mode === "edit" ? (
+        <MarkdownToolbar controls={input.id} disabled={input.disabled} onEdit={runEdit} onImage={focusImageUpload} />
+      ) : null}
       {/* 預覽時 textarea 只隱藏不卸載：未儲存的文字、游標位置與表單送出的值都保留。 */}
       <textarea
         className={input.textareaClassName}
@@ -93,6 +144,7 @@ export function MarkdownContentField(input: {
         onFocus={() => {
           cursorPlacedRef.current = true;
         }}
+        onKeyDown={handleKeyDown}
         ref={textareaRef}
       />
       {mode === "preview" ? (
@@ -100,7 +152,7 @@ export function MarkdownContentField(input: {
           <MarkdownPreview content={previewContent} />
         </div>
       ) : null}
-      <ContentImageUpload disabled={input.disabled} onUploaded={insertImage} />
+      <ContentImageUpload disabled={input.disabled} fileInputId={fileInputId} onUploaded={insertImage} />
     </div>
   );
 }
