@@ -7,7 +7,9 @@ import { useState } from "react";
 import type { AdminPostFormState } from "../../app/admin/posts/action-state.ts";
 import { initialAdminPostFormState } from "../../app/admin/posts/action-state.ts";
 import type { ContentStatus, ProjectOption } from "../../lib/content/types.ts";
+import { ADMIN_EDITOR_NARROW_CHILDREN } from "./admin-editor-layout.ts";
 import { ContentStatusBadge } from "./content-status-badge.tsx";
+import { MarkdownContentField } from "./markdown-content-field.tsx";
 
 type AdminPostFormAction = (state: AdminPostFormState, formData: FormData) => Promise<AdminPostFormState>;
 
@@ -43,14 +45,15 @@ export function AdminPostForm(input: {
   const isPublished = input.values.status === "published";
 
   return (
-    <div className="space-y-4 rounded-3xl border border-black/10 bg-white/80 p-8 shadow-sm">
+    <div className={`space-y-4 rounded-3xl border border-black/10 bg-white/80 p-8 shadow-sm ${ADMIN_EDITOR_NARROW_CHILDREN}`}>
       <div className="space-y-2">
         <p className="text-sm uppercase tracking-[0.24em] text-black/50">Blog Admin</p>
         <h1 className="text-3xl font-semibold text-black">{input.title}</h1>
         <p className="text-sm leading-6 text-black/65">{input.description}</p>
       </div>
 
-      <form action={formAction} className="space-y-5">
+      {/* 寬螢幕時只有 Markdown 編輯區與預覽用滿寬度，其他欄位維持原本的寬度。 */}
+      <form action={formAction} className={`space-y-5 ${ADMIN_EDITOR_NARROW_CHILDREN}`} data-admin-wide>
         {input.values.id ? <input name="id" type="hidden" value={input.values.id} /> : null}
 
         <div className="space-y-2">
@@ -105,18 +108,15 @@ export function AdminPostForm(input: {
           />
         </div>
 
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-black" htmlFor="content_markdown">
-            Markdown
-          </label>
-          <p className="text-xs leading-5 text-black/55">文章正文內容，支援 Markdown 語法。</p>
-          <textarea
-            className="min-h-64 w-full rounded-2xl border border-black/10 px-4 py-3 font-mono text-sm outline-none transition focus:border-black/30"
-            defaultValue={input.values.contentMarkdown}
-            id="content_markdown"
-            name="content_markdown"
-          />
-        </div>
+        <MarkdownContentField
+          defaultValue={input.values.contentMarkdown}
+          description="文章正文內容，支援 Markdown 語法。"
+          disabled={pending}
+          id="content_markdown"
+          label="Markdown"
+          name="content_markdown"
+          textareaClassName="min-h-64 w-full rounded-2xl border border-black/10 px-4 py-3 font-mono text-sm outline-none transition focus:border-black/30"
+        />
 
         <div className="space-y-2">
           <label className="text-sm font-medium text-black" htmlFor="related_project_id">

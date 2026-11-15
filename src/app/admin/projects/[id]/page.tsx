@@ -22,7 +22,7 @@ export default async function EditAdminProjectPage(input: {
   }
 
   return (
-    <main className="mx-auto flex min-h-[60vh] w-full max-w-4xl flex-col px-6 py-16">
+    <main className="mx-auto flex min-h-[60vh] w-full max-w-4xl flex-col px-6 py-16 lg:max-w-7xl lg:px-0" data-admin-editor>
       <AdminProjectForm
         action={updateAdminProjectAction}
         description="調整公開 project 內容，儲存後會直接影響前台 `/projects`、案例頁與首頁代表案例區塊。"

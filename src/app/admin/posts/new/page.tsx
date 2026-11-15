@@ -12,7 +12,7 @@ export default async function NewAdminPostPage() {
   });
 
   return (
-    <main className="mx-auto flex min-h-[60vh] w-full max-w-4xl flex-col px-6 py-16">
+    <main className="mx-auto flex min-h-[60vh] w-full max-w-4xl flex-col px-6 py-16 lg:max-w-7xl lg:px-0" data-admin-editor>
       <AdminPostForm
         action={createAdminPostAction}
         description="建立一篇新的 blog post 草稿，先填最小欄位，之後再回來補內容。"

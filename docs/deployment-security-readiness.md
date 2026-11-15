@@ -87,6 +87,13 @@
 - [ ] 確認 production 與 preview 的 `NEXT_PUBLIC_SITE_URL` 各自正確
 - [ ] 確認 Supabase Auth 的 Google provider、callback URL 與站點網域設定正確
 
+### 6.1.1 內文圖片上傳（SPEC-003）
+
+- [ ] 上線前先套用 `supabase/migrations/202611150002_add_content_images_bucket.sql`（建立公開讀取的 `content-images` bucket：單檔 5MB，只收 PNG、JPEG、WebP、GIF）；沒有這個 bucket 時，後台上傳會回「暫時無法取得上傳網址，請稍後再試。」，其他功能不受影響
+- [ ] 確認 `storage.objects` 沒有給 `anon` 或 `authenticated` 的寫入、更新、刪除政策（migration 不建立任何政策；若專案裡已有不限 bucket 的通用政策，需另外確認不會套到 `content-images`）
+- [ ] `POST /api/admin/content-images` 依序檢查：未登入 401 → 非管理員 403 → 來源不是本站 403 → 類型不對 400 → 大小不對 400；通過才用 service role 發出一次性上傳網址
+- [ ] 圖片檔由瀏覽器直接傳到 Supabase，不經過 Vercel function（避開 4.5MB 請求上限）；`SUPABASE_SERVICE_ROLE_KEY` 只在這個 route handler 的伺服器端使用
+
 ### 6.2 自動化驗證 gate
 
 - [ ] `npm run lint` 通過
@@ -349,6 +356,7 @@
 - 若 rate limit 採 app-layer 或 in-memory 方案，跨 instance 一致性有限
 - 目前 readiness 仍只保證單人站主管理情境，不保證協作型營運流程
 - Google OAuth provider / callback 設定若在 preview、production、localhost 之間漂移，容易造成只有部分環境可登入
+- 內文圖片：Supabase 只檢查上傳時宣告的檔案類型，不檢查實際內容；換掉或不再使用的圖片會留在 `content-images` bucket，沒有清理機制
 
 這些限制不是隱性風險，而是目前方案的一部分；只要需求跨過這條線，就不應再用「小補強」處理。
 

@@ -22,7 +22,7 @@
 
 ## 外部整合
 
-- `Supabase`：資料庫、公開內容來源、admin auth/session 基礎設施。
+- `Supabase`：資料庫、公開內容來源、admin auth/session 基礎設施；Storage 的 `content-images` bucket 存放文章與專案內文圖片（公開讀取，寫入只透過伺服器發出的一次性上傳網址）。
 - `PostHog`：公開頁面 analytics，需經訪客同意後才啟用。
 
 ## 目前邊界

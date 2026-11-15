@@ -9,8 +9,9 @@ test("blog post page renders the related project section between the header and 
   assert.match(source, /<RelatedProjectSection relatedProject={post\.relatedProject} \/>/);
   // 內文排版由共用的 Prose 元件負責（取代原本寫在頁面裡的 prose class）。
   assert.match(source, /import \{ Prose \} from "@\/components\/Prose";/);
+  // 內文由共用的 MarkdownContent 輸出（表格、程式碼上色、Mermaid、圖片），外層仍是 Prose。
   assert.match(
     source,
-    /<\/header>\s*<RelatedProjectSection relatedProject={post\.relatedProject} \/>\s*<Prose>\s*<ReactMarkdown>\{post\.content\}<\/ReactMarkdown>\s*<\/Prose>/s,
+    /<\/header>\s*<RelatedProjectSection relatedProject={post\.relatedProject} \/>\s*<Prose>\s*<MarkdownContent content=\{post\.content\} \/>\s*<\/Prose>/,
   );
 });
