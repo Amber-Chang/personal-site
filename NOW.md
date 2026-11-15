@@ -19,7 +19,7 @@
 
 ## 最近完成
 
-- 進行中：後台寫作能力 3B（分支 `codex/admin-authoring`，尚未 push / 合併），規格見 [docs/02-spec/SPEC-003-admin-authoring.md](./docs/02-spec/SPEC-003-admin-authoring.md)。已完成：文章與專案內頁改用共用的 `MarkdownContent`，支援表格、刪除線、待辦清單與伺服器端程式碼上色，圖片延後載入；```` ```mermaid ```` 區塊顯示成圖表（只在有圖表的頁面載入 Mermaid）
+- 進行中：後台寫作能力 3B（分支 `codex/admin-authoring`，尚未 push / 合併），規格見 [docs/02-spec/SPEC-003-admin-authoring.md](./docs/02-spec/SPEC-003-admin-authoring.md)。已完成：文章與專案內頁改用共用的 `MarkdownContent`，支援表格、刪除線、待辦清單與伺服器端程式碼上色，圖片延後載入；```` ```mermaid ```` 區塊顯示成圖表（只在有圖表的頁面載入 Mermaid）；圖片上傳通道 `POST /api/admin/content-images` 與 `content-images` bucket migration（`202611150002`，尚未套用）
 - 已完成內容架構調整 3A（分支 `codex/content-architecture`，尚未 push / 合併；migration 尚未套用）：專案新增必填類型 `project_type`（工作案例 / 研究 / 個人專案，後台必選、伺服器端驗證，前台卡片與內頁顯示中文標籤）；首頁改為身分 → 代表案例 → 精選文章 → 關於我（短版）→ 聯絡五段，代表案例沒有 featured 時改顯示排序前 3 個；文章日期改為「2026 年 6 月」並固定用台北時間；「工作隨筆」下架後文章頁不顯示相關案例、sitemap 不列出。規格、上線順序與驗收條件見 [docs/02-spec/SPEC-002-content-architecture.md](./docs/02-spec/SPEC-002-content-architecture.md)
 - 已完成全站健檢第 2 包 design token（分支 `codex/design-tokens`，疊在第 1 包分支上，尚未 push / 合併）：`globals.css` 定義字級、文字深淺、邊框、圓角、字距、陰影 token，刪除沒用到的 `sidebar`、`chart` token；抽出 `Prose`、`PageHeader`、`SectionHeading`；公開頁寫死數值 89 → 7（其中 4 處在 shadcn 元件內，未改）、「token 加透明度」組合 26 → 8；標題改載 Noto Serif TC 600，內文用系統字體。字體以外的改動與基準圖相比每頁差異 ≤ 0.38%。token 清單與挑選方式見 [docs/design-tokens.md](./docs/design-tokens.md)
 - 已完成全站健檢第 1 包（分支 `codex/site-health-fixes`，尚未 push / 合併）：社群分享圖與 `metadataBase`、自訂 404、`sitemap.xml` / `robots.txt`、文字對比、可點範圍、標題層級、首頁大標斷行；本機 8 頁 × 2 寬度量測：對比不足、可點高度 < 24px、標題跳號、橫向捲動皆為 0。規劃與驗收條件見 [docs/plans/2026-11-11-site-health-and-design-tokens.md](./docs/plans/2026-11-11-site-health-and-design-tokens.md)
@@ -71,6 +71,7 @@
 
 ## 目前最重要的事
 
+- 3B 上線前，PM 同意後由 reviewer 套用 `supabase/migrations/202611150002_add_content_images_bucket.sql`（建立 `content-images` bucket）；沒套用時只有後台上傳圖片會失敗，其他頁面不受影響
 - 3A 上線順序必須是「先 migration、後程式」：PM 同意後由 reviewer 套用 `supabase/migrations/202611150001_add_project_type.sql`，確認回填結果，再合併部署，最後把「工作隨筆」下架。新程式碰到沒有 `project_type` 欄位的資料庫時，首頁、`/projects`、專案內頁與有關聯專案的文章頁會回 500，Vercel build 也會失敗
 - PM 驗收 3A：首頁五段的觀感與文案；日期時區（原需求範例 `2026-06-30T23:30:00Z` 在台北時間已是 7 月，實作採台北時間，待確認）；身分區塊是否保留「Amber Chang」與「這裡放我做過的專案，也放我持續在想的事。」兩行
 - PM 驗收全站健檢第 2 包：標題改用 Noto Serif TC 後的觀感；同意橫幅那句話改用內文字體（只載 600 字重時標題字體會讓它變半粗體），請確認觀感；本機模擬慢速 4G 時首屏出現時間多約 0.6 秒（一般網速無差異）

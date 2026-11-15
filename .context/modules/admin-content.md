@@ -12,6 +12,8 @@
 - `src/components/admin/project-form.tsx`
 - `src/components/admin/sortable-admin-post-list.tsx`
 - `src/components/admin/sortable-admin-project-list.tsx`
+- `src/app/api/admin/content-images/`（內文圖片上傳通道）
+- `src/lib/content-images/rules.ts`、`src/lib/infra/supabase/content-images-storage.ts`
 
 ## 運作方式
 
@@ -19,6 +21,7 @@
 - `action-core.ts` 會呼叫 `content-runtime` 做 create / update / publish / reorder / delete。
 - posts 與 projects 共用相同的排序概念與狀態語意：`draft` / `published`。
 - article 與 project 的刪除都受 service 規則保護，不能直接刪除已上架內容。
+- 內文圖片（SPEC-003）：`POST /api/admin/content-images` 檢查登入、管理員、trusted origin、檔案類型與宣告大小後，由伺服器決定檔名（隨機字串 + 副檔名），用 service-role client 向 `content-images` bucket 要一次性上傳網址，回傳上傳資訊與公開網址；圖片檔由瀏覽器直接傳到 Supabase。類型與大小規則在 `rules.ts`，伺服器端與後台表單共用。
 
 ## 目前約束
 
