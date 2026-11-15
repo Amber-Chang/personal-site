@@ -38,5 +38,5 @@ test("MarkdownContent hands mermaid blocks to MermaidDiagram", () => {
   const source = readSource("src/components/MarkdownContent.tsx");
 
   assert.match(source, /import \{ MermaidDiagram \} from "\.\/MermaidDiagram\.tsx";/);
-  assert.match(source, /createMarkdownComponents\(\{ MermaidDiagram \}\)/);
+  assert.match(source, /createMarkdownComponents\(\{ CodeCopyButton, MermaidDiagram \}\)/);
 });

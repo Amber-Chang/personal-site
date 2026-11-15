@@ -8,6 +8,8 @@ import type { Components, ExtraProps, Options } from "react-markdown";
 import rehypeHighlight from "rehype-highlight";
 import remarkGfm from "remark-gfm";
 
+import { getCodeLanguageLabel } from "./code-copy.ts";
+
 // GFM：表格、刪除線、待辦清單、網址自動連結、註腳。
 // 刪除線只認兩個波浪號（~~文字~~），因為中文常用單一「~」表示範圍，例如「3~5 天」。
 export const remarkPlugins: Options["remarkPlugins"] = [[remarkGfm, { singleTilde: false }]];
@@ -48,13 +50,49 @@ export function getMermaidSource(node: Element | undefined): string | null {
   return toText(code).replace(/\n$/, "");
 }
 
-// MermaidDiagram 由呼叫端傳入（MarkdownContent 傳真正的 client component，測試傳替身）。
-export function createMarkdownComponents(input: { MermaidDiagram: ComponentType<{ source: string }> }): Components {
+// 程式碼區塊宣告的語言（```ts 的 ts），沒宣告時回傳 null。
+function getCodeLanguage(node: Element | undefined): string | null {
+  const code = node?.children[0];
+
+  if (!code || code.type !== "element" || !Array.isArray(code.properties.className)) {
+    return null;
+  }
+
+  const languageClass = code.properties.className.find((name) => String(name).startsWith("language-"));
+
+  return languageClass ? String(languageClass).slice("language-".length) : null;
+}
+
+// 程式碼區塊的標頭：左邊語言名稱（沒宣告語言時留空），右邊複製按鈕。標頭在程式碼上方，不會蓋住程式碼。
+function createCodeBlock(
+  props: ComponentProps<"pre"> & ExtraProps,
+  CodeCopyButton: ComponentType,
+) {
+  const label = getCodeLanguageLabel(getCodeLanguage(props.node));
+
+  return createElement(
+    "div",
+    { className: "code-block", "data-code-block": "" },
+    createElement(
+      "div",
+      { className: "code-block-header flex items-center justify-between gap-3" },
+      label ? createElement("span", { className: "text-label tracking-label text-muted-foreground" }, label) : createElement("span"),
+      createElement(CodeCopyButton),
+    ),
+    createElement("pre", withoutNode(props)),
+  );
+}
+
+// MermaidDiagram 與 CodeCopyButton 由呼叫端傳入（MarkdownContent 傳真正的 client component，測試傳替身）。
+export function createMarkdownComponents(input: {
+  CodeCopyButton: ComponentType;
+  MermaidDiagram: ComponentType<{ source: string }>;
+}): Components {
   return {
     // 圖片延後載入、非同步解碼，不擋住文字先出現。寬度上限由全站基礎樣式（max-width: 100%）控制。
     img: (props: ComponentProps<"img"> & ExtraProps) =>
       createElement("img", { ...withoutNode(props), decoding: "async", loading: "lazy" }),
-    // ```mermaid 區塊交給圖表元件；其他程式碼區塊照常輸出 <pre>。
+    // ```mermaid 區塊交給圖表元件（沒有標頭）；其他程式碼區塊加上語言名稱與複製按鈕的標頭。
     pre: (props: ComponentProps<"pre"> & ExtraProps) => {
       const mermaidSource = getMermaidSource(props.node);
 
@@ -62,7 +100,7 @@ export function createMarkdownComponents(input: { MermaidDiagram: ComponentType<
         return createElement(input.MermaidDiagram, { source: mermaidSource });
       }
 
-      return createElement("pre", withoutNode(props));
+      return createCodeBlock(props, input.CodeCopyButton);
     },
     // 表格比內容欄寬時，在自己的容器內左右捲動，不撐出整頁的橫向捲軸。
     table: (props: ComponentProps<"table"> & ExtraProps) =>

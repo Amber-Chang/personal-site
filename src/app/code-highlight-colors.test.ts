@@ -61,3 +61,10 @@ test("code inside a code block does not inherit the inline code background, padd
 
   assert.match(css, /\.prose pre code \{\s*background-color: transparent;\s*border-radius: 0;\s*font-size: inherit;\s*padding: 0;\s*\}/);
 });
+
+test("the code block keeps enough space between the header and the code for the copy button's hit area", () => {
+  const css = readGlobalsCss();
+
+  // 複製按鈕的可點範圍往下多出 0.5rem（-my-2）；<pre> 上方留 0.75em（約 11px），不會重疊。
+  assert.match(css, /\.prose \.code-block > pre \{\s*margin-block: 0\.75em 0;\s*\}/);
+});

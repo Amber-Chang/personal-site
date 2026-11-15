@@ -10,8 +10,10 @@ import Markdown, { type Components, type Options } from "react-markdown";
 
 type MermaidComponent = (props: { source: string }) => ReturnType<typeof createElement>;
 
+type CopyButtonComponent = () => ReturnType<typeof createElement>;
+
 type MarkdownOptionsModule = {
-  createMarkdownComponents: (input: { MermaidDiagram: MermaidComponent }) => Components;
+  createMarkdownComponents: (input: { CodeCopyButton: CopyButtonComponent; MermaidDiagram: MermaidComponent }) => Components;
   rehypePlugins: Options["rehypePlugins"];
   remarkPlugins: Options["remarkPlugins"];
 };
@@ -26,6 +28,8 @@ async function loadMarkdownOptions(): Promise<MarkdownOptionsModule> {
 
 // 測試用的圖表元件：把收到的原始碼原樣輸出，方便檢查 mermaid 區塊交給了誰、內容是否完整。
 const StubMermaidDiagram: MermaidComponent = ({ source }) => createElement("mermaid-stub", null, source);
+// 測試用的複製按鈕替身。
+const StubCodeCopyButton: CopyButtonComponent = () => createElement("copy-stub");
 
 // 用和 MarkdownContent 相同的設定把 Markdown 轉成 HTML 字串。
 async function renderMarkdown(content: string) {
@@ -34,7 +38,11 @@ async function renderMarkdown(content: string) {
   return renderToStaticMarkup(
     createElement(
       Markdown,
-      { components: createMarkdownComponents({ MermaidDiagram: StubMermaidDiagram }), rehypePlugins, remarkPlugins },
+      {
+        components: createMarkdownComponents({ CodeCopyButton: StubCodeCopyButton, MermaidDiagram: StubMermaidDiagram }),
+        rehypePlugins,
+        remarkPlugins,
+      },
       content,
     ),
   );
@@ -68,6 +76,8 @@ test("fenced code with a known language is highlighted on the server with hljs c
 
   assert.match(html, /<pre><code class="hljs language-ts">/);
   assert.match(html, /<span class="hljs-keyword">const<\/span>/);
+  // 上色只在伺服器端輸出 HTML 時完成，不需要讀者端的程式。
+  assert.doesNotMatch(html, /<script/);
   assert.match(html, /<span class="hljs-built_in">number<\/span>/);
 });
 
@@ -75,9 +85,10 @@ test("fenced code without a language or with an unknown language renders as plai
   const plain = await renderMarkdown(["```", "npm test", "```"].join("\n"));
   const unknown = await renderMarkdown(["```not-a-language", "a <- b", "```"].join("\n"));
 
-  assert.equal(plain, "<pre><code>npm test\n</code></pre>");
+  assert.match(plain, /<pre><code>npm test\n<\/code><\/pre>/);
   assert.match(unknown, /<pre><code class="hljs language-not-a-language">a &lt;- b\n<\/code><\/pre>/);
-  assert.doesNotMatch(unknown, /<span/);
+  // 不認得的語言不上色：程式碼裡沒有 hljs 的 span。
+  assert.doesNotMatch(unknown, /<span class="hljs-/);
 });
 
 test("a mermaid code block goes to the diagram component with its exact source and is not highlighted", async () => {
@@ -97,6 +108,33 @@ test("code blocks in other languages still render as pre and code, not as diagra
   assert.match(html, /<pre><code class="hljs language-js">/);
   assert.match(html, /<code>mermaid<\/code> 行內程式碼/);
   assert.doesNotMatch(html, /mermaid-stub/);
+});
+
+test("every code block gets a header with the language name and the copy button above the code", async () => {
+  const typed = await renderMarkdown(["```ts", "const a = 1;", "```"].join("\n"));
+
+  assert.match(
+    typed,
+    /^<div class="code-block" data-code-block=""><div class="code-block-header [^"]*"><span class="text-label tracking-label text-muted-foreground">TypeScript<\/span><copy-stub><\/copy-stub><\/div><pre><code class="hljs language-ts">/,
+  );
+
+  const unknown = await renderMarkdown(["```klingon", "x", "```"].join("\n"));
+
+  assert.match(unknown, /<span class="text-label tracking-label text-muted-foreground">klingon<\/span><copy-stub>/);
+});
+
+test("a code block without a language has the copy button but no language name", async () => {
+  const html = await renderMarkdown(["```", "npm test", "```"].join("\n"));
+
+  assert.match(html, /<div class="code-block-header [^"]*"><span><\/span><copy-stub><\/copy-stub><\/div><pre><code>npm test/);
+  assert.doesNotMatch(html, /text-label/);
+});
+
+test("mermaid blocks and inline code get neither the copy button nor the language label, and there are no line numbers", async () => {
+  const html = await renderMarkdown(["```mermaid", "flowchart LR", "  A --> B", "```", "", "行內 `code`。"].join("\n"));
+
+  assert.doesNotMatch(html, /copy-stub|code-block|text-label/);
+  assert.doesNotMatch(html, /line-number|hljs-ln/);
 });
 
 test("raw HTML in Markdown is shown as text and never rendered as tags", async () => {

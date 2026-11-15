@@ -195,6 +195,16 @@
     padding: 0;
   }
 
+  /* 程式碼區塊的標頭（語言名稱與複製按鈕）在 <pre> 上方：外層接手 <pre> 原本的上下間距。 */
+  .prose .code-block {
+    margin-block: 1.5em;
+  }
+
+  /* 複製按鈕的可點範圍往下多出 0.5rem，0.75em（約 11px）的間距讓它不會疊到程式碼區塊上。 */
+  .prose .code-block > pre {
+    margin-block: 0.75em 0;
+  }
+
   /* 待辦清單已有勾選框，不再顯示項目符號。 */
   .prose .contains-task-list {
     list-style: none;
