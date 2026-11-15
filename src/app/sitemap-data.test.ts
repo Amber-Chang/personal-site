@@ -201,3 +201,90 @@ test("buildRobots omits the sitemap line when the site URL is unknown", async ()
   assert.deepEqual(robots.rules.disallow, ["/admin", "/auth", "/api"]);
   assert.equal(robots.sitemap, undefined);
 });
+
+// 「工作隨筆」下架後的情境：資料表裡還在，但 status 是 draft。假 client 依 eq() 篩選，等同資料庫只回傳符合條件的列。
+function createFilteringClient(tables: Record<string, Array<Record<string, unknown>>>) {
+  return {
+    from(table: string) {
+      return {
+        select() {
+          let rows = [...(tables[table] ?? [])];
+          const builder = {
+            eq(column: string, value: unknown) {
+              rows = rows.filter((row) => row[column] === value);
+              return builder;
+            },
+            maybeSingle: async () => ({ data: rows[0] ?? null, error: null }),
+            order() {
+              return builder;
+            },
+            then(resolve: (value: { data: typeof rows; error: null }) => unknown) {
+              return Promise.resolve({ data: rows, error: null }).then(resolve);
+            },
+          };
+          return builder;
+        },
+      };
+    },
+  };
+}
+
+test("sitemap built from the Supabase path leaves out a project once it is unpublished", async () => {
+  const { buildSitemapEntries, loadSitemapContent } = await loadSitemapData();
+  const { SupabaseProjectsRepository } = await import("../lib/infra/repositories/supabase-projects-repository.ts");
+  const { createBlogContentService } = await import("../lib/content/service.ts");
+
+  const client = createFilteringClient({
+    projects: [
+      { featured: true, id: "p1", outcomes: [], project_type: "side", slug: "ai-builder-workflow", sort_order: 1, status: "published", tags: [], title: "A" },
+      { featured: true, id: "p3", outcomes: [], project_type: "side", slug: "turning-work-into-thinking", sort_order: 3, status: "draft", tags: [], title: "工作隨筆" },
+    ],
+  });
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const projects = new SupabaseProjectsRepository(client as any);
+  const service = createBlogContentService({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    posts: { listPublishedPosts: async () => [] } as any,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    projects: projects as any,
+  });
+
+  const content = await loadSitemapContent({
+    getFallbackService: () => ({ listPublicPosts: async () => [], listPublicProjects: async () => [] }),
+    getPrimaryService: () => service,
+  });
+  const urls = buildSitemapEntries({ ...content, siteUrl: "https://amber.test" }).map((entry) => entry.url);
+
+  assert.equal(content.source, "primary");
+  assert.ok(urls.includes("https://amber.test/projects/ai-builder-workflow"));
+  assert.ok(!urls.some((url) => url.includes("turning-work-into-thinking")));
+});
+
+test("sitemap built from the Markdown fallback leaves out draft projects", async () => {
+  const fs = await import("node:fs/promises");
+  const os = await import("node:os");
+  const path = await import("node:path");
+  const { buildSitemapEntries, loadSitemapContent } = await loadSitemapData();
+  const { createMarkdownPublicContentRepositories } = await import("../lib/infra/repositories/markdown-public-repositories.ts");
+
+  const directory = await fs.mkdtemp(path.join(os.tmpdir(), "sitemap-projects-"));
+  await fs.writeFile(path.join(directory, "kept.md"), "---\ntitle: Kept\ntype: work\n---\n\nBody\n", "utf8");
+  await fs.writeFile(path.join(directory, "turning-work-into-thinking.md"), "---\ntitle: 工作隨筆\ntype: side\ndraft: true\n---\n\nBody\n", "utf8");
+
+  const repositories = createMarkdownPublicContentRepositories({ postsDirectory: path.join(directory, "none"), projectsDirectory: directory });
+  const content = await loadSitemapContent({
+    getFallbackService: () => ({
+      listPublicPosts: () => repositories.posts.listPublishedPosts(),
+      listPublicProjects: () => repositories.projects.listPublishedProjects(),
+    }),
+    getPrimaryService: () => {
+      throw new Error("Supabase unavailable");
+    },
+    onFallback: () => {},
+  });
+  const urls = buildSitemapEntries({ ...content, siteUrl: "https://amber.test" }).map((entry) => entry.url);
+
+  assert.equal(content.source, "fallback");
+  assert.ok(urls.includes("https://amber.test/projects/kept"));
+  assert.ok(!urls.some((url) => url.includes("turning-work-into-thinking")));
+});

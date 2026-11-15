@@ -19,6 +19,7 @@ export default async function NewAdminProjectPage() {
           featured: false,
           outcomes: "",
           period: "",
+          projectType: "",
           role: "",
           slug: "",
           status: "draft",

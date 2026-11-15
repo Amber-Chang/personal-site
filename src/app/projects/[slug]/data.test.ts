@@ -6,6 +6,7 @@ type ProjectRecord = {
   id: string;
   outcomes: string[];
   period: string;
+  projectType: "work" | "research" | "side" | null;
   role: string;
   slug: string;
   summary: string;
@@ -32,6 +33,7 @@ function createProject(overrides?: Partial<ProjectRecord>): ProjectRecord {
     id: "project-1",
     outcomes: ["把需求整理成可執行流程"],
     period: "2025",
+    projectType: "work",
     role: "PM",
     slug: "sms-management-platform",
     summary: "把分散需求產品化。",
@@ -121,6 +123,7 @@ test("loadProjectPageData maps project data with related published posts for ren
     content: "專案內容",
     outcomes: ["把需求整理成可執行流程"],
     period: "2025",
+    projectTypeLabel: "工作案例",
     relatedPosts: [
       {
         date: "2026-06-02T10:00:00.000Z",
@@ -187,6 +190,7 @@ test("loadProjectPageData falls back to an empty related post list when no publi
     content: "專案內容",
     outcomes: ["把需求整理成可執行流程"],
     period: "2025",
+    projectTypeLabel: "工作案例",
     relatedPosts: [],
     role: "PM",
     slug: "sms-management-platform",
@@ -260,6 +264,7 @@ test("loadProjectPageData maps related posts returned by the public content cont
     content: "專案內容",
     outcomes: ["把需求整理成可執行流程"],
     period: "2025",
+    projectTypeLabel: "工作案例",
     relatedPosts: [
       {
         date: "2026-06-02T10:00:00.000Z",
@@ -280,4 +285,26 @@ test("loadProjectPageData maps related posts returned by the public content cont
     tags: ["產品策略"],
     title: "簡訊管理平台",
   });
+});
+
+test("loadProjectPageData shows no type label when the stored type is unknown", async () => {
+  const dataModule = await loadModule<{
+    loadProjectPageData: (input: {
+      service: {
+        getPublicProjectBySlug: (slug: string) => Promise<ProjectRecord | null>;
+        listPostsByProjectId: (projectId: string) => Promise<BlogPostRecord[]>;
+      };
+      slug: string;
+    }) => Promise<{ projectTypeLabel: string | null } | null>;
+  }>("./data.ts", "project data");
+
+  const result = await dataModule.loadProjectPageData({
+    slug: "sms-management-platform",
+    service: {
+      getPublicProjectBySlug: async () => createProject({ projectType: null }),
+      listPostsByProjectId: async () => [],
+    },
+  });
+
+  assert.equal(result?.projectTypeLabel, null);
 });

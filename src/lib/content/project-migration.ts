@@ -2,7 +2,8 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import matter from "gray-matter";
 
-import type { ProjectRecord, SyncProjectInput } from "./types.ts";
+import { isProjectType, PROJECT_TYPES } from "./project-type.ts";
+import type { ProjectType, ProjectRecord, SyncProjectInput } from "./types.ts";
 
 type ProjectSyncService = {
   listAdminProjects: () => Promise<ProjectRecord[]>;
@@ -39,6 +40,7 @@ function normalizeProjectInput(input: SyncProjectInput) {
     featured: input.featured ?? false,
     outcomes: input.outcomes ?? [],
     period: input.period ?? null,
+    projectType: input.projectType,
     publishedAt: input.publishedAt ?? null,
     role: input.role ?? null,
     slug: input.slug,
@@ -57,6 +59,7 @@ function matchesExistingProject(existingProject: ProjectRecord, input: SyncProje
     existingProject.featured === normalizedInput.featured &&
     JSON.stringify(existingProject.outcomes) === JSON.stringify(normalizedInput.outcomes) &&
     existingProject.period === normalizedInput.period &&
+    existingProject.projectType === normalizedInput.projectType &&
     existingProject.publishedAt === normalizedInput.publishedAt &&
     existingProject.role === normalizedInput.role &&
     existingProject.slug === normalizedInput.slug &&
@@ -71,6 +74,17 @@ function getStringArrayValue(rawData: Record<string, unknown>, key: string) {
   const value = rawData[key];
 
   return Array.isArray(value) ? value.filter((item): item is string => typeof item === "string" && item.trim().length > 0) : [];
+}
+
+// 同步會寫進資料庫，所以 type 必須明確且有效；缺少或打錯時直接停下並指出檔名，不默默套預設值。
+function getRequiredProjectType(rawData: Record<string, unknown>, fileName: string): ProjectType {
+  const value = getStringValue(rawData, "type");
+
+  if (!isProjectType(value)) {
+    throw new Error(`content/projects/${fileName} 缺少有效的 type，請填 ${PROJECT_TYPES.join(" / ")} 其中一個。`);
+  }
+
+  return value;
 }
 
 export async function loadMarkdownProjectInputs(directory = path.join(process.cwd(), "content/projects")): Promise<SyncProjectInput[]> {
@@ -92,12 +106,14 @@ export async function loadMarkdownProjectInputs(directory = path.join(process.cw
       const outcomes = getStringArrayValue(rawData, "outcomes");
       const featured = Boolean(rawData.featured);
       const isDraft = Boolean(rawData.draft);
+      const projectType = getRequiredProjectType(rawData, fileName);
 
       return {
         contentMarkdown: content.trim(),
         featured,
         outcomes,
         period,
+        projectType,
         publishedAt: null,
         role,
         slug,

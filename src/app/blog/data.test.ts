@@ -327,3 +327,47 @@ test("loadBlogPostPageData falls back to a null related project when the post ha
     title: "Published post",
   });
 });
+
+test("loadBlogPostPageData drops the related project once that project is unpublished (Supabase path)", async () => {
+  const dataModule = await loadModule<{
+    loadBlogPostPageData: (input: {
+      service: {
+        getPublicProjectById: (id: string) => Promise<unknown>;
+        getPublicPostBySlug: (slug: string) => Promise<BlogPostRecord | null>;
+      };
+      slug: string;
+    }) => Promise<{ relatedProject: unknown; title: string } | null>;
+  }>("./data.ts", "blog data");
+  const { SupabaseProjectsRepository } = await import("../../lib/infra/repositories/supabase-projects-repository.ts");
+
+  // 假 client 依 eq() 篩選：「工作隨筆」仍在資料表裡，但 status 已是 draft，公開查詢拿不到它。
+  const rows = [{ id: "p3", outcomes: [], project_type: "side", slug: "turning-work-into-thinking", status: "draft", tags: [], title: "工作隨筆" }];
+  const client = {
+    from: () => ({
+      select: () => {
+        let filtered = [...rows] as Array<Record<string, unknown>>;
+        const builder = {
+          eq(column: string, value: unknown) {
+            filtered = filtered.filter((row) => row[column] === value);
+            return builder;
+          },
+          maybeSingle: async () => ({ data: filtered[0] ?? null, error: null }),
+        };
+        return builder;
+      },
+    }),
+  };
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const projects = new SupabaseProjectsRepository(client as any);
+
+  const result = await dataModule.loadBlogPostPageData({
+    slug: "build-it-vs-build-it-right",
+    service: {
+      getPublicProjectById: (id) => projects.getPublicProjectById(id),
+      getPublicPostBySlug: async () => createPost({ relatedProjectId: "p3" }),
+    },
+  });
+
+  assert.equal(result?.title, "Published post");
+  assert.equal(result?.relatedProject, null);
+});

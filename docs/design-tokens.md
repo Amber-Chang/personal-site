@@ -1,7 +1,7 @@
 # Design Tokens
 
 > 用途：公開頁面的樣式 token 清單、各自用在哪、新增畫面時怎麼選。
-> 狀態：2026-11-12 第 2 包完成時的現況。定義在 `src/app/globals.css`。
+> 狀態：2026-11-12 第 2 包完成時的現況；2026-11-15 內容架構 3A 改首頁時拿掉了主標寬度 `max-w-[15em]` 與第一屏兩欄比例兩個寫死數值。定義在 `src/app/globals.css`。
 
 ## 新增畫面時的挑選規則
 
@@ -27,7 +27,7 @@
 | `text-body` | 1.02 → 1.06rem | 由 `Prose` 決定 | 長文內文 |
 | `text-lead` | 1.05 → 1.15rem | 搭配 `leading-7` | 浮層裡的引言句，例如同意橫幅 |
 | `text-tagline` | 0.875 → 0.95rem | 1.25rem 等比 | 首頁姓名下方標語 |
-| `text-label` | 0.75rem | 1rem | 小標籤：卡片日期、Focus、Privacy preference |
+| `text-label` | 0.75rem | 1rem | 小標籤：卡片日期、案例類型與角色、Privacy preference |
 
 - 一般介面小字（說明文字、連結、按鈕、延伸閱讀標題）沿用 Tailwind 內建的 `text-sm`、`text-base`、`text-lg`、`text-xl`。
 
@@ -36,7 +36,7 @@
 | class | 值 | 用在哪 |
 |---|---|---|
 | `text-foreground` | 主要 | 標題、重點文字 |
-| `text-foreground-soft` | foreground 88% | 長文段落、首頁 Focus 清單、手機選單文字、案例「關鍵成果」 |
+| `text-foreground-soft` | foreground 88% | 長文段落、首頁「關於我」短文、手機選單文字、案例「關鍵成果」與案例卡片的第一條成果 |
 | `text-muted-foreground` | 輔助 | 說明、日期、返回連結、頁尾 |
 
 - 裝飾用的兩個組合：`text-muted-foreground/40`（頁尾分隔符號）、`decoration-muted-foreground/60`（連結底線）。
@@ -76,7 +76,7 @@
 | class | 值 | 用在哪 |
 |---|---|---|
 | `tracking-heading` | -0.03em | 標題（h1–h3 已預設套用） |
-| `tracking-label` | 0.08em | 一般小標籤：首頁標語、文章日期、404、Focus |
+| `tracking-label` | 0.08em | 一般小標籤：首頁標語、文章日期、404、案例類型與角色 |
 | `tracking-caps` | 0.16em | 全大寫或數字的小標籤：卡片日期、Privacy preference |
 
 - 卡片標題維持 Tailwind 內建的 `tracking-tight`（-0.025em）。
@@ -106,7 +106,5 @@
 
 ## 保留的寫死數值
 
-- `max-w-[15em]`：首頁主標寬度，對應 15 個中文字，原因見 `src/app/page.tsx` 的註解。
-- `md:grid-cols-[1.5fr_0.7fr]`：首頁第一屏的兩欄比例。
 - `prose-code:text-[0.92em]`：行內程式碼相對內文的字級。
 - `src/components/ui/` 內 shadcn 自帶的數值不改。

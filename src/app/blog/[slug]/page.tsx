@@ -9,7 +9,7 @@ import { PostHogPageView } from "@/components/PostHogPageView";
 import { Prose } from "@/components/Prose";
 import { RelatedProjectSection } from "@/components/RelatedProjectSection";
 import { createPageViewProperties } from "@/lib/analytics/pageview";
-import { formatDate } from "@/lib/format";
+import { formatYearMonth } from "@/lib/format";
 import { sharedOpenGraph } from "../../shared-metadata";
 import { getPublicBlogContentService } from "../blog-context";
 import { loadBlogPostPageData } from "../data";
@@ -72,7 +72,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
         <h1 className="font-display text-article-title font-semibold tracking-heading">
           {post.title}
         </h1>
-        <p className="mt-4 text-sm tracking-label text-muted-foreground">{formatDate(post.date)}</p>
+        <p className="mt-4 text-sm tracking-label text-muted-foreground">{formatYearMonth(post.date)}</p>
       </header>
 
       <RelatedProjectSection relatedProject={post.relatedProject} />

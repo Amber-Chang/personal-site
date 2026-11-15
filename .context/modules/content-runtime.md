@@ -7,6 +7,8 @@
 ## 主要路徑
 
 - `src/lib/content/types.ts`
+- `src/lib/content/project-type.ts`
+- `src/lib/content/public-project.ts`、`src/lib/content/excerpt.ts`（公開卡片用的純函式）
 - `src/lib/content/repository.ts`
 - `src/lib/content/service.ts`
 - `src/lib/infra/repositories/factory.ts`
@@ -27,6 +29,7 @@
 - `BlogPostRecord` 與 `ProjectRecord` 都有 `status`、`publishedAt`、`sortOrder`。
 - 文章可選填 `relatedProjectId` 指向單一 project。
 - project 另有 `featured`、`period`、`role`、`outcomes`、`tags` 等公開呈現欄位。
+- project 有必填的 `projectType`（資料表 `project_type`：`work` / `research` / `side`）。讀取端寬鬆：不認得的值轉成 `null`、前台不顯示標籤；寫入端嚴格：`CreateProjectInput`、`SyncProjectInput` 一定要帶。Supabase 公開查詢明確列出 `project_type`，所以 migration `202611150001_add_project_type.sql` 要先於程式上線（SPEC-002）。
 - `content_format`、`cover_image_url`、`seo_title`、`seo_description`、`updated_by` 目前只存在於規格保留欄位，尚未進入 runtime schema、repository contract 或 admin 表單。
 
 ## 邊界

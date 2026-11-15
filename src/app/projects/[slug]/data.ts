@@ -1,3 +1,4 @@
+import { getProjectTypeLabel } from "../../../lib/content/project-type.ts";
 import { mapPublicPostTeaser } from "../../../lib/content/public-post.ts";
 import type { BlogPostRecord, PublicProjectRecord } from "../../../lib/content/types.ts";
 
@@ -42,6 +43,7 @@ export async function loadProjectPageData(input: {
     content: project.content,
     outcomes: project.outcomes,
     period: project.period,
+    projectTypeLabel: getProjectTypeLabel(project.projectType),
     relatedPosts: relatedPosts.map(mapRelatedPost),
     role: project.role,
     slug: project.slug,

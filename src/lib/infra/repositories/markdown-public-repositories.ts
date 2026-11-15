@@ -2,6 +2,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import matter from "gray-matter";
 
+import { normalizeProjectType } from "../../content/project-type.ts";
 import type { BlogPostRecord, ProjectSummary, PublicProjectRecord } from "../../content/types.ts";
 
 type MarkdownPost = {
@@ -114,6 +115,8 @@ async function loadPublishedMarkdownProjects(directory: string): Promise<Markdow
         id: slug,
         outcomes: getStringArrayValue(rawData, "outcomes"),
         period: getStringValue(rawData, "period") ?? "",
+        // 備援讀取不因 type 缺漏而失敗；缺少或不認得時只是不顯示類型標籤。
+        projectType: normalizeProjectType(getStringValue(rawData, "type")),
         role: getStringValue(rawData, "role") ?? "",
         slug,
         summary: getStringValue(rawData, "summary") ?? "",
@@ -134,6 +137,7 @@ function mapProjectSummary(project: MarkdownProject): ProjectSummary {
     id: project.id,
     outcomes: project.outcomes,
     period: project.period,
+    projectType: project.projectType,
     role: project.role,
     slug: project.slug,
     summary: project.summary,

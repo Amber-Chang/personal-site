@@ -24,4 +24,5 @@
 
 - reorder 操作需提供完整 id 順序，避免部分排序造成資料不一致。
 - related project 選單依賴已存在的 project option 清單。
+- 專案表單的類型（Type）必選；`action-core.ts` 在伺服器端再驗一次，沒選或值不認得時回中文錯誤、不寫入。
 - admin UI 是內容工作流入口，不應自己實作第二套資料驗證。

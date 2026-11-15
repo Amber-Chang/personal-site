@@ -10,6 +10,7 @@ outcomes:
   - "未滿一年創造平台既有營收來源約 10%"
   - "成為教育市場具辨識度的 AI 批改工具"
 featured: true
+type: work
 draft: false
 ---
 

@@ -35,6 +35,7 @@ export default async function EditAdminProjectPage(input: {
           id: data.project.id,
           outcomes: data.project.outcomes.join("\n"),
           period: data.project.period ?? "",
+          projectType: data.project.projectType ?? "",
           role: data.project.role ?? "",
           slug: data.project.slug,
           status: data.project.status,

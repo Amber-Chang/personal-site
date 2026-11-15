@@ -75,6 +75,9 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
 
       <header className="space-y-5 border-b border-border pb-6 md:pb-8">
         <div className="space-y-3">
+          {project.projectTypeLabel ? (
+            <p className="text-label tracking-label text-muted-foreground">{project.projectTypeLabel}</p>
+          ) : null}
           <h1 className="font-display text-article-title font-semibold tracking-heading">
             {project.title}
           </h1>
