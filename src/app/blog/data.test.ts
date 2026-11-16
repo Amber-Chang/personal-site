@@ -45,44 +45,49 @@ async function loadModule<TModule>(pathName: string, label: string): Promise<TMo
   return loadedModule as TModule;
 }
 
-test("loadBlogIndexPageData maps public posts for the list UI", async () => {
+test("loadBlogIndexPageData lists every published post with its excerpt and the tab counts", async () => {
   const dataModule = await loadModule<{
     loadBlogIndexPageData: (input: {
       service: {
         listPublicPosts: () => Promise<BlogPostRecord[]>;
+        listPublicProjects: () => Promise<unknown[]>;
       };
     }) => Promise<{
-      posts: Array<{
-        date: string;
-        slug: string;
-        tags: string[];
-        title: string;
-      }>;
+      counts: { cases: number; posts: number };
+      posts: Array<{ date: string; excerpt: string | null; slug: string; title: string }>;
     }>;
   }>("./data.ts", "blog data");
 
-  const calls: string[] = [];
   const result = await dataModule.loadBlogIndexPageData({
     service: {
-      listPublicPosts: async () => {
-        calls.push("listPublicPosts");
-
-        return [createPost()];
-      },
+      listPublicPosts: async () => [
+        { ...createPost(), excerpt: "  第一行\n第二行  " },
+        { ...createPost(), excerpt: null, slug: "no-excerpt", title: "No excerpt" },
+      ],
+      listPublicProjects: async () => [{}, {}],
     },
   });
 
-  assert.deepEqual(calls, ["listPublicPosts"]);
   assert.deepEqual(result, {
+    counts: { cases: 2, posts: 2 },
     posts: [
-      {
-        date: "2026-06-02T10:00:00.000Z",
-        slug: "published-post",
-        tags: [],
-        title: "Published post",
-      },
+      { date: "2026-06-02T10:00:00.000Z", excerpt: "第一行第二行", slug: "published-post", title: "Published post" },
+      { date: "2026-06-02T10:00:00.000Z", excerpt: null, slug: "no-excerpt", title: "No excerpt" },
     ],
   });
+});
+
+test("loadBlogIndexPageData keeps working with no posts", async () => {
+  const dataModule = await loadModule<{
+    loadBlogIndexPageData: (input: {
+      service: { listPublicPosts: () => Promise<BlogPostRecord[]>; listPublicProjects: () => Promise<unknown[]> };
+    }) => Promise<{ counts: { cases: number; posts: number }; posts: unknown[] }>;
+  }>("./data.ts", "blog data");
+
+  assert.deepEqual(
+    await dataModule.loadBlogIndexPageData({ service: { listPublicPosts: async () => [], listPublicProjects: async () => [] } }),
+    { counts: { cases: 0, posts: 0 }, posts: [] },
+  );
 });
 
 test("loadBlogPostPageData returns null when the public post does not exist", async () => {

@@ -1,10 +1,11 @@
-// 功能：把專案資料整理成公開卡片要顯示的內容（純函式，方便單元測試）。首頁與 /projects 共用。
+// 功能：把專案資料整理成首頁案例區塊要顯示的內容（純函式，方便單元測試）。
 
 import { getProjectTypeLabel } from "./project-type.ts";
 import type { ProjectSummary } from "./types.ts";
 
 export type PublicProjectCard = {
   firstOutcome: string | null;
+  period: string | null;
   role: string | null;
   slug: string;
   summary: string;
@@ -18,13 +19,12 @@ function toNonEmptyText(value: string | null | undefined): string | null {
   return trimmed ? trimmed : null;
 }
 
-// highlights：首頁代表案例多顯示角色與第一條成果；/projects 列表只顯示類型、標題與摘要。
-export function mapPublicProjectCard(project: ProjectSummary, options?: { highlights?: boolean }): PublicProjectCard {
-  const highlights = options?.highlights ?? false;
-
+// 案例區塊顯示：類型、角色、期間（後台填寫的文字，不轉換）、標題、摘要、第一條成果；空白的欄位不顯示。
+export function mapPublicProjectCard(project: ProjectSummary): PublicProjectCard {
   return {
-    firstOutcome: highlights ? toNonEmptyText(project.outcomes[0]) : null,
-    role: highlights ? toNonEmptyText(project.role) : null,
+    firstOutcome: toNonEmptyText(project.outcomes[0]),
+    period: toNonEmptyText(project.period),
+    role: toNonEmptyText(project.role),
     slug: project.slug,
     summary: project.summary,
     title: project.title,

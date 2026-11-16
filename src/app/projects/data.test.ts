@@ -60,11 +60,12 @@ test("loadProjectsPageData lists published projects through the public content s
   });
 
   assert.deepEqual(calls, ["listPublicProjects"]);
-  // 列表卡片只帶標題、摘要與類型標籤；不認得的類型不顯示標籤。
-  assert.deepEqual(result, {
-    projects: [
-      { firstOutcome: null, role: null, slug: "project-1", summary: "Summary 1", title: "Project 1", typeLabel: "工作案例" },
-      { firstOutcome: null, role: null, slug: "project-2", summary: "Summary 2", title: "Project 2", typeLabel: null },
+  // 和首頁案例區塊用同一套欄位；不認得的類型不顯示標籤。
+  assert.deepEqual(
+    result.projects.map((project) => [project.slug, project.typeLabel]),
+    [
+      ["project-1", "工作案例"],
+      ["project-2", null],
     ],
-  });
+  );
 });

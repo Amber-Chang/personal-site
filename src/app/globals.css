@@ -47,14 +47,10 @@
 /* 公開頁 design token。用途與挑選方式見 docs/design-tokens.md。 */
 @theme {
   /* 字級：一個 token 對應一個角色。標 RWD 的 token 會在下方 @layer base 依斷點換值，頁面不用再寫 md:/xl:。 */
-  --text-display: 1.875rem; /* 首頁主標（RWD：md 2.25rem、xl 3.25rem） */
-  --text-display--line-height: 1.22;
   --text-title: 2.25rem; /* 頁面大標：About、列表頁、404（RWD：md 2.6rem） */
   --text-title--line-height: 1.5;
   --text-article-title: 2.35rem; /* 文章與案例內頁的大標（RWD：md 3rem） */
   --text-article-title--line-height: 1.12;
-  --text-heading: 2rem; /* 首頁區塊標題 */
-  --text-heading--line-height: 1.5;
   --text-prose-h2: 1.8rem; /* 內文大標（RWD：md 2rem）；行高由 Prose 元件決定 */
   --text-prose-h3: 1.35rem; /* 內文小標（RWD：md 1.5rem）；行高由 Prose 元件決定 */
   --text-card-title: 1.125rem; /* 案例區塊與文章項目的標題 */
@@ -170,7 +166,6 @@
   /* RWD 字級：斷點與 Tailwind 的 md（48rem）、xl（80rem）一致。 */
   @media (width >= 48rem) {
     :root {
-      --text-display: 2.25rem;
       --text-title: 2.6rem;
       --text-article-title: 3rem;
       --text-prose-h2: 2rem;
@@ -183,11 +178,6 @@
     :root {
       --text-identity-name: 1.625rem;
       --text-identity-lede: 1.25rem;
-    }
-  }
-  @media (width >= 80rem) {
-    :root {
-      --text-display: 3.25rem;
     }
   }
 }

@@ -5,11 +5,11 @@
 
 ## 新增畫面時的挑選規則
 
-- 依文字或元件扮演的角色挑 token，例如首頁區塊標題用 `text-heading`。
+- 依文字或元件扮演的角色挑 token，例如案例區塊與文章項目的標題用 `text-card-title`。
 - 不寫 `text-[…]`、`rounded-[…]`、`tracking-[…]`、`leading-[…]`、`font-[family-name:…]`、寫死的顏色或陰影。
 - 不新增「token/透明度」組合（例如 `text-foreground/80`），只用下方列出的組合。
 - 找不到合適的 token 時，先在 `globals.css` 新增 token 並附一行註解，再更新本文件。
-- 長文用 `<Prose>`，列表頁與 About 的頁首用 `<PageHeader>`，內頁返回連結用 `<BackLink>`，首頁區塊標題用 `<SectionHeading>`。
+- 長文用 `<Prose>`，首頁與文章列表用 `<IdentityColumn>`、`<ContentTabs>`、`<CaseBlock>`、`<PostRow>`，內頁返回連結用 `<BackLink>`。
 
 ## 字級
 
@@ -17,10 +17,8 @@
 
 | class | 手機 → md → xl | 行高 | 用在哪 |
 |---|---|---|---|
-| `text-display` | 1.875 → 2.25 → 3.25rem | 1.22 | 首頁主標 |
 | `text-title` | 2.25 → 2.6rem | 1.5 | About、列表頁、404 的頁面大標 |
 | `text-article-title` | 2.35 → 3rem | 1.12 | 文章、案例內頁的大標 |
-| `text-heading` | 2rem | 1.5 | 首頁區塊標題 |
 | `text-prose-h2` | 1.8 → 2rem | 由 `Prose` 決定 | 長文大標 |
 | `text-prose-h3` | 1.35 → 1.5rem | 由 `Prose` 決定 | 長文小標 |
 | `text-card-title` | 1.125rem | 1.55 | 案例區塊、文章項目的標題 |
@@ -162,7 +160,6 @@
 | `primaryButtonClassName`／`secondaryButtonClassName`（`button-styles.ts`） | 公開頁的按鈕樣式 | 主要：黑底白字；次要：細外框。高 44px、`rounded-control`、`focus-ring` |
 | `PageHeader` | 返回連結、頁面大標、副標 | About、Writing & Notes、Projects |
 | `BackLink` | 「← 返回…」連結 | 文章、案例內頁 |
-| `SectionHeading` | 首頁區塊標題、說明、右側連結 | 只有標題時直接輸出 `h2` |
 
 ## 保留的寫死數值
 

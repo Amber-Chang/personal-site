@@ -20,7 +20,6 @@ test("PageHeader renders back link, token-based h1 and optional description, wit
 
 test("index pages use PageHeader and detail pages use BackLink", () => {
   assert.match(readSource("src/app/about/page.tsx"), /<PageHeader backHref="\/" backLabel="返回首頁" title="關於我" \/>/);
-  assert.match(readSource("src/app/blog/page.tsx"), /<PageHeader backHref="\/" backLabel="返回首頁" title="Writing & Notes"/);
   assert.match(readSource("src/app/projects/page.tsx"), /<PageHeader\s+backHref="\/"\s+backLabel="返回首頁"\s+title="Projects"/);
   assert.match(readSource("src/app/blog/[slug]/page.tsx"), /<BackLink href="\/blog" label="返回文章列表" \/>/);
   assert.match(readSource("src/app/projects/[slug]/page.tsx"), /<BackLink href="\/projects" label="返回專案列表" \/>/);

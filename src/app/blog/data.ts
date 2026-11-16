@@ -1,3 +1,4 @@
+import { normalizeExcerpt } from "../../lib/content/excerpt.ts";
 import { mapPublicPostSummary, mapPublicPostTeaser, type PublicPostSummary } from "../../lib/content/public-post.ts";
 import type { BlogPostRecord, ProjectSummary } from "../../lib/content/types.ts";
 
@@ -50,13 +51,20 @@ async function getRelatedProject(input: {
     : null;
 }
 
+// 文章列表（文章分頁，SPEC-004）：全部已上架文章，依既有排序；每篇有完整日期、標題與整理過的摘要（沒有摘要時為 null）。
+// 另外回傳兩個分頁的數量。
 export async function loadBlogIndexPageData(input: {
-  service: Pick<PublicBlogDataService, "listPublicPosts">;
+  service: Pick<PublicBlogDataService, "listPublicPosts"> & { listPublicProjects: () => Promise<unknown[]> };
 }) {
-  const posts = await input.service.listPublicPosts();
+  const [posts, projects] = await Promise.all([input.service.listPublicPosts(), input.service.listPublicProjects()]);
 
   return {
-    posts: posts.map(mapPublicBlogPostSummary),
+    counts: { cases: projects.length, posts: posts.length },
+    posts: posts.map((post) => {
+      const summary = mapPublicBlogPostSummary(post);
+
+      return { date: summary.date, excerpt: normalizeExcerpt(post.excerpt), slug: summary.slug, title: summary.title };
+    }),
   };
 }
 

@@ -1,3 +1,4 @@
+// SPEC-004：首頁與文章列表是兩欄：左欄身分區、右欄分頁與清單。頁面只負責組裝，資料與排序在 data 模組。
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
@@ -7,87 +8,47 @@ function readSource(relativePath: string) {
   return fs.readFileSync(path.join(process.cwd(), relativePath), "utf8");
 }
 
-const HEADLINE = "我把模糊的需求整理成可以上線的產品，並用 AI 把想法更快做成成果。";
-const OLD_HEADLINE_PARTS = ["我用產品思維、系統理解與寫作", "整理那些在工作現場與生活裡還說不清楚的問題"];
+const TWO_COLUMN = /className="grid gap-9 lg:grid-cols-\[18\.75rem_minmax\(0,1fr\)\] lg:gap-18"/;
 
-function indexOfOrFail(source: string, marker: string) {
-  const index = source.indexOf(marker);
-
-  assert.notEqual(index, -1, `expected home page to contain ${marker}`);
-
-  return index;
-}
-
-test("home page renders five sections in order: identity, projects, writing, about, contact", () => {
+test("home page is the cases tab: identity column with the H1, tabs, every case block and a link to the posts", () => {
   const source = readSource("src/app/page.tsx");
-  const order = [
-    indexOfOrFail(source, "<h1"),
-    indexOfOrFail(source, 'title="Projects"'),
-    indexOfOrFail(source, 'title="Writing & Notes"'),
-    indexOfOrFail(source, 'title="About"'),
-    indexOfOrFail(source, 'title="Contact"'),
-  ];
 
-  assert.deepEqual([...order].sort((a, b) => a - b), order);
-  assert.equal(source.match(/<section\b/g)?.length, 5);
-  assert.equal(source.match(/<h1\b/g)?.length, 1);
+  assert.match(source, TWO_COLUMN);
+  assert.match(source, /<IdentityColumn ledeAs="h1" \/>/);
+  assert.match(source, /<ContentTabs active="cases" counts=\{counts\} \/>/);
+  assert.match(source, /projects\.map\(\(project\) => \(\s*<CaseBlock key=\{project\.slug\} project=\{project\} \/>/);
+  assert.match(source, />\s*目前還沒有公開的案例。\s*</);
+  assert.match(source, /href="\/blog"[\s\S]*?>\s*也看看我寫的文章 →\s*</);
+  assert.match(source, /loadHomePageData\(\{\s*service: getPublicBlogContentService\(\),?\s*\}\)/);
+  // 頁面裡沒有自己的 H1，H1 是身分區的定位句。
+  assert.doesNotMatch(source, /<h1\b/);
 });
 
-test("identity section has the new eyebrow, the new single headline and the two CTAs, without the old headline or Focus list", () => {
-  const source = readSource("src/app/page.tsx");
-  const headline = source.match(/<h1[^>]*>([\s\S]*?)<\/h1>/)?.[1] ?? "";
-
-  assert.match(source, />\s*Product Manager \/ Product Builder\s*</);
-  assert.equal(headline.replace(/\{" "\}/g, " ").replace(/<[^>]+>/g, "").replace(/\s+/g, ""), HEADLINE.replace(/\s+/g, ""));
-  assert.match(source, /href="\/projects"[\s\S]*?>\s*Projects\s*<\/Link>/);
-  assert.match(source, /href="\/blog"[\s\S]*?>\s*Writing &amp; Notes\s*<\/Link>/);
-
-  for (const part of OLD_HEADLINE_PARTS) {
-    assert.doesNotMatch(source, new RegExp(part));
-  }
-
-  assert.doesNotMatch(source, /Focus/);
-  assert.doesNotMatch(source, /AI-native workflow<\/li>/);
-});
-
-test("home metadata keeps the title and no longer uses the removed headline", () => {
+test("home metadata and pageview properties stay the same", () => {
   const source = readSource("src/app/page.tsx");
   const metadata = source.match(/export const metadata: Metadata = \{[\s\S]*?\n\};/)?.[0] ?? "";
 
   assert.match(metadata, /title: "Amber Chang — AI-native Product Builder"/);
-  assert.match(metadata, /description:/);
-
-  for (const part of ["我用產品思維、系統理解與寫作", "整理工作現場與生活裡那些還說不清楚的問題"]) {
-    assert.doesNotMatch(metadata, new RegExp(part));
-  }
+  assert.match(metadata, /description: "我把模糊的需求整理成可以上線的產品，並用 AI 把想法更快做成成果。"/);
+  assert.match(source, /contentType: "home",\s*sourceTemplate: "home",/);
 });
 
-test("about section shows the short text and links to /about", () => {
-  const source = readSource("src/app/page.tsx");
+test("blog page is the posts tab: screen-reader H1, identity column without the H1, tabs, every post row and a link back", () => {
+  const source = readSource("src/app/blog/page.tsx");
 
-  assert.match(source, />\s*我從教育現場、BD 與產品規劃，一路走到產品經理。現在是 AI 產品經理，協助公司進行組織 AI 化。\s*</);
-  assert.match(source, /href="\/about"[\s\S]*?>\s*更多關於我\s*<\/Link>/);
+  assert.match(source, TWO_COLUMN);
+  assert.match(source, /<h1 className="sr-only">文章<\/h1>/);
+  assert.match(source, /<IdentityColumn ledeAs="p" \/>/);
+  assert.match(source, /<ContentTabs active="posts" counts=\{counts\} \/>/);
+  assert.match(source, /posts\.map\(\(post\) => \(\s*<PostRow key=\{post\.slug\} post=\{post\} \/>/);
+  assert.match(source, />\s*目前還沒有公開的文章。\s*</);
+  assert.match(source, /href="\/"[\s\S]*?>\s*← 回到案例\s*</);
 });
 
-test("contact section keeps the existing mailto link and adds no external links", () => {
-  const source = readSource("src/app/page.tsx");
+test("blog metadata and pageview properties stay the same", () => {
+  const source = readSource("src/app/blog/page.tsx");
 
-  assert.match(source, /href="mailto:taco5239@gmail\.com"/);
-  assert.doesNotMatch(source, /href="https?:\/\//);
-});
-
-test("projects and writing sections read through the home data loaders and keep their empty states", () => {
-  const source = readSource("src/app/page.tsx");
-
-  assert.match(source, /loadHomeFeaturedProjectsData/);
-  assert.match(source, /loadHomeWritingData/);
-  assert.match(source, /目前還沒有公開案例。/);
-  assert.doesNotMatch(source, /supabase|from\("projects"\)/i);
-});
-
-test("PostCard shows an excerpt line only when the post has one", () => {
-  const source = readSource("src/components/PostCard.tsx");
-
-  assert.match(source, /excerpt\?: string \| null;/);
-  assert.match(source, /\{post\.excerpt \? <p className="[^"]*">\{post\.excerpt\}<\/p> : null\}/);
+  assert.match(source, /title: "Writing & Notes — Amber Chang"/);
+  assert.match(source, /description: "Amber 的文章列表：AI 協作、產品管理、學習紀錄。"/);
+  assert.match(source, /contentType: "blog_index",\s*sourceTemplate: "blog_index",/);
 });

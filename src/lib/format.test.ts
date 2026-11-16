@@ -48,7 +48,7 @@ test("post cards, the post page and related-post rows use formatYearMonth", asyn
   const fs = await import("node:fs");
   const path = await import("node:path");
 
-  for (const file of ["src/components/PostCard.tsx", "src/app/blog/[slug]/page.tsx", "src/components/RelatedPostsSection.tsx"]) {
+  for (const file of ["src/app/blog/[slug]/page.tsx", "src/components/RelatedPostsSection.tsx"]) {
     const source = fs.readFileSync(path.join(process.cwd(), file), "utf8");
 
     assert.match(source, /formatYearMonth\(post\.date\)/, `${file} should format dates with formatYearMonth`);
