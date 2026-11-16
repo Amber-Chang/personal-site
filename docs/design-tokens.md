@@ -13,7 +13,7 @@
 
 ## 字級
 
-標 RWD 的 token 會在 `globals.css` 的 `@layer base` 依斷點換值（md 48rem、xl 80rem），頁面上不用再加 `md:`、`xl:`。
+標 RWD 的 token 會在 `globals.css` 的 `@layer base` 依斷點換值（md 48rem、lg 64rem、xl 80rem），頁面上不用再加 `md:`、`lg:`、`xl:`。
 
 | class | 手機 → md → xl | 行高 | 用在哪 |
 |---|---|---|---|
@@ -23,10 +23,13 @@
 | `text-heading` | 2rem | 1.5 | 首頁區塊標題 |
 | `text-prose-h2` | 1.8 → 2rem | 由 `Prose` 決定 | 長文大標 |
 | `text-prose-h3` | 1.35 → 1.5rem | 由 `Prose` 決定 | 長文小標 |
-| `text-card-title` | 1.125rem | 1.75rem | 文章卡片、案例卡片標題 |
+| `text-card-title` | 1.125rem | 1.55 | 案例區塊、文章項目的標題 |
+| `text-summary` | 0.9375rem | 1.8 | 案例區塊、文章項目的摘要 |
+| `text-identity-name` | 1.4375 → 1.625rem（lg） | 1.3 | 身分區的姓名 |
+| `text-identity-lede` | 1.15625 → 1.25rem（lg） | 1.6 | 身分區的定位句（首頁的 H1） |
 | `text-body` | 1.02 → 1.06rem | 由 `Prose` 決定 | 長文內文 |
 | `text-lead` | 1.05 → 1.15rem | 搭配 `leading-7` | 浮層裡的引言句，例如同意橫幅 |
-| `text-tagline` | 0.875 → 0.95rem | 1.25rem 等比 | 首頁姓名下方標語 |
+| `text-tagline` | 0.8125rem | 1.5 | 身分區姓名下方的職稱 |
 | `text-label` | 0.75rem | 1rem | 小標籤：卡片日期、案例類型與角色、Privacy preference |
 
 - 一般介面小字（說明文字、連結、按鈕、延伸閱讀標題）沿用 Tailwind 內建的 `text-sm`、`text-base`、`text-lg`、`text-xl`。
@@ -152,6 +155,11 @@
 |---|---|---|
 | `Prose` | 長文排版 | 文章、案例內頁用預設 `variant="article"`；About 用 `as="article" variant="page"`，保留較鬆的大標行高 |
 | `MarkdownContent` | Markdown 轉成 HTML：表格、刪除線、待辦清單、程式碼上色與標頭（語言名稱、`CodeCopyButton`）、Mermaid 圖表（`MermaidDiagram`）、圖片延後載入；原始 HTML 只顯示成文字 | 放在 `Prose` 裡：`<Prose><MarkdownContent content={…} /></Prose>`。文章內頁、案例內頁、後台預覽共用 |
+| `IdentityColumn` | 首頁與文章列表的左欄身分區：頭像、姓名、職稱、定位句、簡介、兩個按鈕 | 首頁 `ledeAs="h1"`（定位句是 H1）；文章列表 `ledeAs="p"`。`lg` 以上且視窗高度 ≥ 40rem（`tall` variant）時 sticky |
+| `ContentTabs` | 「案例 N／文章 N」分頁，一般連結 | `active` 決定哪個有 `aria-current="page"` 與赤陶底線 |
+| `CaseBlock` | 案例區塊：類型（赤陶）、角色、期間、標題、摘要、第一條成果 | 細外框白底 `rounded-block`，hover 外框 `border-foreground`、標題赤陶底線 |
+| `PostRow` | 文章項目：完整日期、標題、摘要 | 細線分隔，hover 標題赤陶底線 |
+| `primaryButtonClassName`／`secondaryButtonClassName`（`button-styles.ts`） | 公開頁的按鈕樣式 | 主要：黑底白字；次要：細外框。高 44px、`rounded-control`、`focus-ring` |
 | `PageHeader` | 返回連結、頁面大標、副標 | About、Writing & Notes、Projects |
 | `BackLink` | 「← 返回…」連結 | 文章、案例內頁 |
 | `SectionHeading` | 首頁區塊標題、說明、右側連結 | 只有標題時直接輸出 `h2` |

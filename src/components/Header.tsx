@@ -1,13 +1,18 @@
 // [AI-ASSISTED] Generated with Codex, 2026-02-19
-// 功能：全站導覽列，提供首頁、文章與關於我入口。
+// 功能：全站頁首（SPEC-004）。左上角站名連回首頁，右邊只有 About；登入的管理員另外看到「後台」與「登出」。
+// 項目少，手機上也直接排開，不需要收合選單。
 
 import { cookies } from "next/headers";
-import Image from "next/image";
 import Link from "next/link";
 
 import { requestAdminLogout } from "@/app/admin/logout/actions";
 import { readServerAdminAuthState } from "@/lib/auth/server-admin-auth";
-import { Button } from "@/components/ui/button";
+
+const navItemClassName =
+  "focus-ring inline-flex min-h-11 items-center text-sm underline-offset-4 transition-colors hover:text-foreground hover:underline";
+const navLinkClassName = `${navItemClassName} text-muted-foreground`;
+// 「後台」是管理員的主要入口，字色較深。
+const adminLinkClassName = `${navItemClassName} font-medium text-foreground`;
 
 export async function Header() {
   await cookies();
@@ -16,80 +21,28 @@ export async function Header() {
 
   return (
     <header className="sticky top-0 z-30 border-b border-border bg-background">
-      <div className="mx-auto w-full max-w-5xl px-4 py-4 md:px-6 md:py-5">
-        <div className="flex items-center justify-between gap-4">
-          <Link
-            href="/"
-            className="inline-flex items-center"
-            aria-label="回到首頁"
-          >
-            <span className="flex size-11 items-center justify-center overflow-hidden rounded-full bg-transparent">
-              <Image
-                src="/amber-avatar.png"
-                alt="Amber Chang avatar"
-                width={44}
-                height={44}
-                className="size-11"
-                priority
-              />
-            </span>
+      <div className="mx-auto flex h-15 w-full max-w-5xl items-center justify-between gap-4 px-4 md:px-6">
+        <Link className="focus-ring inline-flex min-h-11 items-center font-semibold" href="/">
+          Amber Chang
+        </Link>
+
+        <nav aria-label="主要導覽" className="flex items-center gap-5">
+          <Link className={navLinkClassName} href="/about">
+            About
           </Link>
-
-          <details className="group lg:hidden">
-            <summary className="flex min-h-11 cursor-pointer list-none items-center rounded-full border border-border px-4 text-sm text-foreground-soft transition-colors hover:border-strong">
-              Menu
-            </summary>
-            <nav className="absolute inset-x-4 top-full mt-3 rounded-block border border-border bg-background p-4 shadow-sm md:inset-x-6">
-              <div className="flex flex-col text-sm text-muted-foreground">
-                <Link href="/about" className="flex min-h-11 items-center rounded-full px-2 hover:text-foreground">
-                  About
-                </Link>
-                <Link href="/projects" className="flex min-h-11 items-center rounded-full px-2 hover:text-foreground">
-                  Projects
-                </Link>
-                <Link href="/blog" className="flex min-h-11 items-center rounded-full px-2 hover:text-foreground">
-                  Writing &amp; Notes
-                </Link>
-                {showAdminAffordance ? (
-                  <>
-                    <Link href="/admin/posts" className="flex min-h-11 items-center rounded-full px-2 font-medium text-foreground hover:text-foreground-soft">
-                      後台
-                    </Link>
-                    <form action={requestAdminLogout}>
-                      <Button className="h-auto min-h-11 w-full rounded-full border-border px-3 py-2" size="sm" type="submit" variant="outline">
-                        登出
-                      </Button>
-                    </form>
-                  </>
-                ) : null}
-              </div>
-            </nav>
-          </details>
-
-          <nav className="hidden items-center gap-5 text-sm text-muted-foreground lg:flex">
-            <Link href="/about" className="inline-flex min-h-11 items-center hover:text-foreground">
-              About
-            </Link>
-            <Link href="/projects" className="inline-flex min-h-11 items-center hover:text-foreground">
-              Projects
-            </Link>
-            <Link href="/blog" className="inline-flex min-h-11 items-center hover:text-foreground">
-              Writing &amp; Notes
-            </Link>
-            {showAdminAffordance ? (
-              <>
-                <Link href="/admin/posts" className="inline-flex min-h-11 items-center font-medium text-foreground hover:text-foreground-soft">
-                  後台
-                </Link>
-                <form action={requestAdminLogout}>
-                  <Button className="h-auto rounded-full border-border px-3 py-1.5" size="sm" type="submit" variant="outline">
-                    登出
-                  </Button>
-                </form>
-              </>
-            ) : null}
-          </nav>
-        </div>
+          {showAdminAffordance ? (
+            <>
+              <Link className={adminLinkClassName} href="/admin/posts">
+                後台
+              </Link>
+              <form action={requestAdminLogout}>
+                <button className={navLinkClassName} type="submit">
+                  登出
+                </button>
+              </form>
+            </>
+          ) : null}
+        </nav>
       </div>
     </header>
   );

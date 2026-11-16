@@ -57,12 +57,18 @@
   --text-heading--line-height: 1.5;
   --text-prose-h2: 1.8rem; /* 內文大標（RWD：md 2rem）；行高由 Prose 元件決定 */
   --text-prose-h3: 1.35rem; /* 內文小標（RWD：md 1.5rem）；行高由 Prose 元件決定 */
-  --text-card-title: 1.125rem; /* 卡片標題 */
-  --text-card-title--line-height: calc(1.75 / 1.125);
+  --text-card-title: 1.125rem; /* 案例區塊與文章項目的標題 */
+  --text-card-title--line-height: 1.55;
+  --text-summary: 0.9375rem; /* 案例區塊與文章項目的摘要 */
+  --text-summary--line-height: 1.8;
+  --text-identity-name: 1.4375rem; /* 身分區的姓名（RWD：lg 1.625rem） */
+  --text-identity-name--line-height: 1.3;
+  --text-identity-lede: 1.15625rem; /* 身分區的定位句；首頁的 H1（RWD：lg 1.25rem） */
+  --text-identity-lede--line-height: 1.6;
   --text-body: 1.02rem; /* 長文內文（RWD：md 1.06rem）；行高由 Prose 元件決定 */
   --text-lead: 1.05rem; /* 浮層裡的引言句，例如同意橫幅（RWD：md 1.15rem）；行高另配 leading-7 */
-  --text-tagline: 0.875rem; /* 首頁姓名下方的標語（RWD：md 0.95rem） */
-  --text-tagline--line-height: calc(1.25 / 0.875);
+  --text-tagline: 0.8125rem; /* 身分區姓名下方的職稱 */
+  --text-tagline--line-height: 1.5;
   --text-label: 0.75rem; /* 小標籤：日期、Focus、Privacy preference */
   --text-label--line-height: calc(1 / 0.75);
 
@@ -171,7 +177,12 @@
       --text-prose-h3: 1.5rem;
       --text-body: 1.06rem;
       --text-lead: 1.15rem;
-      --text-tagline: 0.95rem;
+    }
+  }
+  @media (width >= 64rem) {
+    :root {
+      --text-identity-name: 1.625rem;
+      --text-identity-lede: 1.25rem;
     }
   }
   @media (width >= 80rem) {

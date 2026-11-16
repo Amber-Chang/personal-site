@@ -55,3 +55,16 @@ test("post cards, the post page and related-post rows use formatYearMonth", asyn
     assert.doesNotMatch(source, /formatDate\(/, `${file} should not use the old day-level formatDate`);
   }
 });
+
+// SPEC-004：文章日期顯示到日，一律以台北時間判斷日期。
+test("formatFullDate shows the year, month and day in Taipei time", async () => {
+  const { formatFullDate } = (await loadFormatModule()) as unknown as { formatFullDate: (value: string) => string };
+
+  assert.equal(formatFullDate("2026-06-11T20:14:20Z"), "2026 年 6 月 12 日");
+  assert.equal(formatFullDate("2026-06-12T15:59:59Z"), "2026 年 6 月 12 日");
+  assert.equal(formatFullDate("2026-06-12T16:00:00Z"), "2026 年 6 月 13 日");
+  assert.equal(formatFullDate("2026-12-31T16:00:00Z"), "2027 年 1 月 1 日");
+  assert.equal(formatFullDate("2026-06-16T18:39:38.748+00:00"), "2026 年 6 月 17 日");
+  assert.equal(formatFullDate(""), "");
+  assert.equal(formatFullDate("not a date"), "");
+});
