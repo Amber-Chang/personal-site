@@ -71,7 +71,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
           tags: project.tags,
         })}
       />
-      <BackLink href="/projects" label="返回專案列表" />
+      <BackLink href="/" label="案例" />
 
       <header className="space-y-5 border-b border-border pb-6 md:pb-8">
         <div className="space-y-3">

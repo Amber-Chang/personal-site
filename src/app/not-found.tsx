@@ -26,19 +26,13 @@ export default function NotFound() {
           href="/"
           className="inline-flex min-h-12 items-center rounded-full bg-foreground px-6 py-3 text-base font-medium text-background transition-colors hover:bg-foreground-soft"
         >
-          回首頁
-        </Link>
-        <Link
-          href="/projects"
-          className="inline-flex min-h-12 items-center rounded-full border border-border px-6 py-3 text-base font-medium text-foreground transition-colors hover:border-strong"
-        >
-          Projects
+          案例
         </Link>
         <Link
           href="/blog"
           className="inline-flex min-h-12 items-center rounded-full border border-border px-6 py-3 text-base font-medium text-foreground transition-colors hover:border-strong"
         >
-          Writing &amp; Notes
+          文章
         </Link>
       </nav>
     </div>
