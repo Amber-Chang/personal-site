@@ -47,7 +47,7 @@ export default async function HomePage() {
             <p className="text-tagline tracking-label text-muted-foreground">Product Manager / Product Builder</p>
           </div>
           {/* break-keep 讓中文只在 <wbr /> 與空白處換行，不把「產品」「可以」這類詞拆成兩行；text-balance 再把各行長度拉平，最後一行不會只剩幾個字。 */}
-          <h1 className="text-balance break-keep font-display text-display font-semibold tracking-heading">
+          <h1 className="text-balance break-keep text-display font-semibold tracking-heading">
             我把模糊的需求<wbr />整理成<wbr />可以上線的產品，<wbr />並用 AI <wbr />把想法<wbr />更快做成成果。
           </h1>
         </div>

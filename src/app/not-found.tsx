@@ -13,7 +13,7 @@ export default function NotFound() {
     <div className="space-y-10 pt-4 md:space-y-12 md:pt-8">
       <header className="space-y-3">
         <p className="text-sm tracking-label text-muted-foreground">404</p>
-        <h1 className="font-display text-title font-semibold tracking-heading">
+        <h1 className="text-title font-semibold tracking-heading">
           找不到這個頁面
         </h1>
         <p className="max-w-xl text-base leading-8 text-muted-foreground">

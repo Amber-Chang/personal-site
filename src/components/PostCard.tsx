@@ -21,7 +21,7 @@ export function PostCard({ post, headingLevel = "h3" }: { post: PostCardPost; he
   return (
     <Link
       href={`/blog/${post.slug}`}
-      className="group block rounded-panel border border-border bg-card/30 px-5 py-5 transition-colors hover:border-strong md:px-6 md:py-5"
+      className="group block rounded-block border border-border bg-card/30 px-5 py-5 transition-colors hover:border-strong md:px-6 md:py-5"
     >
       <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
         <Heading className="max-w-lg text-card-title font-medium tracking-tight group-hover:underline">{post.title}</Heading>

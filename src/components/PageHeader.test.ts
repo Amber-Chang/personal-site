@@ -12,7 +12,7 @@ test("PageHeader renders back link, token-based h1 and optional description, wit
 
   assert.match(source, /export function BackLink/);
   assert.match(source, /\{`← \$\{label\}`\}/);
-  assert.match(source, /<h1 className="font-display text-title font-semibold tracking-heading">\{title\}<\/h1>/);
+  assert.match(source, /<h1 className="text-title font-semibold tracking-heading">\{title\}<\/h1>/);
   assert.match(source, /\{description \? <p className="text-sm text-muted-foreground">\{description\}<\/p> : null\}/);
   assert.doesNotMatch(source, /from "@\/lib\//);
   assert.doesNotMatch(source, /\basync\b/);

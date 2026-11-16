@@ -7,21 +7,24 @@ function readSource(relativePath: string) {
   return fs.readFileSync(path.join(process.cwd(), relativePath), "utf8");
 }
 
-// PM 決策 D2：標題載入 Noto Serif TC（只載 600），內文用系統字體。
-test("root layout loads only the 600 weight of Noto Serif TC and exposes it as a CSS variable", () => {
+// SPEC-004：標題改用和內文相同的系統字體，layout 不再載入 Noto Serif TC（社群分享圖用自己內建的字體，不受影響）。
+test("root layout no longer loads Noto Serif TC or any next/font", () => {
   const source = readSource("src/app/layout.tsx");
 
-  assert.match(source, /import \{ Noto_Serif_TC \} from "next\/font\/google";/);
-  assert.match(source, /weight: "600",/);
-  assert.doesNotMatch(source, /weight: \[/);
-  assert.match(source, /variable: "--font-noto-serif-tc",/);
-  assert.match(source, /<html lang="zh-Hant" className=\{notoSerifTC\.variable\}>/);
+  assert.doesNotMatch(source, /next\/font/);
+  assert.doesNotMatch(source, /Noto_Serif_TC|notoSerifTC|--font-noto-serif-tc/);
+  assert.match(source, /<html lang="zh-Hant">/);
 });
 
-test("display font token uses the loaded font and body text uses system fonts only", () => {
+test("headings and body text both use the system font stack; no display font token remains", () => {
   const css = readSource("src/app/globals.css");
 
-  assert.match(css, /--font-display: var\(--font-noto-serif-tc\), serif;/);
   assert.match(css, /--font-sans: "PingFang TC", "Microsoft JhengHei"/);
-  assert.doesNotMatch(css, /Noto Sans TC/);
+  assert.doesNotMatch(css, /--font-display|--font-noto-serif-tc|Noto Sans TC/);
+});
+
+test("the social share image keeps its own bundled font files", () => {
+  const source = readSource("src/app/opengraph-image.tsx");
+
+  assert.match(source, /noto-serif-latin-600-normal\.woff/);
 });

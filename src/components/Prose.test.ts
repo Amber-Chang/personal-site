@@ -11,7 +11,8 @@ test("Prose only handles styling: shared prose classes built from tokens, no dat
   const source = readSource("src/components/Prose.tsx");
 
   assert.match(source, /prose prose-neutral max-w-none text-body leading-8/);
-  assert.match(source, /prose-headings:font-display prose-headings:tracking-heading/);
+  assert.match(source, /prose-headings:tracking-heading/);
+  assert.doesNotMatch(source, /font-display/);
   assert.match(source, /prose-h2:text-prose-h2/);
   assert.match(source, /prose-p:text-foreground-soft/);
   assert.doesNotMatch(source, /font-\[family-name/);
@@ -46,4 +47,13 @@ test("Prose styles code blocks and tables with existing tokens only", () => {
   assert.match(source, /prose-th:text-foreground prose-td:text-foreground-soft prose-thead:border-border prose-tr:border-border/);
   assert.doesNotMatch(source, /text-\[(?!0\.92em\])/);
   assert.doesNotMatch(source, /rounded-\[|tracking-\[/);
+});
+
+
+test("Prose uses the small radius tokens and a white code block surface", () => {
+  const source = readSource("src/components/Prose.tsx");
+
+  assert.match(source, /prose-pre:rounded-block prose-pre:border prose-pre:border-border prose-pre:bg-card prose-pre:text-foreground/);
+  assert.match(source, /prose-img:rounded-block/);
+  assert.doesNotMatch(source, /rounded-panel|rounded-card/);
 });

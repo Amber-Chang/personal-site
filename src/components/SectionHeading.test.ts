@@ -10,7 +10,7 @@ function readSource(relativePath: string) {
 test("SectionHeading renders a token-based h2, optional description and link, without data access", () => {
   const source = readSource("src/components/SectionHeading.tsx");
 
-  assert.match(source, /<h2 className="font-display text-heading font-semibold tracking-heading">\{title\}<\/h2>/);
+  assert.match(source, /<h2 className="text-heading font-semibold tracking-heading">\{title\}<\/h2>/);
   assert.match(source, /if \(!description && !link\) \{\s*return heading;\s*\}/s);
   assert.doesNotMatch(source, /from "@\/lib\//);
   assert.doesNotMatch(source, /\basync\b/);

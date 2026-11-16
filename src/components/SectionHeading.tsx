@@ -9,7 +9,7 @@ type SectionHeadingProps = {
 };
 
 export function SectionHeading({ title, description, link }: SectionHeadingProps) {
-  const heading = <h2 className="font-display text-heading font-semibold tracking-heading">{title}</h2>;
+  const heading = <h2 className="text-heading font-semibold tracking-heading">{title}</h2>;
 
   // 只有標題時直接輸出 h2，不多包一層。
   if (!description && !link) {

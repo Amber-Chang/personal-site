@@ -23,20 +23,20 @@ function contrastRatio(first: string, second: string) {
   return (lighter + 0.05) / (darker + 0.05);
 }
 
-// 程式碼區塊底色 = bg-muted/25 疊在頁面底色上。頁面左上角有 accent 光暈，那裡的底色最深、對比最低，
-// 以那一點換算成的 sRGB 值當最壞情況（換算方式見 docs/design-tokens.md 的「程式碼上色」）。
-const DARKEST_CODE_BLOCK_BACKGROUND = "#f4f6f6";
+// 程式碼區塊底色 = bg-card（不透明，SPEC-004 起頁面也沒有光暈），換算成 sRGB 是 #fefdfc
+// （換算方式見 docs/design-tokens.md 的「程式碼上色」）。
+const CODE_BLOCK_BACKGROUND = "#fefdfc";
 
 const CODE_COLOR_TOKENS = ["--code-keyword", "--code-title", "--code-constant", "--code-string", "--code-builtin", "--code-comment", "--code-tag"];
 
-test("every code highlight colour reaches 4.5:1 against the darkest code block background", () => {
+test("every code highlight colour reaches 4.5:1 against the code block background", () => {
   const css = readGlobalsCss();
 
   for (const token of CODE_COLOR_TOKENS) {
     const value = css.match(new RegExp(`${token}: (#[0-9a-f]{6});`))?.[1];
 
     assert.ok(value, `expected ${token} to be defined as a hex colour in globals.css`);
-    assert.ok(contrastRatio(value, DARKEST_CODE_BLOCK_BACKGROUND) >= 4.5, `${token} ${value} is below 4.5:1`);
+    assert.ok(contrastRatio(value, CODE_BLOCK_BACKGROUND) >= 4.5, `${token} ${value} is below 4.5:1`);
   }
 });
 

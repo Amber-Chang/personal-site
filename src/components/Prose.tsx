@@ -6,16 +6,16 @@ import type { ReactNode } from "react";
 // 程式碼上色的顏色與區塊內 code 的重設寫在 globals.css 的「程式碼上色」段落。
 const baseClassName = [
   "prose prose-neutral max-w-none text-body leading-8",
-  "prose-headings:font-display prose-headings:tracking-heading",
+  "prose-headings:tracking-heading",
   "prose-h2:mt-12 prose-h2:text-prose-h2 prose-h2:font-semibold",
   "prose-h3:mt-8 prose-h3:text-prose-h3 prose-h3:leading-snug prose-h3:font-semibold",
   "prose-p:text-foreground-soft prose-p:leading-8 prose-li:leading-8",
   "prose-blockquote:border-l-border prose-blockquote:text-foreground-soft",
   "prose-strong:text-foreground prose-a:text-foreground prose-a:decoration-muted-foreground/60 prose-a:underline-offset-4 hover:prose-a:text-primary",
   "prose-code:rounded prose-code:bg-muted/65 prose-code:px-1 prose-code:py-0.5 prose-code:text-[0.92em]",
-  "prose-pre:rounded-panel prose-pre:border prose-pre:border-border prose-pre:bg-muted/25 prose-pre:text-foreground",
+  "prose-pre:rounded-block prose-pre:border prose-pre:border-border prose-pre:bg-card prose-pre:text-foreground",
   "prose-th:text-foreground prose-td:text-foreground-soft prose-thead:border-border prose-tr:border-border",
-  "prose-img:rounded-panel prose-img:border prose-img:border-border",
+  "prose-img:rounded-block prose-img:border prose-img:border-border",
 ].join(" ");
 
 // 只有 Markdown 長文才加：大標行高較緊、桌機內文行高 2.25rem。

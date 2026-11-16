@@ -25,7 +25,7 @@ export function AnalyticsConsentBanner() {
 
   return (
     <div className="fixed inset-x-0 bottom-0 z-50 px-4 pb-4 md:px-6 md:pb-6">
-      <div className="mx-auto w-full max-w-2xl rounded-panel border border-border bg-background/92 px-5 py-4 shadow-overlay backdrop-blur-xl md:px-6 md:py-4.5">
+      <div className="mx-auto w-full max-w-2xl rounded-block border border-border bg-background px-5 py-4 shadow-overlay md:px-6 md:py-4.5">
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div className="space-y-2">
             <p className="text-label font-medium uppercase tracking-caps text-muted-foreground">Privacy preference</p>
@@ -39,7 +39,7 @@ export function AnalyticsConsentBanner() {
               type="button"
               variant="outline"
               size="sm"
-              className="h-10 rounded-full border-border px-4 text-sm text-muted-foreground hover:border-strong hover:bg-background hover:text-foreground"
+              className="focus-ring h-10 rounded-control border-border px-4 text-sm text-muted-foreground hover:border-strong hover:bg-background hover:text-foreground"
               onClick={() => {
                 writeAnalyticsConsent("rejected");
               }}
@@ -49,7 +49,7 @@ export function AnalyticsConsentBanner() {
             <Button
               type="button"
               size="sm"
-              className="h-10 rounded-full px-4 text-sm"
+              className="focus-ring h-10 rounded-control px-4 text-sm"
               onClick={() => {
                 writeAnalyticsConsent("accepted");
                 bootstrapPostHogIfConsented();

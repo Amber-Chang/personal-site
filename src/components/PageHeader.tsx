@@ -22,7 +22,7 @@ export function PageHeader({ backHref, backLabel, title, description }: PageHead
   return (
     <header className="space-y-2">
       <BackLink href={backHref} label={backLabel} />
-      <h1 className="font-display text-title font-semibold tracking-heading">{title}</h1>
+      <h1 className="text-title font-semibold tracking-heading">{title}</h1>
       {description ? <p className="text-sm text-muted-foreground">{description}</p> : null}
     </header>
   );

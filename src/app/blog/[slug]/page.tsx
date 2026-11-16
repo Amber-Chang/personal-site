@@ -69,7 +69,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
       />
       <BackLink href="/blog" label="返回文章列表" />
       <header className="border-b border-border pb-6 md:pb-8">
-        <h1 className="font-display text-article-title font-semibold tracking-heading">
+        <h1 className="text-article-title font-semibold tracking-heading">
           {post.title}
         </h1>
         <p className="mt-4 text-sm tracking-label text-muted-foreground">{formatYearMonth(post.date)}</p>

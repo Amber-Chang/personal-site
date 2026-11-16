@@ -78,13 +78,13 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
           {project.projectTypeLabel ? (
             <p className="text-label tracking-label text-muted-foreground">{project.projectTypeLabel}</p>
           ) : null}
-          <h1 className="font-display text-article-title font-semibold tracking-heading">
+          <h1 className="text-article-title font-semibold tracking-heading">
             {project.title}
           </h1>
           <p className="max-w-3xl text-base leading-8 text-muted-foreground">{project.summary}</p>
         </div>
 
-        <div className="grid gap-4 rounded-panel border border-border bg-muted/25 p-5 text-sm md:grid-cols-2 md:p-6">
+        <div className="grid gap-4 rounded-block border border-border bg-card p-5 text-sm md:grid-cols-2 md:p-6">
           <div className="space-y-1">
             <p className="text-muted-foreground">角色</p>
             <p className="leading-7">{project.role || "未提供"}</p>

@@ -18,7 +18,7 @@ export function ProjectCard({
   return (
     <Link
       href={`/projects/${project.slug}`}
-      className="group block rounded-card border border-border bg-card/40 px-5 py-5 transition-colors hover:border-strong md:px-7 md:py-6"
+      className="group block rounded-block border border-border bg-card/40 px-5 py-5 transition-colors hover:border-strong md:px-7 md:py-6"
     >
       <div className="max-w-2xl space-y-2.5">
         {/* 類型與角色排成一行文字：角色很長時自然換行，分隔點跟著前面的類型，不會單獨掛在行尾。 */}

@@ -29,7 +29,10 @@ test("CodeCopyButton announces the result, has a 44px hit area, a visible focus 
   assert.match(source, /className="sr-only"/);
   assert.match(source, /min-h-11 min-w-11/);
   // 焦點框畫在看得見的膠囊上，不畫在 44px 的可點範圍外圈，避免蓋到下面的程式碼區塊。
-  assert.match(source, /group-focus-visible:outline-2 group-focus-visible:outline-offset-2 group-focus-visible:outline-foreground/);
+  assert.match(source, /group-focus-visible:outline-2 group-focus-visible:outline-offset-2 group-focus-visible:outline-terracotta/);
+  // SPEC-004：小圓角，不用膠囊形。
+  assert.match(source, /<span className="rounded-control border border-border/);
+  assert.doesNotMatch(source, /rounded-full/);
   assert.match(source, /text-muted-foreground/);
   assert.doesNotMatch(source, /text-\[|rounded-\[|tracking-\[|#[0-9a-f]{3,6}\b/i);
 });

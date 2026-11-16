@@ -1,7 +1,7 @@
 # Design Tokens
 
 > 用途：公開頁面的樣式 token 清單、各自用在哪、新增畫面時怎麼選。
-> 狀態：2026-11-12 第 2 包完成時的現況；2026-11-15 內容架構 3A 改首頁時拿掉了主標寬度 `max-w-[15em]` 與第一屏兩欄比例兩個寫死數值；同日 3B（SPEC-003）新增程式碼上色色票與表格樣式。定義在 `src/app/globals.css`。
+> 狀態：2026-11-12 第 2 包完成時的現況；2026-11-15 內容架構 3A 改首頁時拿掉了主標寬度 `max-w-[15em]` 與第一屏兩欄比例兩個寫死數值；同日 3B（SPEC-003）新增程式碼上色色票與表格樣式；2026-11-16 視覺改版 3C（SPEC-004）新增赤陶重點色與焦點外框、圓角收小為 6px／8px、標題改用系統字體、拿掉頁首毛玻璃與頁面光暈。定義在 `src/app/globals.css`；設計方向見根目錄 [DESIGN.md](../DESIGN.md)。
 
 ## 新增畫面時的挑選規則
 
@@ -54,20 +54,20 @@
 
 | class | 用在哪 |
 |---|---|
-| `bg-background/78` | 頁首（搭配 `backdrop-blur`） |
-| `bg-background/92` | 浮層：同意橫幅（搭配 `backdrop-blur-xl`）。手機選單用不透明的 `bg-background`：它位在已套用 backdrop-blur 的頁首裡，巢狀模糊不會生效，半透明會讓底下的頁面文字透出來 |
+| `bg-background` | 頁首、同意橫幅（不透明，不用毛玻璃） |
+| `bg-card` | 程式碼區塊（白底） |
 | `bg-card/30` | 文章列表卡片 |
 | `bg-card/40` | 案例卡片 |
-| `bg-muted/25` | 資訊面板：案例資訊框、相關案例、程式碼區塊 |
+| `bg-muted/25` | 資訊面板：相關案例 |
 | `bg-muted/65` | 行內程式碼 |
 
 ## 圓角
 
 | class | 值 | 用在哪 |
 |---|---|---|
-| `rounded-card` | 1.75rem | 網格排列的卡片：案例卡片、相關案例 |
-| `rounded-panel` | 1.5rem | 整列寬的列表項目與面板：文章列表卡片、延伸閱讀、案例資訊框、手機選單、同意橫幅、程式碼區塊、內文圖片 |
-| `rounded-full` | 膠囊 | 按鈕、Menu、標籤 |
+| `rounded-control` | 0.375rem（6px） | 一般元件：按鈕、複製按鈕、標籤 |
+| `rounded-block` | 0.5rem（8px） | 區塊與圖片：案例區塊、案例資訊框、同意橫幅、程式碼區塊、內文圖片 |
+| `rounded-full` | 圓形 | 只用在頭像，不用在按鈕 |
 
 - 行內程式碼維持 `rounded`（0.25rem）。
 
@@ -75,7 +75,7 @@
 
 | class | 值 | 用在哪 |
 |---|---|---|
-| `tracking-heading` | -0.03em | 標題（h1–h3 已預設套用） |
+| `tracking-heading` | -0.015em | 標題（h1–h3 已預設套用） |
 | `tracking-label` | 0.08em | 一般小標籤：首頁標語、文章日期、404、案例類型與角色 |
 | `tracking-caps` | 0.16em | 全大寫或數字的小標籤：卡片日期、Privacy preference |
 
@@ -83,10 +83,10 @@
 
 ## 表格（長文內）
 
-| 位置 | class | 對比（最深的頁面底色 #f4f7f8） |
+| 位置 | class | 對比（頁面底色 #fbfaf7） |
 |---|---|---|
-| 表頭文字 | `prose-th:text-foreground` | 17.42:1 |
-| 內容文字 | `prose-td:text-foreground-soft` | 12.77:1 |
+| 表頭文字 | `prose-th:text-foreground` | 18.07:1 |
+| 內容文字 | `prose-td:text-foreground-soft` | 13.15:1 |
 | 表頭下緣、每列下緣的線 | `prose-thead:border-border`、`prose-tr:border-border` | — |
 
 - 表格沒有底色，直接疊在頁面上。比內容欄寬時，在 `MarkdownContent` 包的 `overflow-x-auto` 容器內左右捲動。
@@ -97,41 +97,50 @@
 
 | 色票 | 值 | 用在哪 | 對比 |
 |---|---|---|---|
-| `--code-keyword` | `#b42318` | 關鍵字、型別、刪除的行 | 6.05:1 |
-| `--code-title` | `#6639ba` | 函式與類別名稱 | 6.76:1 |
-| `--code-constant` | `#0550ae` | 數字、常數、屬性、運算子、Markdown 標題 | 6.99:1 |
-| `--code-string` | `#0a3069` | 字串、正規表示式 | 11.79:1 |
-| `--code-builtin` | `#953800` | 內建函式、符號、清單符號 | 6.80:1 |
-| `--code-comment` | `#57606a` | 註解 | 5.88:1 |
-| `--code-tag` | `#116329` | HTML 標籤名、引用、新增的行 | 6.81:1 |
-| `text-foreground`（未上色的字） | — | 其他程式碼文字 | 17.29:1 |
+| `--code-keyword` | `#b42318` | 關鍵字、型別、刪除的行 | 6.48:1 |
+| `--code-title` | `#6639ba` | 函式與類別名稱 | 7.24:1 |
+| `--code-constant` | `#0550ae` | 數字、常數、屬性、運算子、Markdown 標題 | 7.49:1 |
+| `--code-string` | `#0a3069` | 字串、正規表示式 | 12.63:1 |
+| `--code-builtin` | `#953800` | 內建函式、符號、清單符號 | 7.28:1 |
+| `--code-comment` | `#57606a` | 註解 | 6.30:1 |
+| `--code-tag` | `#116329` | HTML 標籤名、引用、新增的行 | 7.29:1 |
+| `text-foreground`（未上色的字） | — | 其他程式碼文字 | 18.54:1 |
 
-- 對比是和程式碼區塊最深的底色比：區塊底色 `bg-muted/25` 疊在頁面左上角 accent 光暈最深處，換算成 sRGB 是 `#f4f6f6`。一般位置的底色 `#f9f9f5` 對比會再高一點（例如註解 6.05:1）。
-- 換算方式：`globals.css` 的 oklch 值轉成 sRGB，`color-mix(in oklab, …)` 依 oklab 混色，半透明疊色依瀏覽器的 sRGB alpha 合成，再算 WCAG 對比。`src/app/code-highlight-colors.test.ts` 會檢查每個色票與 `#f4f6f6` 的對比 ≥ 4.5:1。
+- 對比是和程式碼區塊底色比：SPEC-004 起區塊底色是不透明的 `bg-card`，換算成 sRGB 是 `#fefdfc`（頁面也不再有光暈，底色不會因位置而變）。色票沒有改；改版後每個色票的對比都比原本高。
+- 這些色票是程式碼內容的一部分，不算在「全站只有一個彩色」的限制內。
+- 換算方式：`globals.css` 的 oklch 值轉成 sRGB，`color-mix(in oklab, …)` 依 oklab 混色，半透明疊色依瀏覽器的 sRGB alpha 合成，再算 WCAG 對比。`src/app/code-highlight-colors.test.ts` 會檢查每個色票與 `#fefdfc` 的對比 ≥ 4.5:1。
 - 新增色票時沿用同一張表的分類，不在 `.hljs-*` 規則裡直接寫色碼。
 - 程式碼區塊內的 `code` 不套行內程式碼的底色、內距與字級（`.prose pre code` 重設）。
 
 ### 程式碼區塊標頭（語言名稱與複製按鈕）
 
-| 位置 | class | 對比（最深的頁面底色 #f4f7f8） |
+| 位置 | class | 對比（頁面底色 #fbfaf7） |
 |---|---|---|
-| 語言名稱 | `text-label tracking-label text-muted-foreground` | 5.32:1 |
-| 複製按鈕文字（複製／已複製／複製失敗） | `text-sm text-muted-foreground`，hover 時 `text-foreground` | 5.32:1 |
+| 語言名稱 | `text-label tracking-label text-muted-foreground` | 5.52:1 |
+| 複製按鈕文字（複製／已複製／複製失敗） | `text-sm text-muted-foreground`，hover 時 `text-foreground` | 5.52:1 |
 | 複製按鈕外框 | `border-border`，hover 時 `border-strong` | — |
-| 焦點框 | `outline-2 outline-offset-2 outline-foreground`（畫在膠囊上） | — |
+| 焦點框 | `outline-2 outline-offset-2 outline-terracotta`（畫在按鈕外觀上） | — |
 
-- 按鈕的可點範圍是 44×44px（`min-h-11 min-w-11`），外觀是裡面較小的 `rounded-full` 膠囊；標頭用 `-my-2` 抵掉多出來的高度。
+- 按鈕的可點範圍是 44×44px（`min-h-11 min-w-11`），外觀是裡面較小的 `rounded-control` 按鈕；標頭用 `-my-2` 抵掉多出來的高度。
 - 標頭在 `<pre>` 上方，不疊在程式碼上；間距寫在 `globals.css` 的 `.prose .code-block`（外層上下 1.5em）與 `.prose .code-block > pre`（上方 0.75em，大於按鈕往下多出的 0.5rem）。
 
 ## 字體
 
 | class | 字體 | 用在哪 |
 |---|---|---|
-| `font-display` | Noto Serif TC 600，由 `src/app/layout.tsx` 的 `next/font` 載入 | 標題 |
-| `font-sans`（預設） | 系統字體：PingFang TC、Microsoft JhengHei 等 | 其他所有文字 |
+| `font-sans`（預設） | 系統字體：PingFang TC、Microsoft JhengHei 等 | 所有文字，包含標題 |
 
-- 只載入 600 字重。`font-display` 用在一般字重的文字時會顯示成 600，所以一般文字（例如同意橫幅的說明句）用內文字體。
-- 中文字依 unicode-range 切成多個小檔，瀏覽器只下載頁面上用到的字；每頁約 6 到 11 個檔、240 到 500 KB。
+- 標題和內文用同一套系統字體，靠字級與字重（`font-semibold`）區分。網站不下載任何網路字體（SPEC-004 拿掉了 Noto Serif TC，首頁少下載約 231 KB、文章頁約 487 KB）。
+- 社群分享圖（`src/app/opengraph-image.tsx`）用 repo 內附的 Noto Serif 拉丁子集，只在產生分享圖時讀取，不影響網頁。
+
+## 重點色與焦點外框
+
+| class | 值 | 用在哪 | 對比 |
+|---|---|---|---|
+| `text-terracotta` 等（`--color-terracotta`） | `#A8452B` | 只用在：類型標籤文字、目前分頁的底線、hover 時標題的底線、案例內頁成果清單左側的線、鍵盤焦點外框 | 頁面底色 5.68:1、卡片底色 5.83:1 |
+| `focus-ring` | 赤陶 2px 外框、離元件 3px | 公開頁所有可互動元件的鍵盤焦點 | — |
+
+- 全站只有這一個彩色；不用在按鈕、底色等大面積元件。主要按鈕是黑底白字（`bg-foreground text-background`）。
 
 ## 陰影
 
