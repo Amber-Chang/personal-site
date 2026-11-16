@@ -17,7 +17,7 @@
 1. 公開內容讀取：`src/app/**/data.ts` 與頁面 loader 先向 `content-runtime` 取資料，再由 repository 從 Supabase 讀取 `published` 內容，最後映射成頁面需要的 view model。
 2. 公開內容關聯：文章可透過 `related_project_id` 關聯單一 project；文章頁與 project 頁會各自補出 related section。
 3. 後台內容寫入：`Server Actions -> action-core -> content service -> Supabase repositories / reorder RPC`，商業規則先在 service 層判斷，再交由 repository 寫入。
-4. 後台身分驗證：admin login 走 Supabase auth callback，server guard 再用 allowlisted email 決定是否可進入 `/admin`。
+4. 後台身分驗證：admin login 走 Supabase auth callback，server guard 再用 allowlisted email 決定是否可進入 `/admin`。access token 過期時，`src/proxy.ts` 在渲染前換發 session 並寫回 cookie（Server Component 渲染時不能寫 cookie）。
 5. 分析追蹤：client 先讀 consent 狀態；只有同意後才 bootstrap PostHog，公開頁面再送出 pageview properties。
 
 ## 外部整合

@@ -120,6 +120,17 @@
 - 相比 7 天 cookie，24 小時更能收斂裝置遺失、共用裝置或忘記登出的風險
 - 這一版尚未提供完整 session revocation、裝置管理與 rotation，因此先採較保守基線
 
+### 6.3.1 Supabase session 換發（2026-11-16）
+
+- access token 約一小時過期。`src/proxy.ts` 在頁面渲染前換發，新的 token 同時交給這次渲染與瀏覽器；只處理帶著 `sb-*-auth-token` cookie 的 GET／HEAD，一般訪客不呼叫 Supabase
+- refresh token 無效（例如已撤銷）時清掉 session cookie，頁面以未登入顯示；`/admin/*` 由既有 guard 轉回 `/admin/login`
+- Server Component 渲染時寫不了 cookie：`readServerAdminAuthState` 只略過 Next 的唯讀 cookie 錯誤，不讓整頁變成錯誤頁；Server Action／Route Handler 照常寫入
+- proxy 不做授權、不轉址；登入、登出、後台寫入、圖片上傳（都是 POST）與 `/auth/*` callback、`/api/cron` 不經過它
+- 上線後檢查：
+  - [ ] admin 登入超過一小時後，重新整理首頁與 `/admin/posts`，頁面正常、仍是登入狀態，回應帶新的 `sb-<ref>-auth-token` cookie
+  - [ ] Supabase Auth 日誌裡，同一個 session 不再每次瀏覽都出現 `grant_type=refresh_token`
+  - [ ] 未登入訪客的頁面回應沒有 `Set-Cookie`
+
 ### 6.4 Admin 發文手動驗證 gate
 
 至少要完整走過一次以下流程：
@@ -356,6 +367,7 @@
 - 若 rate limit 採 app-layer 或 in-memory 方案，跨 instance 一致性有限
 - 目前 readiness 仍只保證單人站主管理情境，不保證協作型營運流程
 - Google OAuth provider / callback 設定若在 preview、production、localhost 之間漂移，容易造成只有部分環境可登入
+- 帶著 Supabase session cookie 的頁面請求，proxy 與 Header 各會呼叫一次 Supabase `/auth/v1/user`（只影響管理員自己的瀏覽）；Supabase 連不上時 proxy 最多等 5 秒就放行，但渲染時讀登入狀態仍可能等 supabase-js 的重試
 - 內文圖片：Supabase 只檢查上傳時宣告的檔案類型，不檢查實際內容；換掉或不再使用的圖片會留在 `content-images` bucket，沒有清理機制
 
 這些限制不是隱性風險，而是目前方案的一部分；只要需求跨過這條線，就不應再用「小補強」處理。

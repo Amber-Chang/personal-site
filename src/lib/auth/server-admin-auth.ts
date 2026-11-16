@@ -8,6 +8,13 @@ type CookieStore = {
   set: (name: string, value: string, options?: Record<string, unknown>) => void;
 };
 
+// Next.js 在 Server Component 渲染時不允許寫 cookie，cookies().set 會丟出這個訊息開頭的錯誤。
+const READONLY_COOKIES_ERROR_PREFIX = "Cookies can only be modified in a Server Action or Route Handler";
+
+export function isReadonlyCookiesError(error: unknown): boolean {
+  return error instanceof Error && error.message.startsWith(READONLY_COOKIES_ERROR_PREFIX);
+}
+
 type ServerSupabaseAuthClient = {
   auth: {
     getUser: () => Promise<{ data: { user: { email?: string | null } | null } }>;
@@ -32,26 +39,26 @@ export async function readServerAdminAuthState(input?: {
       return cookies();
     });
   const cookieStore = await resolvedCookies();
-  const supabase = (input?.createServerSupabaseClient?.({
-      cookies: {
-        getAll: () => cookieStore.getAll(),
-        setAll: (cookieValues) => {
-          for (const cookie of cookieValues) {
-            cookieStore.set(cookie.name, cookie.value, cookie.options);
+  const cookieAdapter = {
+    getAll: () => cookieStore.getAll(),
+    // Supabase 換發或清除 session 時會呼叫 setAll。
+    // Server Action、Route Handler 可以寫 cookie，照常寫入。
+    // Server Component 渲染時（例如每頁的 Header）不能寫，Next 會丟錯；這時略過寫入、仍然回傳登入狀態，
+    // 不讓整頁變成錯誤頁。新的 token 由 src/proxy.ts 在渲染前寫回瀏覽器。其他錯誤照常丟出。
+    setAll: (cookieValues: Array<{ name: string; options?: Record<string, unknown>; value: string }>) => {
+      for (const cookie of cookieValues) {
+        try {
+          cookieStore.set(cookie.name, cookie.value, cookie.options);
+        } catch (error) {
+          if (!isReadonlyCookiesError(error)) {
+            throw error;
           }
-        },
-      },
-    }) ??
-    createServerSupabaseClient({
-      cookies: {
-        getAll: () => cookieStore.getAll(),
-        setAll: (cookieValues) => {
-          for (const cookie of cookieValues) {
-            cookieStore.set(cookie.name, cookie.value, cookie.options);
-          }
-        },
-      },
-    })) as ServerSupabaseAuthClient;
+        }
+      }
+    },
+  };
+  const supabase = (input?.createServerSupabaseClient?.({ cookies: cookieAdapter }) ??
+    createServerSupabaseClient({ cookies: cookieAdapter })) as ServerSupabaseAuthClient;
 
   return getAdminAuthState({
     allowedEmails: env.adminAllowedEmails,
