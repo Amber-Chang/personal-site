@@ -17,10 +17,9 @@
 
 | class | 手機 → md → xl | 行高 | 用在哪 |
 |---|---|---|---|
-| `text-title` | 2.25 → 2.6rem | 1.5 | About、列表頁、404 的頁面大標 |
-| `text-article-title` | 2.35 → 3rem | 1.12 | 文章、案例內頁的大標 |
-| `text-prose-h2` | 1.8 → 2rem | 由 `Prose` 決定 | 長文大標 |
-| `text-prose-h3` | 1.35 → 1.5rem | 由 `Prose` 決定 | 長文小標 |
+| `text-article-title` | 1.6875 → 2.125rem | 1.35 | 單欄頁面的大標：文章、案例內頁、About、404 |
+| `text-prose-h2` | 1.375 → 1.5rem | 1.5 | 長文大標 |
+| `text-prose-h3` | 1.125 → 1.25rem | 1.5 | 長文小標 |
 | `text-card-title` | 1.125rem | 1.55 | 案例區塊、文章項目的標題 |
 | `text-summary` | 0.9375rem | 1.8 | 案例區塊、文章項目的摘要 |
 | `text-identity-name` | 1.4375 → 1.625rem（lg） | 1.3 | 身分區的姓名 |
@@ -28,19 +27,19 @@
 | `text-body` | 1.02 → 1.06rem | 由 `Prose` 決定 | 長文內文 |
 | `text-lead` | 1.05 → 1.15rem | 搭配 `leading-7` | 浮層裡的引言句，例如同意橫幅 |
 | `text-tagline` | 0.8125rem | 1.5 | 身分區姓名下方的職稱 |
-| `text-label` | 0.75rem | 1rem | 小標籤：卡片日期、案例類型與角色、Privacy preference |
+| `text-label` | 0.75rem | 1rem | 小標籤：日期、案例類型、角色與期間、分頁數字、Privacy preference |
 
-- 一般介面小字（說明文字、連結、按鈕、延伸閱讀標題）沿用 Tailwind 內建的 `text-sm`、`text-base`、`text-lg`、`text-xl`。
+- 一般介面小字（說明文字、連結、按鈕、分頁、延伸閱讀標題）沿用 Tailwind 內建的 `text-sm`、`text-base`。
 
 ## 文字深淺（3 階）
 
 | class | 值 | 用在哪 |
 |---|---|---|
 | `text-foreground` | 主要 | 標題、重點文字 |
-| `text-foreground-soft` | foreground 88% | 長文段落、首頁「關於我」短文、手機選單文字、案例「關鍵成果」與案例卡片的第一條成果 |
+| `text-foreground-soft` | foreground 88% | 長文段落、身分區簡介、案例區塊與文章項目的摘要、案例內頁的成果清單 |
 | `text-muted-foreground` | 輔助 | 說明、日期、返回連結、頁尾 |
 
-- 裝飾用的兩個組合：`text-muted-foreground/40`（頁尾分隔符號）、`decoration-muted-foreground/60`（連結底線）。
+- 裝飾用的組合只剩 `decoration-muted-foreground/60`（內文與頁尾 email 連結的底線）。
 
 ## 邊框（2 階）
 
@@ -56,17 +55,17 @@
 | class | 用在哪 |
 |---|---|
 | `bg-background` | 頁首、同意橫幅（不透明，不用毛玻璃） |
-| `bg-card` | 程式碼區塊（白底） |
-| `bg-card/30` | 文章列表卡片 |
-| `bg-card/40` | 案例卡片 |
-| `bg-muted/25` | 資訊面板：相關案例 |
+| `bg-card` | 白底的區塊：案例區塊、案例資訊框、案例成果清單、程式碼區塊 |
+| `bg-foreground` | 主要按鈕（黑底，文字 `text-background`） |
 | `bg-muted/65` | 行內程式碼 |
+
+- 不用漸層、光暈、毛玻璃、半透明底當裝飾（SPEC-004 拿掉了頁首的 `bg-background/78 backdrop-blur` 與同意橫幅的 `bg-background/92 backdrop-blur-xl`）。
 
 ## 圓角
 
 | class | 值 | 用在哪 |
 |---|---|---|
-| `rounded-control` | 0.375rem（6px） | 一般元件：按鈕、複製按鈕、標籤 |
+| `rounded-control` | 0.375rem（6px） | 一般元件：按鈕、複製按鈕、同意橫幅的按鈕、案例成果清單的右側（`rounded-r-control`） |
 | `rounded-block` | 0.5rem（8px） | 區塊與圖片：案例區塊、案例資訊框、同意橫幅、程式碼區塊、內文圖片 |
 | `rounded-full` | 圓形 | 只用在頭像，不用在按鈕 |
 
@@ -77,10 +76,8 @@
 | class | 值 | 用在哪 |
 |---|---|---|
 | `tracking-heading` | -0.015em | 標題（h1–h3 已預設套用） |
-| `tracking-label` | 0.08em | 一般小標籤：首頁標語、文章日期、404、案例類型與角色 |
-| `tracking-caps` | 0.16em | 全大寫或數字的小標籤：卡片日期、Privacy preference |
-
-- 卡片標題維持 Tailwind 內建的 `tracking-tight`（-0.025em）。
+| `tracking-label` | 0.08em | 一般小標籤：職稱、日期、404、案例類型、角色與期間 |
+| `tracking-caps` | 0.16em | 全大寫的小標籤：Privacy preference |
 
 ## 表格（長文內）
 
@@ -147,22 +144,30 @@
 
 - `shadow-overlay`：浮在頁面上的元件，例如同意橫幅。
 
+## 版面寬度
+
+| 位置 | class | 說明 |
+|---|---|---|
+| 全站內容外框 | 根版面 `<main>` 的 `max-w-5xl`（左右 `px-4`／`md:px-6`） | 後台文章與專案編輯頁在 `lg` 以上用 `has-[[data-admin-editor]]` 放寬到 `max-w-7xl` |
+| 首頁、文章列表的兩欄 | `grid gap-9 lg:grid-cols-[18.75rem_minmax(0,1fr)] lg:gap-18` | 左欄身分區 300px、欄距 72px；`lg` 以下單欄。這是唯一保留的版面寫死數值 |
+| 單欄頁面（文章、案例內頁、About、404） | `mx-auto max-w-180` | 最寬 45rem（720px），長文一行約 40 個中文字 |
+
 ## 共用元件
 
 | 元件 | 負責 | 用法 |
 |---|---|---|
-| `Prose` | 長文排版 | 文章、案例內頁用預設 `variant="article"`；About 用 `as="article" variant="page"`，保留較鬆的大標行高 |
+| `Prose` | 長文排版 | 文章、案例內頁用預設 `variant="article"`（桌機內文行高 2.25rem）；About 用 `as="article" variant="page"` |
 | `MarkdownContent` | Markdown 轉成 HTML：表格、刪除線、待辦清單、程式碼上色與標頭（語言名稱、`CodeCopyButton`）、Mermaid 圖表（`MermaidDiagram`）、圖片延後載入；原始 HTML 只顯示成文字 | 放在 `Prose` 裡：`<Prose><MarkdownContent content={…} /></Prose>`。文章內頁、案例內頁、後台預覽共用 |
 | `IdentityColumn` | 首頁與文章列表的左欄身分區：頭像、姓名、職稱、定位句、簡介、兩個按鈕 | 首頁 `ledeAs="h1"`（定位句是 H1）；文章列表 `ledeAs="p"`。`lg` 以上且視窗高度 ≥ 40rem（`tall` variant）時 sticky |
 | `ContentTabs` | 「案例 N／文章 N」分頁，一般連結 | `active` 決定哪個有 `aria-current="page"` 與赤陶底線 |
 | `CaseBlock` | 案例區塊：類型（赤陶）、角色、期間、標題、摘要、第一條成果 | 細外框白底 `rounded-block`，hover 外框 `border-foreground`、標題赤陶底線 |
 | `PostRow` | 文章項目：完整日期、標題、摘要 | 細線分隔，hover 標題赤陶底線 |
 | `primaryButtonClassName`／`secondaryButtonClassName`（`button-styles.ts`） | 公開頁的按鈕樣式 | 主要：黑底白字；次要：細外框。高 44px、`rounded-control`、`focus-ring` |
-| `PageHeader` | 返回連結、頁面大標、副標 | About、Writing & Notes、Projects |
-| `BackLink` | 「← 返回…」連結 | 文章、案例內頁 |
+| `BackLink`（`BackLink.tsx`） | 「← …」返回連結，可點高度 44px | 文章內頁「← 文章」、案例內頁「← 案例」、About「← 首頁」 |
 
 ## 保留的寫死數值
 
 - `prose-code:text-[0.92em]`：行內程式碼相對內文的字級。
+- `lg:grid-cols-[18.75rem_minmax(0,1fr)]`：首頁與文章列表兩欄的欄寬（見「版面寬度」）。
 - `src/components/ui/` 內 shadcn 自帶的數值不改。
 - Mermaid 圖表的最小寬度：原尺寸的 80%、最多 45rem（720px），定義在 `src/lib/markdown/mermaid.ts`（`MERMAID_MIN_SCALE`、`MERMAID_READABLE_MIN_WIDTH_PX`），由 `MermaidDiagram` 以 `--mermaid-svg-min-width` 交給 `globals.css` 的 `.mermaid-diagram > svg`。45rem 是五個節點左右排的流程圖在手機上字約 10.8px 的寬度，也等於平板（768px）的內容欄寬。

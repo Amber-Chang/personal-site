@@ -1,5 +1,7 @@
+// 功能：案例內頁底部的「延伸閱讀」（SPEC-004）：上方一條深色線，每篇是標題加完整日期，細線分隔。沒有關聯文章時不顯示。
+
 import Link from "next/link";
-import { formatYearMonth } from "@/lib/format";
+import { formatFullDate } from "@/lib/format";
 
 type RelatedPost = {
   date: string;
@@ -14,27 +16,24 @@ export function RelatedPostsSection({ relatedPosts }: { relatedPosts: RelatedPos
   }
 
   return (
-    <section className="border-t border-border pt-8">
-      <div className="mb-5 space-y-2">
-        <h2 className="text-base font-medium">延伸閱讀</h2>
-        <p className="text-sm text-muted-foreground">如果你想從文章角度看這個案例，這幾篇可以接著讀。</p>
-      </div>
-
-      <div className="space-y-3">
+    <section aria-labelledby="related-posts-heading" className="mt-14 border-t border-foreground pt-3.5">
+      <h2 className="text-base font-semibold" id="related-posts-heading">
+        延伸閱讀
+      </h2>
+      <ul className="mt-1">
         {relatedPosts.map((post) => (
-          <Link
-            key={post.slug}
-            href={`/blog/${post.slug}`}
-            className="block rounded-block border border-border p-4 transition-colors hover:border-strong"
-          >
-            <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
-              <h3 className="text-base font-medium leading-snug">{post.title}</h3>
-              <span className="shrink-0 text-xs text-muted-foreground">{formatYearMonth(post.date)}</span>
-            </div>
-            <p className="mt-3 text-sm leading-6 text-muted-foreground">{post.description}</p>
-          </Link>
+          <li className="border-b border-border" key={post.slug}>
+            <Link className="group focus-ring block py-3.5" href={`/blog/${post.slug}`}>
+              <span className="block font-semibold underline-offset-4 decoration-2 group-hover:underline decoration-terracotta">
+                {post.title}
+              </span>
+              <span className="mt-0.5 block text-label tracking-label text-muted-foreground">
+                <time dateTime={post.date}>{formatFullDate(post.date)}</time>
+              </span>
+            </Link>
+          </li>
         ))}
-      </div>
+      </ul>
     </section>
   );
 }

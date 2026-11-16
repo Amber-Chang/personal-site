@@ -8,7 +8,7 @@ const baseClassName = [
   "prose prose-neutral max-w-none text-body leading-8",
   "prose-headings:tracking-heading",
   "prose-h2:mt-12 prose-h2:text-prose-h2 prose-h2:font-semibold",
-  "prose-h3:mt-8 prose-h3:text-prose-h3 prose-h3:leading-snug prose-h3:font-semibold",
+  "prose-h3:mt-8 prose-h3:text-prose-h3 prose-h3:font-semibold",
   "prose-p:text-foreground-soft prose-p:leading-8 prose-li:leading-8",
   "prose-blockquote:border-l-border prose-blockquote:text-foreground-soft",
   "prose-strong:text-foreground prose-a:text-foreground prose-a:decoration-muted-foreground/60 prose-a:underline-offset-4 hover:prose-a:text-primary",
@@ -18,12 +18,12 @@ const baseClassName = [
   "prose-img:rounded-block prose-img:border prose-img:border-border",
 ].join(" ");
 
-// 只有 Markdown 長文才加：大標行高較緊、桌機內文行高 2.25rem。
-const articleClassName = "prose-h2:leading-tight md:leading-9";
+// 只有 Markdown 長文才加：桌機內文行高 2.25rem，長文比較好讀。大標行高由 text-prose-h2 token 決定（1.5）。
+const articleClassName = "md:leading-9";
 
 type ProseProps = {
   children: ReactNode;
-  // article：文章、案例內頁的 Markdown 內容。page：手寫的頁面文案（About），保留原本較鬆的大標行高。
+  // article：文章、案例內頁的 Markdown 內容。page：手寫的頁面文案（About），內文行高維持 2rem。
   variant?: "article" | "page";
   // 外層標籤。About 的整段文案本身就是一篇 article。
   as?: "div" | "article";

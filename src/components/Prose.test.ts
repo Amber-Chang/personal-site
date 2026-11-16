@@ -20,10 +20,10 @@ test("Prose only handles styling: shared prose classes built from tokens, no dat
   assert.doesNotMatch(source, /\basync\b/);
 });
 
-test("Prose keeps the article-only tighter heading line height out of the page variant", () => {
+test("Prose keeps the article-only looser desktop line height out of the page variant", () => {
   const source = readSource("src/components/Prose.tsx");
 
-  assert.match(source, /const articleClassName = "prose-h2:leading-tight md:leading-9";/);
+  assert.match(source, /const articleClassName = "md:leading-9";/);
   assert.match(source, /variant === "article" \? `\$\{baseClassName\} \$\{articleClassName\}` : baseClassName/);
 });
 

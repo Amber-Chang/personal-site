@@ -1,4 +1,5 @@
 import { normalizeExcerpt } from "../../lib/content/excerpt.ts";
+import { getProjectTypeLabel } from "../../lib/content/project-type.ts";
 import { mapPublicPostSummary, mapPublicPostTeaser, type PublicPostSummary } from "../../lib/content/public-post.ts";
 import type { BlogPostRecord, ProjectSummary } from "../../lib/content/types.ts";
 
@@ -8,9 +9,11 @@ export type PublicBlogPost = ReturnType<typeof mapPublicPostTeaser> & {
   content: string;
   description: string;
   relatedProject: {
+    role: string | null;
     slug: string;
     summary: string;
     title: string;
+    typeLabel: string | null;
   } | null;
 };
 
@@ -42,11 +45,14 @@ async function getRelatedProject(input: {
 
   const project = await input.service.getPublicProjectById(input.post.relatedProjectId);
 
+  // 文章內頁底部的「相關案例」顯示標題與「類型 · 角色」（SPEC-004）。
   return project
     ? {
+        role: project.role?.trim() || null,
         slug: project.slug,
         summary: project.summary,
         title: project.title,
+        typeLabel: getProjectTypeLabel(project.projectType),
       }
     : null;
 }
