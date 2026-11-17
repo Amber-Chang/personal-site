@@ -131,6 +131,16 @@
   - [ ] Supabase Auth 日誌裡，同一個 session 不再每次瀏覽都出現 `grant_type=refresh_token`
   - [ ] 未登入訪客的頁面回應沒有 `Set-Cookie`
 
+### 6.3.2 頁首管理員入口改為載入後判斷（SPEC-005，2026-11-17）
+
+- 頁首與根版面在伺服器端不再讀登入狀態，公開頁可以預先產生；「後台」「登出」由瀏覽器端元件 `HeaderAdminLinks` 顯示
+- 只有瀏覽器帶著 `sb-*-auth-token` cookie 時才呼叫 `GET /api/admin/session`；一般訪客不送出任何額外請求
+- 端點只接受 GET（其他方法 405），回 `{ isAdmin }` 與 `cache-control: no-store`，不回 email 或其他個資；允許清單仍只在伺服器端判斷，檢查失敗時回 500 `{ isAdmin: false }`
+- 入口只是捷徑：看到入口不代表有權限，`/admin/*` 與後台寫入仍由伺服器端 guard 檢查
+- 上線後檢查：
+  - [ ] 未登入訪客瀏覽公開頁，Network 面板沒有 `/api/admin/session` 請求
+  - [ ] admin 登入後，頁首在載入後出現「後台」「登出」，頁首高度不變；登出後回到 `/admin/login`，入口消失
+
 ### 6.4 Admin 發文手動驗證 gate
 
 至少要完整走過一次以下流程：
@@ -367,7 +377,7 @@
 - 若 rate limit 採 app-layer 或 in-memory 方案，跨 instance 一致性有限
 - 目前 readiness 仍只保證單人站主管理情境，不保證協作型營運流程
 - Google OAuth provider / callback 設定若在 preview、production、localhost 之間漂移，容易造成只有部分環境可登入
-- 帶著 Supabase session cookie 的頁面請求，proxy 與 Header 各會呼叫一次 Supabase `/auth/v1/user`（只影響管理員自己的瀏覽）；Supabase 連不上時 proxy 最多等 5 秒就放行，但渲染時讀登入狀態仍可能等 supabase-js 的重試
+- 帶著 Supabase session cookie 的瀏覽器每次換頁時，proxy 與頁首的 `/api/admin/session` 各會呼叫一次 Supabase `/auth/v1/user`（只影響管理員自己的瀏覽）；Supabase 連不上時 proxy 最多等 5 秒就放行，端點仍可能等 supabase-js 的重試，這段期間頁首只顯示 About
 - 內文圖片：Supabase 只檢查上傳時宣告的檔案類型，不檢查實際內容；換掉或不再使用的圖片會留在 `content-images` bucket，沒有清理機制
 
 這些限制不是隱性風險，而是目前方案的一部分；只要需求跨過這條線，就不應再用「小補強」處理。

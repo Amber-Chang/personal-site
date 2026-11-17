@@ -19,6 +19,7 @@
 
 ## 最近完成
 
+- 進行中：公開頁預先產生與錯誤頁（架構檢視 F2、F3，分支 `codex/static-public-pages`，尚未 push / 合併），規格見 [docs/02-spec/SPEC-005-static-public-pages-and-error-pages.md](./docs/02-spec/SPEC-005-static-public-pages-and-error-pages.md)。已完成：頁首與根版面在伺服器端不再讀 cookie，「後台」「登出」改由瀏覽器端元件在載入後判斷（只有帶著 Supabase 登入 cookie 時才呼叫 `GET /api/admin/session`），`/about` 與 404 因此已是預先產生的靜態頁
 - 已修正架構檢視 F1（2026-11-17，migration `202611170001_restrict_reorder_functions` 已套用到 production）：排序函式 `reorder_blog_posts`／`reorder_projects` 原本開放給 PUBLIC，任何人用公開金鑰都能改網站排序；現在只有 `service_role` 能執行，公開金鑰呼叫回 `permission denied`。同時把 `set_updated_at_timestamp` 的 search_path 固定為空字串（已在交易中驗證 trigger 仍會更新 `updated_at`）
 - 進行中：視覺改版 3C（分支 `codex/visual-redesign`，尚未 push / 合併），方向見 [DESIGN.md](./DESIGN.md)、規格見 [docs/02-spec/SPEC-004-visual-redesign.md](./docs/02-spec/SPEC-004-visual-redesign.md)。已完成：赤陶重點色、6px／8px 圓角、標題改系統字體（不再下載 Noto Serif TC）、拿掉頁首毛玻璃與頁面光暈；首頁與 `/blog` 改為左欄身分區＋右欄「案例／文章」分頁；`/projects` 永久轉址到 `/`，sitemap 不再列出；文章、案例內頁、About、404 改為單欄新樣式，文章日期顯示到日（台北時間）
 - 進行中：修正 admin 登入約一小時後（access token 過期）全站變成錯誤頁的問題（分支 `codex/fix-admin-session-refresh`，尚未 push / 合併）。原因：每頁的 Header 在 Server Component 裡讀登入狀態，Supabase 換發 token 時要寫 cookie，Next 不允許而丟錯。已完成：渲染時略過這個寫入錯誤，頁面照常顯示；新增 `src/proxy.ts` 在渲染前換發 session 並寫回瀏覽器，refresh token 無效時清掉 cookie。上線後需用真的登入確認一小時後仍正常（檢查項目見 `docs/deployment-security-readiness.md` 6.3.1）

@@ -5,6 +5,7 @@
 import { NextResponse, type NextRequest } from "next/server.js";
 
 import type { SupabaseCookieAdapter } from "../infra/supabase/server.ts";
+import { isSupabaseSessionCookieName } from "./session-cookie.ts";
 
 type RequestCookie = { name: string; value: string };
 type CookieToSet = { name: string; options?: Record<string, unknown>; value: string };
@@ -24,9 +25,6 @@ export type SessionRefreshDependencies = {
 
 const DEFAULT_TIMEOUT_MS = 5000;
 
-// Supabase 的登入 session cookie：sb-<專案代號>-auth-token，太長時分成 .0、.1… 多個。不含 PKCE 的 code-verifier。
-const SESSION_COOKIE_PATTERN = /^sb-.+-auth-token(?:\.\d+)?$/;
-
 // 只處理帶著 session cookie 的 GET／HEAD（頁面瀏覽、換頁時的資料請求）。
 // Server Action 與 Route Handler 的 POST（登入、登出、後台寫入、圖片上傳）本來就能自己寫 cookie，維持原本的流程。
 export function shouldRefreshSession(input: { cookies: RequestCookie[]; method: string }): boolean {
@@ -34,7 +32,7 @@ export function shouldRefreshSession(input: { cookies: RequestCookie[]; method: 
     return false;
   }
 
-  return input.cookies.some((cookie) => SESSION_COOKIE_PATTERN.test(cookie.name));
+  return input.cookies.some((cookie) => isSupabaseSessionCookieName(cookie.name));
 }
 
 // 用目前的 cookie 建一個 Supabase client，呼叫 getUser()：access token 過期時它會換發（成功時寫入新的 session，
