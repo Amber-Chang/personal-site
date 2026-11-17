@@ -153,7 +153,7 @@ test("createAdminProjectAction creates a project with public content fields and 
       title: "New project",
     },
   ]);
-  assert.deepEqual(revalidatedPaths, ["/admin/projects", "/admin/projects/created-project"]);
+  assert.deepEqual(revalidatedPaths, ["/admin/projects", "/admin/projects/created-project", "/", "/sitemap.xml"]);
   assert.deepEqual(redirects, ["/admin/projects/created-project"]);
 });
 
@@ -232,7 +232,7 @@ test("updateAdminProjectAction updates an existing project with public content f
       },
     },
   ]);
-  assert.deepEqual(revalidatedPaths, ["/admin/projects", "/admin/projects/project-9"]);
+  assert.deepEqual(revalidatedPaths, ["/admin/projects", "/admin/projects/project-9", "/", "/sitemap.xml"]);
   assert.deepEqual(redirects, ["/admin/projects/project-9"]);
 });
 
@@ -376,7 +376,7 @@ test("reorderAdminProjectsAction sends ids to the service and revalidates admin 
 
   assert.deepEqual(result, { error: null });
   assert.deepEqual(reorderCalls, [["project-3", "project-1", "project-2"]]);
-  assert.deepEqual(revalidatedPaths, ["/admin/projects", "/projects", "/"]);
+  assert.deepEqual(revalidatedPaths, ["/admin/projects", "/", "/sitemap.xml"]);
 });
 
 test("deleteAdminProjectAction revalidates admin and public paths then redirects back to the list", async () => {
@@ -426,7 +426,7 @@ test("deleteAdminProjectAction revalidates admin and public paths then redirects
   await assert.rejects(() => actions.deleteProject("project-2"), /redirect:\/admin\/projects/);
 
   assert.deepEqual(deleteCalls, ["project-2"]);
-  assert.deepEqual(revalidatedPaths, ["/admin/projects", "/projects", "/"]);
+  assert.deepEqual(revalidatedPaths, ["/admin/projects", "/", "/sitemap.xml"]);
   assert.deepEqual(redirects, ["/admin/projects"]);
 });
 

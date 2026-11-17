@@ -18,8 +18,12 @@ type ProjectPageProps = {
   params: Promise<{ slug: string }>;
 };
 
-export const revalidate = 0;
+// 預先產生的頁面（SPEC-005）：後台每次變更內容都會立即標記需要更新；另外每小時自動更新一次，
+// 處理不經過後台的資料變更。更新時 Supabase 連不上，繼續提供上一版。
+export const revalidate = 3600;
 
+// 部署時預先產生所有已上架案例；之後新上架的案例在第一次瀏覽時產生（dynamicParams 維持預設 true），
+// 不存在或未上架的網址由下面的 notFound() 回 404。
 export async function generateStaticParams() {
   const projects = await getPublicBlogContentService().listPublicProjects();
 

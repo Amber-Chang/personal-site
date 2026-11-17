@@ -6,6 +6,7 @@ import {
 import { AdminAuthorizationError } from "../../../lib/auth/guards.ts";
 import { isProjectType } from "../../../lib/content/project-type.ts";
 import type { CreateProjectInput, ProjectType, UpdateProjectInput } from "../../../lib/content/types.ts";
+import { revalidatePublicPages } from "../revalidate-public-pages.ts";
 import type { AdminProjectFormState } from "./action-state.ts";
 
 export { initialAdminProjectFormState } from "./action-state.ts";
@@ -162,6 +163,7 @@ export function createAdminProjectMutationActions(input: {
 
       input.revalidatePath("/admin/projects");
       input.revalidatePath(`/admin/projects/${project.id}`);
+      revalidatePublicPages(input.revalidatePath);
       input.redirectTo(`/admin/projects/${project.id}`);
     },
     async deleteProject(id: string): Promise<AdminProjectFormState> {
@@ -172,8 +174,7 @@ export function createAdminProjectMutationActions(input: {
       }
 
       input.revalidatePath("/admin/projects");
-      input.revalidatePath("/projects");
-      input.revalidatePath("/");
+      revalidatePublicPages(input.revalidatePath);
       input.redirectTo("/admin/projects");
     },
     async reorderProjects(idsInOrder: string[]): Promise<AdminProjectFormState> {
@@ -184,8 +185,7 @@ export function createAdminProjectMutationActions(input: {
       }
 
       input.revalidatePath("/admin/projects");
-      input.revalidatePath("/projects");
-      input.revalidatePath("/");
+      revalidatePublicPages(input.revalidatePath);
 
       return {
         error: null,
@@ -203,6 +203,7 @@ export function createAdminProjectMutationActions(input: {
 
       input.revalidatePath("/admin/projects");
       input.revalidatePath(`/admin/projects/${project.id}`);
+      revalidatePublicPages(input.revalidatePath);
       input.redirectTo(`/admin/projects/${project.id}`);
     },
   };
