@@ -23,6 +23,7 @@
   - 已上架內容不能直接刪除
   - reorder 必須提交完整且不重複的 id 清單
 - 在 repository 層集中 Supabase-specific 查詢、錯誤轉譯與排序 fallback。
+- 排序寫入走資料庫函式 `reorder_blog_posts`／`reorder_projects`（security definer）。只有 `service_role` 能執行（migration `202611170001`）；公開金鑰呼叫會得到 permission denied。新增 security definer 函式時，要一併 `revoke execute ... from public, anon, authenticated`，因為 Postgres 預設把 EXECUTE 給 PUBLIC。
 
 ## 目前資料模型重點
 

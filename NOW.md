@@ -19,6 +19,7 @@
 
 ## 最近完成
 
+- 已修正架構檢視 F1（2026-11-17，migration `202611170001_restrict_reorder_functions` 已套用到 production）：排序函式 `reorder_blog_posts`／`reorder_projects` 原本開放給 PUBLIC，任何人用公開金鑰都能改網站排序；現在只有 `service_role` 能執行，公開金鑰呼叫回 `permission denied`。同時把 `set_updated_at_timestamp` 的 search_path 固定為空字串（已在交易中驗證 trigger 仍會更新 `updated_at`）
 - 進行中：視覺改版 3C（分支 `codex/visual-redesign`，尚未 push / 合併），方向見 [DESIGN.md](./DESIGN.md)、規格見 [docs/02-spec/SPEC-004-visual-redesign.md](./docs/02-spec/SPEC-004-visual-redesign.md)。已完成：赤陶重點色、6px／8px 圓角、標題改系統字體（不再下載 Noto Serif TC）、拿掉頁首毛玻璃與頁面光暈；首頁與 `/blog` 改為左欄身分區＋右欄「案例／文章」分頁；`/projects` 永久轉址到 `/`，sitemap 不再列出；文章、案例內頁、About、404 改為單欄新樣式，文章日期顯示到日（台北時間）
 - 進行中：修正 admin 登入約一小時後（access token 過期）全站變成錯誤頁的問題（分支 `codex/fix-admin-session-refresh`，尚未 push / 合併）。原因：每頁的 Header 在 Server Component 裡讀登入狀態，Supabase 換發 token 時要寫 cookie，Next 不允許而丟錯。已完成：渲染時略過這個寫入錯誤，頁面照常顯示；新增 `src/proxy.ts` 在渲染前換發 session 並寫回瀏覽器，refresh token 無效時清掉 cookie。上線後需用真的登入確認一小時後仍正常（檢查項目見 `docs/deployment-security-readiness.md` 6.3.1）
 - 已完成後台寫作能力 3B 的實作，待 reviewer 與 PM 驗收（分支 `codex/admin-authoring`，尚未 push / 合併），規格見 [docs/02-spec/SPEC-003-admin-authoring.md](./docs/02-spec/SPEC-003-admin-authoring.md)。內容：文章與專案內頁改用共用的 `MarkdownContent`，支援表格、刪除線、待辦清單與伺服器端程式碼上色，圖片延後載入；```` ```mermaid ```` 區塊顯示成圖表（只在有圖表的頁面載入 Mermaid；寬的圖縮到欄寬，手機上保留可讀的最小寬度）；圖片上傳通道 `POST /api/admin/content-images` 與 `content-images` bucket migration（`202611150002`，尚未套用）；文章與專案表單的內容欄位旁可直接上傳圖片並插入游標處，並可切換「預覽」看到與前台相同的輸出；程式碼區塊上方顯示語言名稱與「複製」按鈕；後台內容欄位有 Markdown 工具列與快捷鍵，寬螢幕時內容與預覽左右並排、即時更新，編輯頁在寬螢幕放寬讓並排每邊約 575px（後三項為 PM 追加範圍）
