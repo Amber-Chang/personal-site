@@ -1,8 +1,9 @@
 // 功能：全站 404 頁。取代 Next.js 預設英文頁（預設頁會插入 body 白底樣式，蓋掉站內米白背景），
-// 並提供回站內的入口。不存在的文章、作品網址呼叫 notFound() 時也會顯示這一頁。
+// 並提供回站內的入口。不存在的文章、作品網址呼叫 notFound() 時也會顯示這一頁。單欄（SPEC-004）。
 
 import Link from "next/link";
 import type { Metadata } from "next";
+import { primaryButtonClassName, secondaryButtonClassName } from "@/components/button-styles";
 
 export const metadata: Metadata = {
   title: "找不到這個頁面 — Amber Chang",
@@ -10,35 +11,19 @@ export const metadata: Metadata = {
 
 export default function NotFound() {
   return (
-    <div className="space-y-10 pt-4 md:space-y-12 md:pt-8">
-      <header className="space-y-3">
-        <p className="text-sm tracking-label text-muted-foreground">404</p>
-        <h1 className="font-display text-title font-semibold tracking-heading">
-          找不到這個頁面
-        </h1>
-        <p className="max-w-xl text-base leading-8 text-muted-foreground">
-          網址可能打錯了，或這個頁面已經不存在。可以從下面的入口繼續看看。
-        </p>
-      </header>
+    <div className="mx-auto max-w-180">
+      <p className="text-label tracking-label text-muted-foreground">404</p>
+      <h1 className="mt-2 text-article-title font-semibold tracking-heading">找不到這個頁面</h1>
+      <p className="mt-4 text-base leading-8 text-muted-foreground">
+        網址可能打錯了，或這個頁面已經不存在。可以從下面的入口繼續看看。
+      </p>
 
-      <nav aria-label="站內入口" className="flex flex-wrap gap-3">
-        <Link
-          href="/"
-          className="inline-flex min-h-12 items-center rounded-full bg-foreground px-6 py-3 text-base font-medium text-background transition-colors hover:bg-foreground-soft"
-        >
-          回首頁
+      <nav aria-label="站內入口" className="mt-8 flex flex-wrap gap-2.5">
+        <Link className={primaryButtonClassName} href="/">
+          案例
         </Link>
-        <Link
-          href="/projects"
-          className="inline-flex min-h-12 items-center rounded-full border border-border px-6 py-3 text-base font-medium text-foreground transition-colors hover:border-strong"
-        >
-          Projects
-        </Link>
-        <Link
-          href="/blog"
-          className="inline-flex min-h-12 items-center rounded-full border border-border px-6 py-3 text-base font-medium text-foreground transition-colors hover:border-strong"
-        >
-          Writing &amp; Notes
+        <Link className={secondaryButtonClassName} href="/blog">
+          文章
         </Link>
       </nav>
     </div>

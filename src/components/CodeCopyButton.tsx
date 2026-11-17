@@ -40,12 +40,12 @@ export function CodeCopyButton() {
     <>
       {/* 可點範圍 44×44px；外觀與焦點框都在裡面較小的膠囊上。標頭用負邊距抵掉多出來的高度，不會蓋到程式碼。 */}
       <button
-        className="group -my-2 inline-flex min-h-11 min-w-11 items-center justify-center rounded-full outline-none"
+        className="group -my-2 inline-flex min-h-11 min-w-11 items-center justify-center outline-none"
         onClick={() => void handleCopy()}
         ref={buttonRef}
         type="button"
       >
-        <span className="rounded-full border border-border px-3 py-1 text-sm text-muted-foreground transition-colors group-hover:border-strong group-hover:text-foreground group-focus-visible:outline-2 group-focus-visible:outline-offset-2 group-focus-visible:outline-foreground">
+        <span className="rounded-control border border-border px-3 py-1 text-sm text-muted-foreground transition-colors group-hover:border-strong group-hover:text-foreground group-focus-visible:outline-2 group-focus-visible:outline-offset-2 group-focus-visible:outline-terracotta">
           {CODE_COPY_LABELS[feedback.status]}
         </span>
       </button>

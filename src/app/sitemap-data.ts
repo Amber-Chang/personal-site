@@ -19,7 +19,8 @@ type SitemapContentService<TPost extends SitemapPost, TProject extends SitemapPr
   listPublicProjects: () => Promise<TProject[]>;
 };
 
-export const STATIC_SITEMAP_PATHS = ["/", "/about", "/blog", "/projects"] as const;
+// /projects 已永久轉址到首頁（SPEC-004），不列入；案例內頁另外列出。
+export const STATIC_SITEMAP_PATHS = ["/", "/about", "/blog"] as const;
 
 export const ROBOTS_DISALLOWED_PATHS = ["/admin", "/auth", "/api"];
 

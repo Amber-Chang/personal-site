@@ -7,7 +7,7 @@
 | 正確詞 | 禁用寫法 | 說明（指回正本 doc） |
 |--------|---------|---------------------|
 | `blog_posts` | `posts`（當指資料表時） | Supabase 中儲存文章內容的資料表；公開 `/blog` 與 admin posts 都以它為主來源。參考 [src/lib/infra/repositories/supabase-posts-repository.ts](/Users/amberchang/Documents/New project/src/lib/infra/repositories/supabase-posts-repository.ts:1) |
-| `projects` | `project_posts`, `cases`（當指資料表時） | Supabase 中儲存案例內容的資料表，供公開 `/projects`、首頁 featured projects 與 admin projects 共用。參考 [src/lib/infra/repositories/supabase-projects-repository.ts](/Users/amberchang/Documents/New project/src/lib/infra/repositories/supabase-projects-repository.ts:1) |
+| `projects` | `project_posts`, `cases`（當指資料表時） | Supabase 中儲存案例內容的資料表，供首頁案例清單、案例內頁 `/projects/[slug]` 與 admin projects 共用。參考 [src/lib/infra/repositories/supabase-projects-repository.ts](/Users/amberchang/Documents/New project/src/lib/infra/repositories/supabase-projects-repository.ts:1) |
 | `content_markdown` | `body`, `markdownBody` | 儲存在資料表中的 Markdown 主內容欄位；進入前台前會映射成 domain model 的 `contentMarkdown` / `content`。參考 [src/lib/content/types.ts](/Users/amberchang/Documents/New project/src/lib/content/types.ts:3) |
 | `status` | `visibility`, `isPublished` | 內容狀態欄位，目前只有 `draft` 與 `published` 兩種值。參考 [src/lib/content/types.ts](/Users/amberchang/Documents/New project/src/lib/content/types.ts:1) |
 | `published_at` | `publishDate`, `goLiveAt` | 內容首次上架時間；未上架內容可為 `null`。參考 [src/lib/content/types.ts](/Users/amberchang/Documents/New project/src/lib/content/types.ts:3) |

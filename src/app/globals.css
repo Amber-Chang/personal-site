@@ -4,14 +4,14 @@
 @plugin "@tailwindcss/typography";
 
 @custom-variant dark (&:is(.dark *));
+/* 視窗夠高（40rem 以上）時才成立：首頁與文章列表的左欄身分區只在這時固定在畫面上，矮視窗照常隨頁面捲動，不會被切掉。 */
+@custom-variant tall (@media (min-height: 40rem));
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  /* 內文字體：各平台的系統字體（Mac PingFang TC、Windows 微軟正黑體），不另外載入網路字體。 */
+  /* 內文與標題都用各平台的系統字體（Mac PingFang TC、Windows 微軟正黑體），不另外載入網路字體；標題靠字級與字重區分。 */
   --font-sans: "PingFang TC", "Microsoft JhengHei", "Helvetica Neue", Arial, sans-serif;
-  /* 標題字體：Noto Serif TC 600，由 layout.tsx 的 next/font 載入。直接用 font-display utility。 */
-  --font-display: var(--font-noto-serif-tc), serif;
   --font-mono:
     "JetBrains Mono", "SF Mono", "Roboto Mono", Menlo, Monaco, Consolas, "Liberation Mono",
     "Courier New", monospace;
@@ -47,36 +47,49 @@
 /* 公開頁 design token。用途與挑選方式見 docs/design-tokens.md。 */
 @theme {
   /* 字級：一個 token 對應一個角色。標 RWD 的 token 會在下方 @layer base 依斷點換值，頁面不用再寫 md:/xl:。 */
-  --text-display: 1.875rem; /* 首頁主標（RWD：md 2.25rem、xl 3.25rem） */
-  --text-display--line-height: 1.22;
-  --text-title: 2.25rem; /* 頁面大標：About、列表頁、404（RWD：md 2.6rem） */
-  --text-title--line-height: 1.5;
-  --text-article-title: 2.35rem; /* 文章與案例內頁的大標（RWD：md 3rem） */
-  --text-article-title--line-height: 1.12;
-  --text-heading: 2rem; /* 首頁區塊標題 */
-  --text-heading--line-height: 1.5;
-  --text-prose-h2: 1.8rem; /* 內文大標（RWD：md 2rem）；行高由 Prose 元件決定 */
-  --text-prose-h3: 1.35rem; /* 內文小標（RWD：md 1.5rem）；行高由 Prose 元件決定 */
-  --text-card-title: 1.125rem; /* 卡片標題 */
-  --text-card-title--line-height: calc(1.75 / 1.125);
+  --text-article-title: 1.6875rem; /* 單欄頁面的大標：文章、案例內頁、About、404（RWD：md 2.125rem） */
+  --text-article-title--line-height: 1.35;
+  --text-prose-h2: 1.375rem; /* 內文大標（RWD：md 1.5rem） */
+  --text-prose-h2--line-height: 1.5;
+  --text-prose-h3: 1.125rem; /* 內文小標（RWD：md 1.25rem） */
+  --text-prose-h3--line-height: 1.5;
+  --text-card-title: 1.125rem; /* 案例區塊與文章項目的標題 */
+  --text-card-title--line-height: 1.55;
+  --text-summary: 0.9375rem; /* 案例區塊與文章項目的摘要 */
+  --text-summary--line-height: 1.8;
+  --text-identity-name: 1.4375rem; /* 身分區的姓名（RWD：lg 1.625rem） */
+  --text-identity-name--line-height: 1.3;
+  --text-identity-lede: 1.15625rem; /* 身分區的定位句；首頁的 H1（RWD：lg 1.25rem） */
+  --text-identity-lede--line-height: 1.6;
   --text-body: 1.02rem; /* 長文內文（RWD：md 1.06rem）；行高由 Prose 元件決定 */
   --text-lead: 1.05rem; /* 浮層裡的引言句，例如同意橫幅（RWD：md 1.15rem）；行高另配 leading-7 */
-  --text-tagline: 0.875rem; /* 首頁姓名下方的標語（RWD：md 0.95rem） */
-  --text-tagline--line-height: calc(1.25 / 0.875);
+  --text-tagline: 0.8125rem; /* 身分區姓名下方的職稱 */
+  --text-tagline--line-height: 1.5;
   --text-label: 0.75rem; /* 小標籤：日期、Focus、Privacy preference */
   --text-label--line-height: calc(1 / 0.75);
 
   /* 字距：標題一種，小標籤分一般與全大寫兩種 */
-  --tracking-heading: -0.03em; /* 標題（h1–h3 預設套用） */
+  --tracking-heading: -0.015em; /* 標題（h1–h3 預設套用）；系統字體不需要襯線字那麼緊 */
   --tracking-label: 0.08em; /* 一般小標籤：標語、文章日期、404、Focus */
   --tracking-caps: 0.16em; /* 全大寫或數字的小標籤：卡片日期、Privacy preference */
 
-  /* 圓角 3 種：card、panel，膠囊直接用 rounded-full */
-  --radius-card: 1.75rem; /* 網格排列的內容卡片：案例卡片、相關案例 */
-  --radius-panel: 1.5rem; /* 整列寬的列表項目與資訊面板：文章列表、延伸閱讀、案例資訊框、手機選單、同意橫幅、程式碼區塊、內文圖片 */
+  /* 圓角 2 種（SPEC-004）：一般元件 6px、區塊與圖片 8px。頭像用 rounded-full。 */
+  --radius-control: 0.375rem; /* 一般元件：按鈕、複製按鈕、標籤 */
+  --radius-block: 0.5rem; /* 區塊與圖片：案例區塊、案例資訊框、同意橫幅、程式碼區塊、內文圖片 */
+
+  /* 重點色：赤陶。全站唯一的彩色，只用在類型標籤、目前分頁的底線、hover 時標題的底線、案例成果清單左側的線、鍵盤焦點外框。 */
+  --color-terracotta: #a8452b;
 
   /* 陰影 */
   --shadow-overlay: 0 20px 60px -28px rgba(15, 23, 42, 0.35); /* 浮在頁面上的元件，例如同意橫幅 */
+}
+
+/* 鍵盤焦點外框：赤陶 2px，離元件 3px。公開頁可互動的元件都加上 focus-ring。 */
+@utility focus-ring {
+  &:focus-visible {
+    outline: 2px solid var(--color-terracotta);
+    outline-offset: 3px;
+  }
 }
 
 /* 邊框強調階：hover 時的線條。預設階是 border-border。 */
@@ -137,9 +150,6 @@
   }
   body {
     @apply bg-background text-foreground font-sans antialiased;
-    background-image:
-      radial-gradient(circle at top left, color-mix(in oklab, var(--accent) 42%, transparent) 0, transparent 32rem),
-      linear-gradient(to bottom, color-mix(in oklab, var(--background) 96%, white) 0%, var(--background) 100%);
   }
   ::selection {
     background: color-mix(in oklab, var(--accent) 70%, white);
@@ -156,25 +166,23 @@
   /* RWD 字級：斷點與 Tailwind 的 md（48rem）、xl（80rem）一致。 */
   @media (width >= 48rem) {
     :root {
-      --text-display: 2.25rem;
-      --text-title: 2.6rem;
-      --text-article-title: 3rem;
-      --text-prose-h2: 2rem;
-      --text-prose-h3: 1.5rem;
+      --text-article-title: 2.125rem;
+      --text-prose-h2: 1.5rem;
+      --text-prose-h3: 1.25rem;
       --text-body: 1.06rem;
       --text-lead: 1.15rem;
-      --text-tagline: 0.95rem;
     }
   }
-  @media (width >= 80rem) {
+  @media (width >= 64rem) {
     :root {
-      --text-display: 3.25rem;
+      --text-identity-name: 1.625rem;
+      --text-identity-lede: 1.25rem;
     }
   }
 }
 
 /* 程式碼上色（SPEC-003）：文章與案例內頁的程式碼區塊在伺服器端用 rehype-highlight 標上 hljs-* class，
-   這裡決定顏色。每種顏色與程式碼區塊最深的底色（左上角 accent 光暈處 #f4f6f6）對比都 ≥ 5.8:1，
+   這裡決定顏色。每種顏色與程式碼區塊底色（bg-card，#fefdfc）對比都 ≥ 6.3:1，
    量測方式與數值見 docs/design-tokens.md。顏色只透過下面的 --code-* 色票使用。 */
 :root {
   --code-keyword: #b42318; /* 關鍵字、型別：紅 */

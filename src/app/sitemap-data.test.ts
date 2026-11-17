@@ -45,6 +45,7 @@ async function loadModule<TModule>(pathName: string, label: string): Promise<TMo
 
 const loadSitemapData = () => loadModule<SitemapDataModule>("./sitemap-data.ts", "sitemap data");
 
+// SPEC-004：/projects 永久轉址到首頁，不再列在 sitemap；案例內頁照常列出。
 test("buildSitemapEntries lists static pages, published posts and projects as absolute URLs", async () => {
   const { buildSitemapEntries } = await loadSitemapData();
 
@@ -60,7 +61,6 @@ test("buildSitemapEntries lists static pages, published posts and projects as ab
       "https://amber.test/",
       "https://amber.test/about",
       "https://amber.test/blog",
-      "https://amber.test/projects",
       "https://amber.test/blog/between-builder-and-pm",
       "https://amber.test/projects/ai-builder-workflow",
     ],

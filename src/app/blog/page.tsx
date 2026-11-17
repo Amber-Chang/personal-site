@@ -1,10 +1,13 @@
 // [AI-ASSISTED] Generated with Codex, 2026-02-19
-// 功能：文章列表頁，顯示所有已發布文章。
+// 功能：文章列表＝文章分頁（SPEC-004）。寬螢幕兩欄：左欄身分區，右欄是分頁與全部已上架文章。
+// 這頁的 H1 只給螢幕閱讀器；身分區的定位句在這頁不是 H1。資料與數量在 data.ts。
 
+import Link from "next/link";
 import type { Metadata } from "next";
-import { PageHeader } from "@/components/PageHeader";
+import { ContentTabs } from "@/components/ContentTabs";
+import { IdentityColumn } from "@/components/IdentityColumn";
 import { PostHogPageView } from "@/components/PostHogPageView";
-import { PostCard } from "@/components/PostCard";
+import { PostRow } from "@/components/PostRow";
 import { createPageViewProperties } from "@/lib/analytics/pageview";
 import { sharedOpenGraph } from "../shared-metadata";
 import { getPublicBlogContentService } from "./blog-context";
@@ -23,25 +26,37 @@ export const metadata: Metadata = {
 export const revalidate = 0;
 
 export default async function BlogPage() {
-  const { posts } = await loadBlogIndexPageData({
+  const { counts, posts } = await loadBlogIndexPageData({
     service: getPublicBlogContentService(),
   });
 
   return (
-    <div className="space-y-8 md:space-y-10">
+    <div className="grid gap-9 lg:grid-cols-[18.75rem_minmax(0,1fr)] lg:gap-18">
       <PostHogPageView
         properties={createPageViewProperties({
           contentType: "blog_index",
           sourceTemplate: "blog_index",
         })}
       />
-      <PageHeader backHref="/" backLabel="返回首頁" title="Writing & Notes" description="工作裡的思考，也一些生活裡的觀察。" />
-      <div className="space-y-4 md:space-y-5">
+      <h1 className="sr-only">文章</h1>
+      <IdentityColumn ledeAs="p" />
+      <div>
+        <ContentTabs active="posts" counts={counts} />
         {posts.length > 0 ? (
-          posts.map((post) => <PostCard key={post.slug} post={post} headingLevel="h2" />)
+          <div>
+            {posts.map((post) => (
+              <PostRow key={post.slug} post={post} />
+            ))}
+          </div>
         ) : (
-          <p className="text-sm text-muted-foreground">目前還沒有文章。</p>
+          <p className="mt-6 text-sm text-muted-foreground">目前還沒有公開的文章。</p>
         )}
+        <Link
+          className="focus-ring mt-6 inline-flex min-h-11 items-center text-sm text-muted-foreground transition-colors hover:text-foreground"
+          href="/"
+        >
+          ← 回到案例
+        </Link>
       </div>
     </div>
   );

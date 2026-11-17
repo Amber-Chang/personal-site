@@ -1,15 +1,15 @@
 // [AI-ASSISTED] Generated with Codex, 2026-02-19
-// 功能：單篇文章頁，依 slug 讀取已發佈文章。
+// 功能：單篇文章頁，依 slug 讀取已發佈文章。單欄（SPEC-004）：返回「文章」、標題、完整日期、內文，相關案例放在最後。
 
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { MarkdownContent } from "@/components/MarkdownContent";
-import { BackLink } from "@/components/PageHeader";
+import { BackLink } from "@/components/BackLink";
 import { PostHogPageView } from "@/components/PostHogPageView";
 import { Prose } from "@/components/Prose";
 import { RelatedProjectSection } from "@/components/RelatedProjectSection";
 import { createPageViewProperties } from "@/lib/analytics/pageview";
-import { formatYearMonth } from "@/lib/format";
+import { formatFullDate } from "@/lib/format";
 import { sharedOpenGraph } from "../../shared-metadata";
 import { getPublicBlogContentService } from "../blog-context";
 import { loadBlogPostPageData } from "../data";
@@ -56,7 +56,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
   }
 
   return (
-    <article className="space-y-8 md:space-y-10">
+    <article className="mx-auto max-w-180">
       <PostHogPageView
         properties={createPageViewProperties({
           contentSlug: post.slug,
@@ -67,19 +67,21 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
           tags: post.tags,
         })}
       />
-      <BackLink href="/blog" label="返回文章列表" />
-      <header className="border-b border-border pb-6 md:pb-8">
-        <h1 className="font-display text-article-title font-semibold tracking-heading">
-          {post.title}
-        </h1>
-        <p className="mt-4 text-sm tracking-label text-muted-foreground">{formatYearMonth(post.date)}</p>
-      </header>
+      <BackLink href="/blog" label="文章" />
+      <h1 className="mt-3.5 text-article-title font-semibold tracking-heading">
+        {post.title}
+      </h1>
+      <p className="mt-4.5 text-label tracking-label text-muted-foreground">
+        <time dateTime={post.date}>{formatFullDate(post.date)}</time>
+      </p>
+
+      <div className="mt-9">
+        <Prose>
+          <MarkdownContent content={post.content} />
+        </Prose>
+      </div>
 
       <RelatedProjectSection relatedProject={post.relatedProject} />
-
-      <Prose>
-        <MarkdownContent content={post.content} />
-      </Prose>
     </article>
   );
 }

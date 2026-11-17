@@ -2,21 +2,11 @@
 // 功能：全站根版面，統一注入 Header、Footer 與基礎 metadata。
 
 import type { Metadata } from "next";
-import { Noto_Serif_TC } from "next/font/google";
 import { AnalyticsConsentBanner } from "@/components/AnalyticsConsentBanner";
 import { Footer } from "@/components/Footer";
 import { Header } from "@/components/Header";
 import { readSiteUrl } from "@/lib/infra/supabase/env";
 import "./globals.css";
-
-// 標題字體（PM 決策 D2）：只載 Noto Serif TC 600 字重，build 時下載並由本站自行提供。
-// 中文字依 unicode-range 切成多個小檔，瀏覽器只下載頁面上實際用到的字；預先載入只針對拉丁字母子集。
-const notoSerifTC = Noto_Serif_TC({
-  weight: "600",
-  subsets: ["latin"],
-  display: "swap",
-  variable: "--font-noto-serif-tc",
-});
 
 // 社群分享圖、sitemap 等絕對網址的基準。缺少站點網址時交給 Next.js 預設值，不讓 build 失敗。
 const siteUrl = readSiteUrl();
@@ -38,7 +28,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="zh-Hant" className={notoSerifTC.variable}>
+    <html lang="zh-Hant">
       <body className="flex min-h-screen flex-col antialiased">
         <Header />
         {/* 內容外框 max-w-5xl；後台文章與專案編輯頁（含 data-admin-editor）在 lg 以上放寬到 max-w-7xl，讓 Markdown 編輯區與預覽並排。 */}

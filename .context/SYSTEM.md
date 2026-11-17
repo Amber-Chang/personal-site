@@ -6,7 +6,7 @@
 
 ## 主要模組
 
-- `public-content`：公開首頁、`/about`、`/blog`、`/projects` 與內容內頁，負責呈現已發佈內容與品牌敘事。
+- `public-content`：公開首頁（案例分頁）、`/blog`（文章分頁）、`/about` 與內容內頁，負責呈現已發佈內容與品牌敘事。`/projects` 已永久轉址到首頁（SPEC-004）。
 - `content-runtime`：集中 `blog posts` 與 `projects` 的型別、service 規則、repository 介面與 Supabase 實作。
 - `admin-content`：`/admin/posts` 與 `/admin/projects` 的建立、編輯、排序、發佈、下架與刪除流程。
 - `admin-auth`：Supabase OAuth callback、allowlisted admin access、登出、trusted origin 與登入節流保護。

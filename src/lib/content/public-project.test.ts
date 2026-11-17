@@ -4,11 +4,9 @@ import test from "node:test";
 import type { ProjectSummary } from "./types.ts";
 
 type PublicProjectModule = {
-  mapPublicProjectCard: (
-    project: ProjectSummary,
-    options?: { highlights?: boolean },
-  ) => {
+  mapPublicProjectCard: (project: ProjectSummary) => {
     firstOutcome: string | null;
+    period: string | null;
     role: string | null;
     slug: string;
     summary: string;
@@ -41,24 +39,12 @@ async function loadPublicProjectModule(): Promise<PublicProjectModule> {
   return loadedModule as PublicProjectModule;
 }
 
-test("mapPublicProjectCard gives list cards the type label, title and summary only", async () => {
+test("mapPublicProjectCard gives the case block its type, role, period, title, summary and first outcome", async () => {
   const { mapPublicProjectCard } = await loadPublicProjectModule();
 
-  assert.deepEqual(mapPublicProjectCard(createProject({ projectType: "research" })), {
-    firstOutcome: null,
-    role: null,
-    slug: "ai-writing-review-product",
-    summary: "把教師真實教學場景轉成 AI 工作流。",
-    title: "AI 寫作批改產品",
-    typeLabel: "研究",
-  });
-});
-
-test("mapPublicProjectCard adds the role and the first outcome when highlights are requested", async () => {
-  const { mapPublicProjectCard } = await loadPublicProjectModule();
-
-  assert.deepEqual(mapPublicProjectCard(createProject(), { highlights: true }), {
+  assert.deepEqual(mapPublicProjectCard(createProject()), {
     firstOutcome: "上線後月均使用量提升 2000%",
+    period: "2024 - 2025",
     role: "Product Planner",
     slug: "ai-writing-review-product",
     summary: "把教師真實教學場景轉成 AI 工作流。",
@@ -67,13 +53,16 @@ test("mapPublicProjectCard adds the role and the first outcome when highlights a
   });
 });
 
-test("mapPublicProjectCard leaves out a blank role, missing outcomes and an unknown type", async () => {
+test("mapPublicProjectCard leaves out a blank role or period, missing outcomes and an unknown type", async () => {
   const { mapPublicProjectCard } = await loadPublicProjectModule();
 
-  const card = mapPublicProjectCard(createProject({ outcomes: ["   "], projectType: null, role: "  " }), { highlights: true });
+  const card = mapPublicProjectCard(createProject({ outcomes: ["   "], period: "  ", projectType: null, role: "  " }));
 
   assert.equal(card.typeLabel, null);
   assert.equal(card.role, null);
+  assert.equal(card.period, null);
   assert.equal(card.firstOutcome, null);
-  assert.equal(mapPublicProjectCard(createProject({ outcomes: [] }), { highlights: true }).firstOutcome, null);
+  assert.equal(mapPublicProjectCard(createProject({ outcomes: [] })).firstOutcome, null);
+  // 期間維持後台填寫的文字，不轉換。
+  assert.equal(mapPublicProjectCard(createProject({ period: "2026.01-" })).period, "2026.01-");
 });
