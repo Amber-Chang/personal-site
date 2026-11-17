@@ -129,7 +129,7 @@ test("createAdminPostAction creates a draft and redirects to the edit page", asy
       relatedProjectId: null,
     },
   ]);
-  assert.deepEqual(revalidatedPaths, ["/admin/posts", "/admin/posts/created-post"]);
+  assert.deepEqual(revalidatedPaths, ["/admin/posts", "/admin/posts/created-post", "/", "/sitemap.xml"]);
   assert.deepEqual(redirects, ["/admin/posts/created-post"]);
 });
 
@@ -200,7 +200,7 @@ test("updateAdminPostAction updates an existing post and redirects back to the e
       },
     },
   ]);
-  assert.deepEqual(revalidatedPaths, ["/admin/posts", "/admin/posts/post-9"]);
+  assert.deepEqual(revalidatedPaths, ["/admin/posts", "/admin/posts/post-9", "/", "/sitemap.xml"]);
   assert.deepEqual(redirects, ["/admin/posts/post-9"]);
 });
 
@@ -427,9 +427,8 @@ test("reorderAdminPostsAction sends ids to the service and revalidates admin and
   assert.deepEqual(reorderCalls, [["post-3", "post-1", "post-2"]]);
   assert.deepEqual(revalidatedPaths, [
     { path: "/admin/posts", type: undefined },
-    { path: "/blog", type: undefined },
-    { path: "/", type: undefined },
-    { path: "/projects/[slug]", type: "page" },
+    { path: "/", type: "layout" },
+    { path: "/sitemap.xml", type: undefined },
   ]);
 });
 
@@ -480,7 +479,7 @@ test("deleteAdminPostAction revalidates admin and public paths then redirects ba
   await assert.rejects(() => actions.deletePost("post-2"), /redirect:\/admin\/posts/);
 
   assert.deepEqual(deleteCalls, ["post-2"]);
-  assert.deepEqual(revalidatedPaths, ["/admin/posts", "/blog", "/"]);
+  assert.deepEqual(revalidatedPaths, ["/admin/posts", "/", "/sitemap.xml"]);
   assert.deepEqual(redirects, ["/admin/posts"]);
 });
 

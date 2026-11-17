@@ -103,7 +103,9 @@ test("Header keeps only About plus the admin links, with no Menu button", () => 
   assert.doesNotMatch(source, /href="\/projects"|href="\/blog"/);
   assert.doesNotMatch(source, /<details|<summary|Menu/);
   assert.doesNotMatch(source, /backdrop-blur|rounded-full/);
-  assert.match(source, /showAdminAffordance \? \(/);
+  // 「後台」「登出」由瀏覽器端元件在確認是管理員後才顯示（SPEC-005）。
+  assert.match(source, /<HeaderAdminLinks \/>/);
+  assert.doesNotMatch(readSource("src/components/HeaderAdminLinks.tsx"), /<details|<summary|Menu|backdrop-blur|rounded-full/);
 });
 
 test("Footer keeps the name and email without repeating the header navigation", () => {

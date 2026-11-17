@@ -5,6 +5,7 @@ import {
 } from "../../../lib/content/service.ts";
 import { AdminAuthorizationError } from "../../../lib/auth/guards.ts";
 import type { CreateBlogPostInput, UpdateBlogPostInput } from "../../../lib/content/types.ts";
+import { revalidatePublicPages } from "../revalidate-public-pages.ts";
 import type { AdminPostFormState } from "./action-state.ts";
 
 export { initialAdminPostFormState } from "./action-state.ts";
@@ -129,6 +130,7 @@ export function createAdminPostMutationActions(input: {
 
       input.revalidatePath("/admin/posts");
       input.revalidatePath(`/admin/posts/${post.id}`);
+      revalidatePublicPages(input.revalidatePath);
       input.redirectTo(`/admin/posts/${post.id}`);
     },
     async deletePost(id: string): Promise<AdminPostFormState> {
@@ -139,8 +141,7 @@ export function createAdminPostMutationActions(input: {
       }
 
       input.revalidatePath("/admin/posts");
-      input.revalidatePath("/blog");
-      input.revalidatePath("/");
+      revalidatePublicPages(input.revalidatePath);
       input.redirectTo("/admin/posts");
     },
     async reorderPosts(idsInOrder: string[]): Promise<AdminPostFormState> {
@@ -151,9 +152,7 @@ export function createAdminPostMutationActions(input: {
       }
 
       input.revalidatePath("/admin/posts");
-      input.revalidatePath("/blog");
-      input.revalidatePath("/");
-      input.revalidatePath("/projects/[slug]", "page");
+      revalidatePublicPages(input.revalidatePath);
 
       return {
         error: null,
@@ -171,6 +170,7 @@ export function createAdminPostMutationActions(input: {
 
       input.revalidatePath("/admin/posts");
       input.revalidatePath(`/admin/posts/${post.id}`);
+      revalidatePublicPages(input.revalidatePath);
       input.redirectTo(`/admin/posts/${post.id}`);
     },
   };

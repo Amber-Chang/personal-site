@@ -23,7 +23,9 @@ export const metadata: Metadata = {
   },
 };
 
-export const revalidate = 0;
+// 預先產生的頁面（SPEC-005）：後台每次變更內容都會立即標記需要更新；另外每小時自動更新一次，
+// 處理不經過後台的資料變更。更新時 Supabase 連不上，繼續提供上一版。
+export const revalidate = 3600;
 
 export default async function BlogPage() {
   const { counts, posts } = await loadBlogIndexPageData({

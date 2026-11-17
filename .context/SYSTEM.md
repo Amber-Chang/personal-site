@@ -14,10 +14,10 @@
 
 ## 資料流
 
-1. 公開內容讀取：`src/app/**/data.ts` 與頁面 loader 先向 `content-runtime` 取資料，再由 repository 從 Supabase 讀取 `published` 內容，最後映射成頁面需要的 view model。
+1. 公開內容讀取：`src/app/**/data.ts` 與頁面 loader 先向 `content-runtime` 取資料，再由 repository 從 Supabase 讀取 `published` 內容，最後映射成頁面需要的 view model。公開頁是預先產生的頁面（SPEC-005）：只有部署、後台變更後的下一次瀏覽、每小時的自動更新時才查 Supabase，讀者瀏覽時直接拿保存的頁面；背景更新失敗時繼續提供上一版。
 2. 公開內容關聯：文章可透過 `related_project_id` 關聯單一 project；文章頁與 project 頁會各自補出 related section。
-3. 後台內容寫入：`Server Actions -> action-core -> content service -> Supabase repositories / reorder RPC`，商業規則先在 service 層判斷，再交由 repository 寫入。
-4. 後台身分驗證：admin login 走 Supabase auth callback，server guard 再用 allowlisted email 決定是否可進入 `/admin`。access token 過期時，`src/proxy.ts` 在渲染前換發 session 並寫回 cookie（Server Component 渲染時不能寫 cookie）。
+3. 後台內容寫入：`Server Actions -> action-core -> content service -> Supabase repositories / reorder RPC`，商業規則先在 service 層判斷，再交由 repository 寫入。寫入成功後 `revalidatePublicPages` 讓全站公開頁與 `sitemap.xml` 標記為需要更新。
+4. 後台身分驗證：admin login 走 Supabase auth callback，server guard 再用 allowlisted email 決定是否可進入 `/admin`。access token 過期時，`src/proxy.ts` 在渲染前換發 session 並寫回 cookie（Server Component 渲染時不能寫 cookie）。頁首的「後台」「登出」不在伺服器端判斷：瀏覽器帶著 Supabase session cookie 時才呼叫 `GET /api/admin/session`。
 5. 分析追蹤：client 先讀 consent 狀態；只有同意後才 bootstrap PostHog，公開頁面再送出 pageview properties。
 
 ## 外部整合
