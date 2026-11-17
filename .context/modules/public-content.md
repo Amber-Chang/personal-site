@@ -33,6 +33,9 @@
 - ```` ```mermaid ```` 區塊交給 `MermaidDiagram`（client component）：掛上頁面後才動態載入 `mermaid`，沒有 mermaid 區塊的頁面不會下載它。設定為 `securityLevel: "strict"`、純 SVG 文字標籤（`htmlLabels: false`，並鎖進 `secure` 清單），輸出前拿掉 `<a>` 連結；載入前、沒有 JavaScript 或語法錯誤時顯示原始碼，錯誤時加上「這張圖表的語法有誤，無法顯示。」。圖表寬度沿用 Mermaid 預設（寬度 100%、不超過原尺寸），比內容欄寬時縮到欄寬；另設最小寬度＝原尺寸的 80%、最多 45rem（`MERMAID_READABLE_MIN_WIDTH_PX`、`MERMAID_MIN_SCALE`），欄寬不夠時在自己的容器內捲動。
 - blog post 詳頁會補出 `related_project_id` 指向的 project；關聯的 project 下架或不存在時不顯示相關案例區塊。project 詳頁則會反查關聯文章。
 
+- 錯誤頁（SPEC-005，文案經 PM 確認）：`src/app/error.tsx`（一般錯誤頁，顯示在頁首與頁尾之間）與 `src/app/global-error.tsx`（根版面也出錯時使用，自帶 `<html>`、`<body>` 並自己載入 `globals.css`）共用 `src/components/ErrorPageContent.tsx`。不顯示錯誤訊息；「重新整理」先 `router.refresh()` 再 `reset()`，「回首頁」連到 `/`；email 是 mailto 連結，點一下會選取整個地址。
+- 錯誤頁出現的情況：動態頁（後台）在伺服器端出錯、瀏覽器端元件出錯、根版面出錯。預先產生的公開頁在「產生」時出錯（從沒產生過的網址、或後台變更後還沒重新產生的頁面，剛好遇到 Supabase 斷線），Next.js 16.1.6 會刻意讓這次產生失敗、不保存錯誤畫面；本機 `next start` 這時回純文字「Internal Server Error」（HTTP 500），不是這兩個錯誤頁。正式站（Vercel）的表現要上線後確認。錯誤頁的內容在瀏覽器載入 JavaScript 後才出現。
+
 ## 邊界
 
 - 只處理公開頁面需要的 view model 與排版，不承擔複雜商業規則。
